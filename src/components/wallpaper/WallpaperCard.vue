@@ -1,7 +1,8 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { gsap } from 'gsap'
+import { computed, onMounted, ref } from 'vue'
 import { IMAGE_PROXY } from '@/utils/constants'
-import { formatFileSize, formatRelativeTime } from '@/utils/format'
+import { formatFileSize } from '@/utils/format'
 
 const props = defineProps({
   wallpaper: {
@@ -16,41 +17,46 @@ const props = defineProps({
 
 const emit = defineEmits(['click'])
 
+const cardRef = ref(null)
 const imageLoaded = ref(false)
 const imageError = ref(false)
 const retryCount = ref(0)
-const maxRetries = 1 // 最多重试1次（使用代理服务）
+const maxRetries = 1
 
-// 直接使用 JSON 中的 thumbnailUrl（已正确编码），如果加载失败则使用代理服务
+// 直接使用 JSON 中的 thumbnailUrl，如果加载失败则使用代理服务
 const thumbnailUrl = computed(() => {
   if (retryCount.value > 0) {
-    // Fallback: 使用 wsrv.nl 代理服务
     return `${IMAGE_PROXY.BASE_URL}?url=${encodeURIComponent(props.wallpaper.url)}&w=${IMAGE_PROXY.THUMB_WIDTH}&q=${IMAGE_PROXY.THUMB_QUALITY}&output=${IMAGE_PROXY.FORMAT}`
   }
-  // 优先使用预生成的缩略图
   return props.wallpaper.thumbnailUrl || props.wallpaper.url
 })
 
-// 使用新的数据结构
-const quality = computed(() => props.wallpaper.quality || '高清')
-const resolution = computed(() => props.wallpaper.resolution || { label: '1080P', type: 'primary' })
 const formattedSize = computed(() => formatFileSize(props.wallpaper.size))
-const formattedTime = computed(() => formatRelativeTime(props.wallpaper.createdAt))
-
-// 质量标签样式
-const qualityClass = computed(() => {
-  switch (quality.value) {
-    case '超清': return 'tag--warning'
-    case '4K': return 'tag--success'
-    case '高清': return 'tag--primary'
-    default: return 'tag--secondary'
-  }
+const fileFormat = computed(() => {
+  const ext = props.wallpaper.filename.split('.').pop()?.toUpperCase() || ''
+  return ext
 })
 
-// 分辨率标签样式
-const resolutionClass = computed(() => {
-  const type = resolution.value.type || 'dark'
-  return `tag--${type}`
+// GSAP 入场动画
+onMounted(() => {
+  if (cardRef.value) {
+    gsap.fromTo(
+      cardRef.value,
+      {
+        opacity: 0,
+        y: 40,
+        scale: 0.95,
+      },
+      {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.6,
+        delay: props.index * 0.05,
+        ease: 'power3.out',
+      },
+    )
+  }
 })
 
 function handleImageLoad() {
@@ -60,12 +66,10 @@ function handleImageLoad() {
 
 function handleImageError() {
   if (retryCount.value < maxRetries) {
-    // 重试：使用代理服务
     retryCount.value++
     imageLoaded.value = false
   }
   else {
-    // 重试次数用尽，显示错误状态
     imageError.value = true
     imageLoaded.value = true
   }
@@ -75,18 +79,67 @@ function handleClick() {
   emit('click', props.wallpaper)
 }
 
-// 动画延迟（错开入场效果）
-const animationDelay = computed(() => {
-  const delay = (props.index % 12) * 60
-  return `${delay}ms`
-})
+// 悬停动画
+function handleMouseEnter(e) {
+  const card = e.currentTarget
+  const overlay = card.querySelector('.card-overlay')
+  const img = card.querySelector('.card-image img')
+
+  gsap.to(card, {
+    y: -10,
+    boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+    duration: 0.3,
+    ease: 'power2.out',
+  })
+
+  gsap.to(overlay, {
+    opacity: 1,
+    duration: 0.3,
+  })
+
+  if (img) {
+    gsap.to(img, {
+      scale: 1.1,
+      duration: 0.4,
+      ease: 'power2.out',
+    })
+  }
+}
+
+function handleMouseLeave(e) {
+  const card = e.currentTarget
+  const overlay = card.querySelector('.card-overlay')
+  const img = card.querySelector('.card-image img')
+
+  gsap.to(card, {
+    y: 0,
+    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+    duration: 0.3,
+    ease: 'power2.out',
+  })
+
+  gsap.to(overlay, {
+    opacity: 0,
+    duration: 0.3,
+  })
+
+  if (img) {
+    gsap.to(img, {
+      scale: 1,
+      duration: 0.4,
+      ease: 'power2.out',
+    })
+  }
+}
 </script>
 
 <template>
   <div
+    ref="cardRef"
     class="wallpaper-card"
-    :style="{ '--delay': animationDelay }"
     @click="handleClick"
+    @mouseenter="handleMouseEnter"
+    @mouseleave="handleMouseLeave"
   >
     <!-- Image Container -->
     <div class="card-image">
@@ -104,7 +157,7 @@ const animationDelay = computed(() => {
         <span>加载失败</span>
       </div>
 
-      <!-- Image with fade-in effect -->
+      <!-- Image -->
       <img
         v-show="imageLoaded && !imageError"
         :src="thumbnailUrl"
@@ -128,14 +181,6 @@ const animationDelay = computed(() => {
           <span class="overlay-text">查看大图</span>
         </div>
       </div>
-
-      <!-- Tags -->
-      <div class="card-tags">
-        <span class="tag" :class="qualityClass">
-          {{ quality }}
-        </span>
-        <span class="tag" :class="resolutionClass">{{ resolution.label }}</span>
-      </div>
     </div>
 
     <!-- Card Info -->
@@ -150,12 +195,8 @@ const animationDelay = computed(() => {
           </svg>
           {{ formattedSize }}
         </span>
-        <span class="meta-item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 6v6l4 2" />
-          </svg>
-          {{ formattedTime }}
+        <span class="meta-item meta-format">
+          {{ fileFormat }}
         </span>
       </div>
     </div>
@@ -169,31 +210,9 @@ const animationDelay = computed(() => {
   border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: pointer;
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   opacity: 0;
-  transform: translateY(20px);
-  animation: cardEnter 0.5s ease forwards;
-  animation-delay: var(--delay);
-
-  &:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-card-hover);
-
-    .card-overlay {
-      opacity: 1;
-    }
-
-    .card-image img {
-      transform: scale(1.08);
-    }
-  }
-}
-
-@keyframes cardEnter {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  will-change: transform, box-shadow;
 }
 
 .card-image {
@@ -207,9 +226,8 @@ const animationDelay = computed(() => {
     height: 100%;
     object-fit: cover;
     opacity: 0;
-    transition:
-      opacity 0.4s ease,
-      transform 0.5s ease;
+    transition: opacity 0.4s ease;
+    will-change: transform;
 
     &.is-loaded {
       opacity: 1;
@@ -268,7 +286,7 @@ const animationDelay = computed(() => {
   justify-content: center;
   background: rgba(0, 0, 0, 0.5);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  will-change: opacity;
 }
 
 .overlay-content {
@@ -283,73 +301,22 @@ const animationDelay = computed(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   background: rgba(255, 255, 255, 0.2);
   border-radius: $radius-full;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(8px);
 
   svg {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
   }
 }
 
 .overlay-text {
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
-}
-
-.card-tags {
-  position: absolute;
-  top: $spacing-sm;
-  left: $spacing-sm;
-  display: flex;
-  gap: $spacing-xs;
-}
-
-.tag {
-  padding: 3px $spacing-sm;
-  font-size: 10px;
-  font-weight: $font-weight-bold;
-  border-radius: $radius-sm;
-  backdrop-filter: blur(4px);
   letter-spacing: 0.5px;
-
-  &--primary {
-    background: rgba(99, 102, 241, 0.9);
-    color: white;
-  }
-
-  &--success {
-    background: rgba(16, 185, 129, 0.9);
-    color: white;
-  }
-
-  &--warning {
-    background: rgba(245, 158, 11, 0.9);
-    color: white;
-  }
-
-  &--info {
-    background: rgba(59, 130, 246, 0.9);
-    color: white;
-  }
-
-  &--danger {
-    background: rgba(239, 68, 68, 0.9);
-    color: white;
-  }
-
-  &--secondary {
-    background: rgba(107, 114, 128, 0.8);
-    color: white;
-  }
-
-  &--dark {
-    background: rgba(0, 0, 0, 0.6);
-    color: white;
-  }
 }
 
 .card-info {
@@ -383,5 +350,13 @@ const animationDelay = computed(() => {
     width: 12px;
     height: 12px;
   }
+}
+
+.meta-format {
+  padding: 2px 6px;
+  background: var(--color-bg-hover);
+  border-radius: $radius-sm;
+  font-weight: $font-weight-medium;
+  font-size: 10px;
 }
 </style>
