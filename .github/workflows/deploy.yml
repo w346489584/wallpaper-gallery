@@ -31,6 +31,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Checkout nuanXinProPic (wallpaper source)
+        uses: actions/checkout@v4
+        with:
+          repository: IT-NuanxinPro/nuanXinProPic
+          path: ../nuanXinProPic
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
