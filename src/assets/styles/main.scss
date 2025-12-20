@@ -382,3 +382,77 @@ ol {
   white-space: nowrap;
   border: 0;
 }
+
+// ========================================
+// 全屏浏览模式
+// ========================================
+body.fullscreen-mode {
+  .app-header {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .hero-section {
+    display: none;
+  }
+
+  .filter-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    margin: 0;
+    border-radius: 0;
+    background: var(--color-bg-primary);
+    border-bottom: 1px solid var(--color-border);
+    padding: $spacing-sm $spacing-lg;
+  }
+
+  .main-content {
+    padding-top: 60px;
+  }
+
+  .app-footer {
+    display: none;
+  }
+
+  // 全屏退出提示
+  &::after {
+    content: '按 ESC 退出全屏模式';
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: $spacing-xs $spacing-md;
+    font-size: $font-size-xs;
+    color: var(--color-text-muted);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: $radius-md;
+    opacity: 0;
+    animation: fadeInOut 3s ease forwards;
+    pointer-events: none;
+    z-index: 1000;
+  }
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  80% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+}

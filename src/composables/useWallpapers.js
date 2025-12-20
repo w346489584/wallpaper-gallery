@@ -10,6 +10,16 @@ const loading = ref(false)
 const error = ref(null)
 const loaded = ref(false)
 
+// 格式化字节数
+function formatBytes(bytes) {
+  if (bytes === 0)
+    return '0 B'
+  const k = 1024
+  const sizes = ['B', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`
+}
+
 export function useWallpapers() {
   // 加载壁纸数据
   const fetchWallpapers = async () => {
@@ -39,6 +49,22 @@ export function useWallpapers() {
 
   // 壁纸总数
   const total = computed(() => wallpapers.value.length)
+
+  // 统计信息
+  const statistics = computed(() => {
+    const items = wallpapers.value
+    const jpgCount = items.filter(w => w.format === 'JPG' || w.format === 'JPEG').length
+    const pngCount = items.filter(w => w.format === 'PNG').length
+    const totalSize = items.reduce((sum, w) => sum + (w.size || 0), 0)
+
+    return {
+      total: items.length,
+      jpg: jpgCount,
+      png: pngCount,
+      totalSize,
+      totalSizeFormatted: formatBytes(totalSize),
+    }
+  })
 
   // 根据 ID 获取单个壁纸
   const getWallpaperById = (id) => {
@@ -74,6 +100,7 @@ export function useWallpapers() {
     error,
     loaded,
     total,
+    statistics,
     fetchWallpapers,
     getWallpaperById,
     getWallpaperIndex,

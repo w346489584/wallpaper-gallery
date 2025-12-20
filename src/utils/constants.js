@@ -2,11 +2,15 @@
 // 常量定义
 // ========================================
 
-// GitHub 图床基础 URL（使用 raw.githubusercontent.com，对中文文件名支持更好）
-export const IMAGE_BASE_URL = 'https://raw.githubusercontent.com/IT-NuanxinPro/nuanXinProPic/main/wallpaper'
+// GitHub 图床基础 URL（使用 jsdelivr CDN 加速）
+export const IMAGE_BASE_URL = 'https://cdn.jsdelivr.net/gh/IT-NuanxinPro/nuanXinProPic@main/wallpaper'
 
 // 缩略图基础 URL（本地生成的 webp 缩略图）
-export const THUMBNAIL_BASE_URL = 'https://raw.githubusercontent.com/IT-NuanxinPro/nuanXinProPic/main/thumbnail'
+export const THUMBNAIL_BASE_URL = 'https://cdn.jsdelivr.net/gh/IT-NuanxinPro/nuanXinProPic@main/thumbnail'
+
+// 备用：raw.githubusercontent.com（如 jsdelivr 不可用时切换）
+// export const IMAGE_BASE_URL = 'https://raw.githubusercontent.com/IT-NuanxinPro/nuanXinProPic/main/wallpaper'
+// export const THUMBNAIL_BASE_URL = 'https://raw.githubusercontent.com/IT-NuanxinPro/nuanXinProPic/main/thumbnail'
 
 // 壁纸数据 JSON 路径（使用 import.meta.env.BASE_URL 确保路径正确）
 export const WALLPAPERS_DATA_URL = `${import.meta.env.BASE_URL}data/wallpapers.json`
@@ -56,7 +60,7 @@ export const FORMAT_OPTIONS = [
 ]
 
 // ========================================
-// 分辨率标签阈值（按长边判断）
+// 分辨率标签阈值（按长边判断，用于弹窗中根据真实图片尺寸动态生成标签）
 // ========================================
 export const RESOLUTION_THRESHOLDS = [
   { minWidth: 5120, label: '5K+', type: 'danger' },
@@ -66,22 +70,6 @@ export const RESOLUTION_THRESHOLDS = [
   { minWidth: 1280, label: '高清', type: 'primary' },
   { minWidth: 0, label: '标清', type: 'secondary' },
 ]
-
-// 分辨率标签阈值 (bytes) - 用于文件大小估算（兼容旧逻辑）
-export const SIZE_THRESHOLDS = {
-  SMALL: 500 * 1024, // < 500KB
-  MEDIUM: 2 * 1024 * 1024, // < 2MB
-  LARGE: 5 * 1024 * 1024, // < 5MB
-  // >= 5MB 为超大
-}
-
-// 分辨率标签
-export const SIZE_LABELS = {
-  SMALL: '标清',
-  MEDIUM: '高清',
-  LARGE: '4K',
-  XLARGE: '超清',
-}
 
 // 主题
 export const THEMES = {
@@ -93,4 +81,5 @@ export const THEMES = {
 export const STORAGE_KEYS = {
   THEME: 'wallpaper-gallery-theme',
   SORT: 'wallpaper-gallery-sort',
+  VIEW_MODE: 'wallpaper-gallery-view-mode',
 }

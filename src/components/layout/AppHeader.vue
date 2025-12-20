@@ -1,7 +1,11 @@
 <script setup>
+import { useFullscreen } from '@/composables/useFullscreen'
 import { useTheme } from '@/composables/useTheme'
+import { useViewMode } from '@/composables/useViewMode'
 
 const { theme, toggleTheme } = useTheme()
+const { viewMode, setViewMode } = useViewMode()
+const { isFullscreen, toggleFullscreen } = useFullscreen()
 </script>
 
 <template>
@@ -26,6 +30,65 @@ const { theme, toggleTheme } = useTheme()
 
       <!-- Actions -->
       <div class="header-actions">
+        <!-- View Mode Toggle -->
+        <div class="view-mode-toggle">
+          <button
+            class="view-mode-btn"
+            :class="{ 'is-active': viewMode === 'grid' }"
+            aria-label="网格视图"
+            @click="setViewMode('grid')"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+            </svg>
+          </button>
+          <button
+            class="view-mode-btn"
+            :class="{ 'is-active': viewMode === 'list' }"
+            aria-label="列表视图"
+            @click="setViewMode('list')"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+            </svg>
+          </button>
+          <button
+            class="view-mode-btn"
+            :class="{ 'is-active': viewMode === 'masonry' }"
+            aria-label="瀑布流视图"
+            @click="setViewMode('masonry')"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="10" />
+              <rect x="14" y="3" width="7" height="6" />
+              <rect x="3" y="16" width="7" height="5" />
+              <rect x="14" y="12" width="7" height="9" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="action-divider" />
+
+        <!-- Fullscreen Toggle -->
+        <button
+          class="fullscreen-toggle"
+          :class="{ 'is-active': isFullscreen }"
+          :aria-label="isFullscreen ? '退出全屏' : '全屏浏览'"
+          @click="toggleFullscreen"
+        >
+          <!-- Expand Icon -->
+          <svg v-if="!isFullscreen" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+          </svg>
+          <!-- Minimize Icon -->
+          <svg v-else class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
+          </svg>
+        </button>
+
         <button
           class="theme-toggle"
           :aria-label="theme === 'dark' ? '切换到浅色模式' : '切换到深色模式'"
@@ -132,8 +195,60 @@ const { theme, toggleTheme } = useTheme()
   gap: $spacing-sm;
 }
 
+.view-mode-toggle {
+  display: flex;
+  align-items: center;
+  background: var(--color-bg-hover);
+  border-radius: $radius-md;
+  padding: 4px;
+
+  @include mobile-only {
+    display: none;
+  }
+}
+
+.view-mode-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-sm;
+  color: var(--color-text-muted);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    color: var(--color-text-primary);
+  }
+
+  &.is-active {
+    background: var(--color-bg-card);
+    color: var(--color-accent);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.action-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--color-border);
+  margin: 0 $spacing-xs;
+
+  @include mobile-only {
+    display: none;
+  }
+}
+
 .theme-toggle,
-.github-link {
+.github-link,
+.fullscreen-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -157,6 +272,17 @@ const { theme, toggleTheme } = useTheme()
   .icon {
     width: 20px;
     height: 20px;
+  }
+}
+
+.fullscreen-toggle {
+  @include mobile-only {
+    display: none;
+  }
+
+  &.is-active {
+    background: var(--color-accent-light);
+    color: var(--color-accent);
   }
 }
 </style>

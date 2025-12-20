@@ -94,24 +94,6 @@ export function getFileExtension(filename) {
 }
 
 /**
- * 根据文件大小获取分辨率标签
- * @param {number} size - 文件大小（字节）
- * @returns {object} 标签信息
- */
-export function getSizeLabel(size) {
-  if (size >= 5 * 1024 * 1024) {
-    return { label: '超清', type: 'warning' }
-  }
-  if (size >= 2 * 1024 * 1024) {
-    return { label: '4K', type: 'success' }
-  }
-  if (size >= 500 * 1024) {
-    return { label: '高清', type: 'primary' }
-  }
-  return { label: '标清', type: 'secondary' }
-}
-
-/**
  * 防抖函数
  * @param {Function} fn - 要防抖的函数
  * @param {number} delay - 延迟时间（毫秒）
@@ -145,6 +127,28 @@ export function throttle(fn, limit = 300) {
       }, limit)
     }
   }
+}
+
+/**
+ * 高亮文本中的关键词
+ * @param {string} text - 原始文本
+ * @param {string} keyword - 要高亮的关键词
+ * @returns {Array<{text: string, highlight: boolean}>} 分段数组
+ */
+export function highlightText(text, keyword) {
+  if (!keyword || !text) {
+    return [{ text, highlight: false }]
+  }
+
+  // 转义正则特殊字符
+  const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const regex = new RegExp(`(${escaped})`, 'gi')
+  const parts = text.split(regex)
+
+  return parts.filter(Boolean).map(part => ({
+    text: part,
+    highlight: part.toLowerCase() === keyword.toLowerCase(),
+  }))
 }
 
 /**

@@ -1,7 +1,9 @@
 <script setup>
 import { computed, onMounted } from 'vue'
+import BackToTop from '@/components/common/BackToTop.vue'
 import FilterPanel from '@/components/common/FilterPanel.vue'
 import SearchBar from '@/components/common/SearchBar.vue'
+import TodayPick from '@/components/home/TodayPick.vue'
 import AppFooter from '@/components/layout/AppFooter.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import WallpaperGrid from '@/components/wallpaper/WallpaperGrid.vue'
@@ -50,6 +52,11 @@ function handleNextWallpaper() {
   }
 }
 
+// 重置所有筛选条件
+function handleReset() {
+  searchQuery.value = ''
+}
+
 // Initialize
 onMounted(() => {
   initTheme()
@@ -77,9 +84,17 @@ onMounted(() => {
             <SearchBar
               v-model="searchQuery"
               placeholder="搜索壁纸..."
+              :wallpapers="wallpapers"
             />
           </div>
         </section>
+
+        <!-- Today's Pick -->
+        <TodayPick
+          v-if="wallpapers.length > 0 && !loading"
+          :wallpapers="wallpapers"
+          @select="handleSelectWallpaper"
+        />
 
         <!-- Filter Panel -->
         <FilterPanel
@@ -87,6 +102,7 @@ onMounted(() => {
           v-model:format-filter="formatFilter"
           :result-count="resultCount"
           :total-count="total"
+          @reset="handleReset"
         />
 
         <!-- Error State -->
@@ -107,6 +123,7 @@ onMounted(() => {
           v-else
           :wallpapers="filteredWallpapers"
           :loading="loading"
+          :search-query="searchQuery"
           @select="handleSelectWallpaper"
         />
       </div>
@@ -122,6 +139,9 @@ onMounted(() => {
       @prev="handlePrevWallpaper"
       @next="handleNextWallpaper"
     />
+
+    <!-- Back to Top -->
+    <BackToTop />
   </div>
 </template>
 
@@ -142,11 +162,54 @@ onMounted(() => {
 }
 
 .hero-section {
+  position: relative;
   text-align: center;
   padding: $spacing-2xl 0;
+  overflow: hidden;
+  border-radius: $radius-lg;
+  margin-bottom: $spacing-md;
+
+  // 动态渐变背景
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    background: linear-gradient(
+      45deg,
+      var(--color-accent) 0%,
+      #a855f7 25%,
+      #ec4899 50%,
+      var(--color-accent) 75%,
+      #a855f7 100%
+    );
+    background-size: 400% 400%;
+    animation: gradient-flow 15s ease infinite;
+    opacity: 0.08;
+    filter: blur(80px);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  // 确保内容在背景之上
+  > * {
+    position: relative;
+    z-index: 1;
+  }
 
   @include mobile-only {
     padding: $spacing-lg 0;
+  }
+}
+
+@keyframes gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 

@@ -2,7 +2,7 @@
 import { gsap } from 'gsap'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { IMAGE_PROXY } from '@/utils/constants'
-import { formatFileSize } from '@/utils/format'
+import { formatFileSize, highlightText } from '@/utils/format'
 
 const props = defineProps({
   wallpaper: {
@@ -12,6 +12,14 @@ const props = defineProps({
   index: {
     type: Number,
     default: 0,
+  },
+  searchQuery: {
+    type: String,
+    default: '',
+  },
+  viewMode: {
+    type: String,
+    default: 'grid',
   },
 })
 
@@ -55,6 +63,11 @@ const formattedSize = computed(() => formatFileSize(props.wallpaper.size))
 const fileFormat = computed(() => {
   const ext = props.wallpaper.filename.split('.').pop()?.toUpperCase() || ''
   return ext
+})
+
+// 高亮文件名
+const highlightedFilename = computed(() => {
+  return highlightText(props.wallpaper.filename, props.searchQuery)
 })
 
 // GSAP 入场动画
@@ -172,6 +185,7 @@ function handleMouseLeave(e) {
   <div
     ref="cardRef"
     class="wallpaper-card"
+    :class="`view-${viewMode}`"
     @click="handleClick"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
@@ -221,7 +235,10 @@ function handleMouseLeave(e) {
     <!-- Card Info -->
     <div class="card-info">
       <p class="card-filename" :title="wallpaper.filename">
-        {{ wallpaper.filename }}
+        <template v-for="(part, idx) in highlightedFilename" :key="idx">
+          <span v-if="part.highlight" class="highlight">{{ part.text }}</span>
+          <span v-else>{{ part.text }}</span>
+        </template>
       </p>
       <div class="card-meta">
         <span class="meta-item">
@@ -366,6 +383,14 @@ function handleMouseLeave(e) {
   overflow: hidden;
   text-overflow: ellipsis;
   margin-bottom: $spacing-xs;
+
+  .highlight {
+    background: rgba(229, 62, 62, 0.1);
+    color: #e53e3e;
+    font-weight: $font-weight-semibold;
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
 }
 
 .card-meta {
@@ -393,5 +418,39 @@ function handleMouseLeave(e) {
   border-radius: $radius-sm;
   font-weight: $font-weight-medium;
   font-size: 10px;
+}
+
+// 列表视图模式
+.wallpaper-card.view-list {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .card-image {
+    flex-shrink: 0;
+    width: 180px;
+    aspect-ratio: 16 / 10;
+
+    @include mobile-only {
+      width: 120px;
+    }
+  }
+
+  .card-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: $spacing-md $spacing-lg;
+  }
+
+  .card-filename {
+    font-size: $font-size-md;
+    margin-bottom: $spacing-sm;
+  }
+
+  .card-meta {
+    gap: $spacing-lg;
+  }
 }
 </style>

@@ -1,6 +1,8 @@
 <script setup>
-import { nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
+import { usePagination } from '@/composables/usePagination'
+import { useViewMode } from '@/composables/useViewMode'
 import WallpaperCard from './WallpaperCard.vue'
 
 const props = defineProps({
@@ -12,9 +14,24 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  searchQuery: {
+    type: String,
+    default: '',
+  },
 })
 
 const emit = defineEmits(['select'])
+
+const { viewMode } = useViewMode()
+
+// 分页
+const wallpapersRef = computed(() => props.wallpapers)
+const {
+  displayedItems,
+  hasMore,
+  isLoading: paginationLoading,
+  observerTarget,
+} = usePagination(wallpapersRef, 20)
 
 // 用于控制列表显示的状态，避免闪烁
 const showGrid = ref(true)
@@ -59,14 +76,38 @@ function handleSelect(wallpaper) {
     </div>
 
     <!-- Grid - 简化过渡，避免闪烁 -->
-    <div v-else class="wallpaper-grid" :class="{ 'is-hidden': !showGrid }">
+    <div
+      v-else
+      class="wallpaper-grid"
+      :class="[`view-${viewMode}`, { 'is-hidden': !showGrid }]"
+    >
       <WallpaperCard
-        v-for="(wallpaper, index) in wallpapers"
+        v-for="(wallpaper, index) in displayedItems"
         :key="wallpaper.id"
         :wallpaper="wallpaper"
         :index="index"
+        :search-query="searchQuery"
+        :view-mode="viewMode"
         @click="handleSelect"
       />
+    </div>
+
+    <!-- Load More Observer -->
+    <div
+      v-if="!loading && wallpapers.length > 0"
+      ref="observerTarget"
+      class="load-more-trigger"
+    >
+      <div v-if="paginationLoading" class="load-more-loading">
+        <LoadingSpinner size="sm" />
+        <span>加载更多...</span>
+      </div>
+      <div v-else-if="hasMore" class="load-more-hint">
+        <span>向下滚动加载更多</span>
+      </div>
+      <div v-else class="load-more-end">
+        <span>已加载全部 {{ wallpapers.length }} 张壁纸</span>
+      </div>
     </div>
   </div>
 </template>
@@ -86,20 +127,53 @@ function handleSelect(wallpaper) {
     opacity: 0;
   }
 
-  @include respond-to('sm') {
-    grid-template-columns: repeat(2, 1fr);
+  // 网格视图（默认）
+  &.view-grid {
+    @include respond-to('sm') {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include respond-to('md') {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @include respond-to('lg') {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    @include respond-to('xl') {
+      grid-template-columns: repeat(5, 1fr);
+    }
   }
 
-  @include respond-to('md') {
-    grid-template-columns: repeat(3, 1fr);
+  // 列表视图
+  &.view-list {
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
   }
 
-  @include respond-to('lg') {
-    grid-template-columns: repeat(4, 1fr);
-  }
+  // 瀑布流视图
+  &.view-masonry {
+    display: block;
+    column-count: 2;
+    column-gap: var(--grid-gap);
 
-  @include respond-to('xl') {
-    grid-template-columns: repeat(5, 1fr);
+    @include respond-to('md') {
+      column-count: 3;
+    }
+
+    @include respond-to('lg') {
+      column-count: 4;
+    }
+
+    @include respond-to('xl') {
+      column-count: 5;
+    }
+
+    > * {
+      break-inside: avoid;
+      margin-bottom: var(--grid-gap);
+    }
   }
 }
 
@@ -144,5 +218,32 @@ function handleSelect(wallpaper) {
     font-size: $font-size-sm;
     color: var(--color-text-muted);
   }
+}
+
+// 加载更多
+.load-more-trigger {
+  display: flex;
+  justify-content: center;
+  padding: $spacing-xl 0;
+}
+
+.load-more-loading,
+.load-more-hint,
+.load-more-end {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  font-size: $font-size-sm;
+  color: var(--color-text-muted);
+}
+
+.load-more-loading {
+  color: var(--color-accent);
+}
+
+.load-more-end {
+  padding: $spacing-sm $spacing-md;
+  background: var(--color-bg-secondary);
+  border-radius: $radius-full;
 }
 </style>

@@ -34,9 +34,13 @@ const CONFIG = {
   OUTPUT_FILE: 'wallpapers.json',
 }
 
-// 使用 raw.githubusercontent.com（更稳定，支持中文文件名）
-const RAW_BASE_URL = `https://raw.githubusercontent.com/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}/${CONFIG.GITHUB_BRANCH}/${CONFIG.WALLPAPER_DIR}`
-const THUMBNAIL_BASE_URL = `https://raw.githubusercontent.com/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}/${CONFIG.GITHUB_BRANCH}/${CONFIG.THUMBNAIL_DIR}`
+// 使用 jsdelivr CDN 加速（国内访问更快）
+const RAW_BASE_URL = `https://cdn.jsdelivr.net/gh/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}@${CONFIG.GITHUB_BRANCH}/${CONFIG.WALLPAPER_DIR}`
+const THUMBNAIL_BASE_URL = `https://cdn.jsdelivr.net/gh/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}@${CONFIG.GITHUB_BRANCH}/${CONFIG.THUMBNAIL_DIR}`
+
+// 备用：raw.githubusercontent.com（如 jsdelivr 不可用时切换）
+// const RAW_BASE_URL = `https://raw.githubusercontent.com/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}/${CONFIG.GITHUB_BRANCH}/${CONFIG.WALLPAPER_DIR}`
+// const THUMBNAIL_BASE_URL = `https://raw.githubusercontent.com/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}/${CONFIG.GITHUB_BRANCH}/${CONFIG.THUMBNAIL_DIR}`
 
 /**
  * 通过本地目录获取壁纸列表（优先使用，避免 API 限流）
@@ -114,46 +118,6 @@ async function fetchWallpapersFromGitHub() {
 }
 
 /**
- * 根据文件大小估算分辨率
- */
-function estimateResolution(size, format) {
-  // 根据文件大小和格式估算分辨率
-  // PNG 通常比 JPG 大，所以分开处理
-  const isPng = format.toUpperCase() === 'PNG'
-
-  if (isPng) {
-    if (size >= 8 * 1024 * 1024)
-      return { width: 3840, height: 2160, label: '4K+' }
-    if (size >= 4 * 1024 * 1024)
-      return { width: 2560, height: 1440, label: '2K' }
-    if (size >= 2 * 1024 * 1024)
-      return { width: 1920, height: 1080, label: '1080P' }
-    return { width: 1280, height: 720, label: '720P' }
-  }
-  else {
-    if (size >= 5 * 1024 * 1024)
-      return { width: 3840, height: 2160, label: '4K+' }
-    if (size >= 2 * 1024 * 1024)
-      return { width: 2560, height: 1440, label: '2K' }
-    if (size >= 800 * 1024)
-      return { width: 1920, height: 1080, label: '1080P' }
-    return { width: 1280, height: 720, label: '720P' }
-  }
-}
-
-/**
- * 根据分辨率生成质量标签
- */
-function getQualityLabel(resolution) {
-  switch (resolution.label) {
-    case '4K+': return '超清'
-    case '2K': return '4K'
-    case '1080P': return '高清'
-    default: return '标清'
-  }
-}
-
-/**
  * 生成壁纸数据
  */
 function generateWallpaperData(files) {
@@ -161,8 +125,6 @@ function generateWallpaperData(files) {
 
   return files.map((file, index) => {
     const ext = path.extname(file.name).replace('.', '').toUpperCase()
-    const resolution = estimateResolution(file.size, ext)
-    const qualityLabel = getQualityLabel(resolution)
 
     // 根据索引生成模拟上传时间（越前面的越新）
     const uploadDate = new Date(now.getTime() - index * 3600000) // 每张间隔1小时
@@ -170,7 +132,7 @@ function generateWallpaperData(files) {
     // 文件名（不含扩展名）
     const filenameNoExt = path.basename(file.name, path.extname(file.name))
 
-    // 使用 raw GitHub URL（更稳定）
+    // 使用 jsdelivr CDN URL
     const imageUrl = `${RAW_BASE_URL}/${encodeURIComponent(file.name)}`
 
     // 缩略图 URL（webp 格式）
@@ -184,13 +146,6 @@ function generateWallpaperData(files) {
       downloadUrl: imageUrl,
       size: file.size,
       format: ext,
-      resolution: {
-        width: resolution.width,
-        height: resolution.height,
-        label: resolution.label,
-      },
-      quality: qualityLabel,
-      tags: [qualityLabel, ext, resolution.label],
       createdAt: uploadDate.toISOString(),
       sha: file.sha,
     }
@@ -258,12 +213,10 @@ async function main() {
     const stats = {
       jpg: wallpapers.filter(w => w.format === 'JPG' || w.format === 'JPEG').length,
       png: wallpapers.filter(w => w.format === 'PNG').length,
-      hd: wallpapers.filter(w => w.quality === '超清' || w.quality === '4K').length,
     }
     console.log('Statistics:')
     console.log(`  JPG: ${stats.jpg}`)
     console.log(`  PNG: ${stats.png}`)
-    console.log(`  HD (4K+): ${stats.hd}`)
   }
   catch (error) {
     console.error('Error generating wallpaper data:', error)
