@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { getThumbnailUrl } from '@/utils/constants'
+import { IMAGE_PROXY } from '@/utils/constants'
 import { formatFileSize, formatRelativeTime } from '@/utils/format'
 
 const props = defineProps({
@@ -18,9 +18,18 @@ const emit = defineEmits(['click'])
 
 const imageLoaded = ref(false)
 const imageError = ref(false)
+const retryCount = ref(0)
+const maxRetries = 1 // 最多重试1次（使用代理服务）
 
-// 缩略图 URL（使用代理服务压缩，加速加载）
-const thumbnailUrl = computed(() => getThumbnailUrl(props.wallpaper.url))
+// 直接使用 JSON 中的 thumbnailUrl（已正确编码），如果加载失败则使用代理服务
+const thumbnailUrl = computed(() => {
+  if (retryCount.value > 0) {
+    // Fallback: 使用 wsrv.nl 代理服务
+    return `${IMAGE_PROXY.BASE_URL}?url=${encodeURIComponent(props.wallpaper.url)}&w=${IMAGE_PROXY.THUMB_WIDTH}&q=${IMAGE_PROXY.THUMB_QUALITY}&output=${IMAGE_PROXY.FORMAT}`
+  }
+  // 优先使用预生成的缩略图
+  return props.wallpaper.thumbnailUrl || props.wallpaper.url
+})
 
 // 使用新的数据结构
 const quality = computed(() => props.wallpaper.quality || '高清')
@@ -46,11 +55,20 @@ const resolutionClass = computed(() => {
 
 function handleImageLoad() {
   imageLoaded.value = true
+  imageError.value = false
 }
 
 function handleImageError() {
-  imageError.value = true
-  imageLoaded.value = true
+  if (retryCount.value < maxRetries) {
+    // 重试：使用代理服务
+    retryCount.value++
+    imageLoaded.value = false
+  }
+  else {
+    // 重试次数用尽，显示错误状态
+    imageError.value = true
+    imageLoaded.value = true
+  }
 }
 
 function handleClick() {
