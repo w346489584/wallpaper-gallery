@@ -160,6 +160,9 @@ const formattedDate = computed(() => props.wallpaper ? formatDate(props.wallpape
 const relativeTime = computed(() => props.wallpaper ? formatRelativeTime(props.wallpaper.createdAt) : '')
 const displayFilename = computed(() => props.wallpaper ? getDisplayFilename(props.wallpaper.filename) : '')
 
+// 原图分辨率信息（来自 JSON 数据，用于显示原图质量）
+const originalResolution = computed(() => props.wallpaper?.resolution || null)
+
 // Handlers
 function handleImageLoad(e) {
   imageLoaded.value = true
@@ -192,16 +195,6 @@ function handleImageError() {
   imageError.value = true
   imageLoaded.value = true
   loadingOriginal.value = false
-}
-
-// 切换到原图
-function handleViewOriginal() {
-  if (!hasPreview.value || showOriginal.value || loadingOriginal.value)
-    return
-
-  loadingOriginal.value = true
-  showOriginal.value = true
-  imageLoaded.value = false
 }
 
 function handleClose() {
@@ -392,27 +385,32 @@ onUnmounted(() => {
               </div>
             </div>
 
-            <!-- 查看原图按钮（仅在有预览图且未加载原图时显示） -->
-            <button
-              v-if="hasPreview && !showOriginal"
-              class="view-original-btn"
-              :disabled="loadingOriginal"
-              @click="handleViewOriginal"
-            >
-              <LoadingSpinner v-if="loadingOriginal" size="sm" />
-              <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-              </svg>
-              <span>{{ loadingOriginal ? '加载中...' : '查看原图' }}</span>
-            </button>
-
-            <!-- 原图已加载标识 -->
-            <div v-if="hasPreview && showOriginal && originalLoaded" class="original-loaded-badge">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
-              </svg>
-              <span>已加载原图</span>
+            <!-- 原图信息卡片（仅在有预览图时显示，突出原图质量吸引下载） -->
+            <div v-if="hasPreview && originalResolution" class="original-info-card">
+              <div class="original-info-header">
+                <span class="original-label">原图</span>
+                <span class="original-resolution-tag" :class="[`tag--${originalResolution.type || 'success'}`]">
+                  {{ originalResolution.label }}
+                </span>
+              </div>
+              <div class="original-info-details">
+                <div class="original-dimension">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                    <path d="M8 21h8M12 17v4" />
+                  </svg>
+                  <span>{{ originalResolution.width }} × {{ originalResolution.height }}</span>
+                </div>
+                <div class="original-size">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
+                  </svg>
+                  <span>{{ formattedSize }}</span>
+                </div>
+              </div>
+              <p class="original-hint">
+                下载获取完整高清原图
+              </p>
             </div>
 
             <button
@@ -770,56 +768,110 @@ onUnmounted(() => {
   margin-left: 2px;
 }
 
-// 查看原图按钮
-.view-original-btn {
+// 原图信息卡片（突出显示原图质量，吸引用户下载）
+.original-info-card {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   gap: $spacing-sm;
-  width: 100%;
   padding: $spacing-md;
-  background: transparent;
-  border: 2px solid var(--color-accent);
-  color: var(--color-accent);
-  font-size: $font-size-sm;
-  font-weight: $font-weight-semibold;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.2);
   border-radius: var(--radius-md);
-  transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
 
-  &:hover:not(:disabled) {
-    background: var(--color-accent);
-    color: white;
-    transform: translateY(-2px);
-  }
-
-  &:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-  }
-
-  svg {
-    width: 18px;
-    height: 18px;
+  // 装饰性光晕
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+    pointer-events: none;
   }
 }
 
-// 原图已加载标识
-.original-loaded-badge {
+.original-info-header {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: $spacing-sm;
-  padding: $spacing-sm $spacing-md;
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--color-success);
+  position: relative;
+  z-index: 1;
+}
+
+.original-label {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.original-resolution-tag {
+  padding: 4px 10px;
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  border-radius: $radius-sm;
+  letter-spacing: 0.5px;
+
+  &.tag--danger {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+  }
+
+  &.tag--warning {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+  }
+
+  &.tag--info {
+    background: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+  }
+
+  &.tag--success {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+  }
+
+  &.tag--primary {
+    background: rgba(99, 102, 241, 0.2);
+    color: var(--color-accent);
+  }
+}
+
+.original-info-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  position: relative;
+  z-index: 1;
+}
+
+.original-dimension,
+.original-size {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
-  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
 
   svg {
     width: 16px;
     height: 16px;
+    color: var(--color-accent);
   }
+}
+
+.original-hint {
+  font-size: $font-size-xs;
+  color: var(--color-text-muted);
+  margin: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .download-btn {
