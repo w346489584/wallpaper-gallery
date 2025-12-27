@@ -187,12 +187,12 @@ function getImageDimensions(filePath) {
   try {
     // 尝试使用 ImageMagick 获取图片尺寸
     // magick identify -format "%w %h" image.jpg
-    let cmd = 'magick'
+    let cmd = 'magick identify'
     try {
       execSync('magick --version', { stdio: 'ignore' })
     }
     catch {
-      // 如果 magick 不可用，尝试 identify
+      // 如果 magick 不可用，尝试旧版 identify 命令
       cmd = 'identify'
     }
 

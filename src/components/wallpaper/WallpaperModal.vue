@@ -169,13 +169,14 @@ watch(() => props.wallpaper, () => {
   loadingOriginal.value = false
 })
 
-// 分辨率信息 - 优先使用图片加载后的真实尺寸
+// 分辨率信息 - 始终显示原图的分辨率（来自 JSON 数据）
 const resolution = computed(() => {
-  if (actualDimensions.value.width > 0) {
-    return getResolutionLabel(actualDimensions.value.width, actualDimensions.value.height)
-  }
   if (props.wallpaper?.resolution) {
     return props.wallpaper.resolution
+  }
+  // 如果 JSON 中没有分辨率数据，才使用图片加载后的真实尺寸
+  if (actualDimensions.value.width > 0) {
+    return getResolutionLabel(actualDimensions.value.width, actualDimensions.value.height)
   }
   return { label: '1080P' }
 })
@@ -188,6 +189,21 @@ const displayFilename = computed(() => props.wallpaper ? getDisplayFilename(prop
 
 // 原图分辨率信息（来自 JSON 数据，用于显示原图质量）
 const originalResolution = computed(() => props.wallpaper?.resolution || null)
+// 显示用的尺寸（优先使用原图数据，确保始终显示原图尺寸而非预览图尺寸）
+const displayDimensions = computed(() => {
+  // 优先使用 JSON 数据中的原图分辨率
+  if (originalResolution.value?.width && originalResolution.value?.height) {
+    return {
+      width: originalResolution.value.width,
+      height: originalResolution.value.height,
+    }
+  }
+  // 如果没有原图数据，则使用加载后的实际尺寸
+  // if (actualDimensions.value.width > 0) {
+  //   return actualDimensions.value
+  // }
+  return { width: 0, height: 0 }
+})
 
 // Handlers
 function handleImageLoad(e) {
@@ -395,13 +411,13 @@ onUnmounted(() => {
               <!-- 移动端紧凑布局 -->
               <template v-if="isMobile">
                 <!-- 第一行：分辨率 -->
-                <div v-if="actualDimensions.width > 0" class="detail-row">
+                <div v-if="displayDimensions.width > 0" class="detail-row">
                   <div class="detail-item detail-item--highlight">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
                       <path d="M8 21h8M12 17v4" />
                     </svg>
-                    <span>{{ actualDimensions.width }} × {{ actualDimensions.height }}</span>
+                    <span>{{ displayDimensions.width }} × {{ displayDimensions.height }}</span>
                   </div>
                 </div>
                 <!-- 第二行：文件大小 + 日期 -->
@@ -427,12 +443,12 @@ onUnmounted(() => {
               <!-- PC端保持原布局 -->
               <template v-else>
                 <!-- 分辨率尺寸 -->
-                <div v-if="actualDimensions.width > 0" class="detail-item detail-item--highlight">
+                <div v-if="displayDimensions.width > 0" class="detail-item detail-item--highlight">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
                     <path d="M8 21h8M12 17v4" />
                   </svg>
-                  <span>{{ actualDimensions.width }} × {{ actualDimensions.height }}</span>
+                  <span>{{ displayDimensions.width }} × {{ displayDimensions.height }}</span>
                 </div>
                 <!-- 文件大小 -->
                 <div class="detail-item">

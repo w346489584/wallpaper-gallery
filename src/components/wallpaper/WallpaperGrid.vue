@@ -4,9 +4,9 @@ import { Flip } from 'gsap/Flip'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
-import Pagination from '@/components/common/Pagination.vue'
+// import Pagination from '@/components/common/Pagination.vue' // 注释：改用滚动加载模式
 import { useDevice } from '@/composables/useDevice'
-import { usePagination } from '@/composables/usePagination'
+// import { usePagination } from '@/composables/usePagination' // 注释：改用滚动加载模式
 import { useViewMode } from '@/composables/useViewMode'
 import { useWallpaperType } from '@/composables/useWallpaperType'
 import WallpaperCard from './WallpaperCard.vue'
@@ -65,10 +65,10 @@ const useMobileMasonry = computed(() => {
 })
 
 // ========================================
-// 移动端滚动加载相关
+// 滚动加载相关（移动端和桌面端统一使用）
 // ========================================
-const MOBILE_PAGE_SIZE = 20
-const mobileDisplayCount = ref(MOBILE_PAGE_SIZE)
+const PAGE_SIZE = 20
+const displayCount = ref(PAGE_SIZE)
 const isLoadingMore = ref(false)
 const scrollPaused = ref(false) // 滚动加载暂停标记
 
@@ -144,23 +144,23 @@ function initMasonryColumns() {
     return
 
   resetMasonryColumns()
-  const items = props.wallpapers.slice(0, mobileDisplayCount.value)
+  const items = props.wallpapers.slice(0, displayCount.value)
   distributeToColumns(items)
 }
 
-// 移动端显示的项目
-const mobileDisplayedItems = computed(() => {
-  return props.wallpapers.slice(0, mobileDisplayCount.value)
+// 显示的项目
+const displayedItems = computed(() => {
+  return props.wallpapers.slice(0, displayCount.value)
 })
 
 // 是否还有更多数据可加载
 const hasMoreData = computed(() => {
-  return mobileDisplayCount.value < props.wallpapers.length
+  return displayCount.value < props.wallpapers.length
 })
 
-// 滚动加载处理
+// 滚动加载处理（移动端和桌面端统一使用）
 function handleScroll() {
-  if (!isMobile.value || scrollPaused.value || isLoadingMore.value || !hasMoreData.value)
+  if (scrollPaused.value || isLoadingMore.value || !hasMoreData.value)
     return
 
   const scrollTop = window.scrollY || document.documentElement.scrollTop
@@ -182,12 +182,12 @@ function loadMore() {
 
   const timer = setTimeout(() => {
     timers.delete(timer)
-    const oldCount = mobileDisplayCount.value
+    const oldCount = displayCount.value
     const newCount = Math.min(
-      mobileDisplayCount.value + MOBILE_PAGE_SIZE,
+      displayCount.value + PAGE_SIZE,
       props.wallpapers.length,
     )
-    mobileDisplayCount.value = newCount
+    displayCount.value = newCount
 
     // 如果是瀑布流模式，需要将新加载的元素分配到列中
     if (useMobileMasonry.value) {
@@ -259,24 +259,21 @@ function handleResetFilters() {
   emit('resetFilters')
 }
 
-// 分页（桌面端使用）
-const DEFAULT_PAGE_SIZE = 30
-const PAGE_SIZES = [10, 20, 30, 50]
-const wallpapersRef = computed(() => props.wallpapers)
-const {
-  currentPage,
-  pageSize,
-  displayedItems: paginatedItems,
-  goToPage,
-  setPageSize,
-  pausePagination,
-  resumePagination,
-} = usePagination(wallpapersRef, DEFAULT_PAGE_SIZE)
-
-// 统一的显示项目（根据设备类型选择）
-const displayedItems = computed(() => {
-  return isMobile.value ? mobileDisplayedItems.value : paginatedItems.value
-})
+// ========================================
+// 分页（已弃用，改用滚动加载）
+// ========================================
+// const DEFAULT_PAGE_SIZE = 30
+// const PAGE_SIZES = [10, 20, 30, 50]
+// const wallpapersRef = computed(() => props.wallpapers)
+// const {
+//   currentPage,
+//   pageSize,
+//   displayedItems: paginatedItems,
+//   goToPage,
+//   setPageSize,
+//   pausePagination,
+//   resumePagination,
+// } = usePagination(wallpapersRef, DEFAULT_PAGE_SIZE)
 
 // 用于控制列表显示的状态，避免闪烁
 const showGrid = ref(true)
@@ -353,7 +350,7 @@ watch(viewMode, async (newMode, oldMode) => {
   if (isMobile.value) {
     if (newMode === 'masonry') {
       resetMasonryColumns()
-      const items = props.wallpapers.slice(0, mobileDisplayCount.value)
+      const items = props.wallpapers.slice(0, displayCount.value)
       distributeToColumns(items)
     }
     return
@@ -368,8 +365,7 @@ watch(viewMode, async (newMode, oldMode) => {
   }
 
   isAnimating.value = true
-  // 暂停分页/滚动加载，防止动画期间数据变化
-  pausePagination()
+  // 暂停滚动加载，防止动画期间数据变化
   pauseScrollLoad()
 
   try {
@@ -378,7 +374,6 @@ watch(viewMode, async (newMode, oldMode) => {
     if (cards.length === 0) {
       displayViewMode.value = newMode
       isAnimating.value = false
-      resumePagination()
       resumeScrollLoad()
       return
     }
@@ -411,7 +406,6 @@ watch(viewMode, async (newMode, oldMode) => {
       onComplete: () => {
         isAnimating.value = false
         isFlipWarmedUp.value = true
-        resumePagination()
         resumeScrollLoad()
         // 动画完成后清除固定高度
         if (wrapperRef.value) {
@@ -424,7 +418,6 @@ watch(viewMode, async (newMode, oldMode) => {
     console.warn('View mode animation error:', error)
     displayViewMode.value = newMode
     isAnimating.value = false
-    resumePagination()
     resumeScrollLoad()
     // 错误时也要清除固定高度
     if (wrapperRef.value) {
@@ -509,14 +502,14 @@ onUnmounted(() => {
 
 // 监听 wallpapers 变化（筛选/搜索/分类切换时）
 watch(() => props.wallpapers, async (newVal, oldVal) => {
-  // 重置移动端显示数量
-  mobileDisplayCount.value = MOBILE_PAGE_SIZE
+  // 重置显示数量
+  displayCount.value = PAGE_SIZE
 
   // 重置瀑布流分列数据
   if (useMobileMasonry.value) {
     resetMasonryColumns()
     if (newVal && newVal.length > 0) {
-      const items = newVal.slice(0, MOBILE_PAGE_SIZE)
+      const items = newVal.slice(0, PAGE_SIZE)
       distributeToColumns(items)
     }
   }
@@ -548,42 +541,45 @@ watch(() => props.wallpapers, async (newVal, oldVal) => {
   timers.add(timer)
 }, { deep: false })
 
-// 处理分页切换（桌面端）
-function handlePageChange(page) {
-  // 滚动到顶部
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-
-  // 短暂隐藏后切换页面并播放动画
-  showGrid.value = false
-
-  const timer = setTimeout(() => {
-    timers.delete(timer)
-    goToPage(page)
-    showGrid.value = true
-    nextTick(() => {
-      animateCardsIn()
-    })
-  }, 100)
-  timers.add(timer)
-}
-
-// 处理每页条数变化（桌面端）
-function handlePageSizeChange(size) {
-  // 滚动到顶部
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-
-  showGrid.value = false
-
-  const timer = setTimeout(() => {
-    timers.delete(timer)
-    setPageSize(size)
-    showGrid.value = true
-    nextTick(() => {
-      animateCardsIn()
-    })
-  }, 100)
-  timers.add(timer)
-}
+// ========================================
+// 分页处理（已弃用，改用滚动加载）
+// ========================================
+// // 处理分页切换（桌面端）
+// function handlePageChange(page) {
+//   // 滚动到顶部
+//   window.scrollTo({ top: 0, behavior: 'smooth' })
+//
+//   // 短暂隐藏后切换页面并播放动画
+//   showGrid.value = false
+//
+//   const timer = setTimeout(() => {
+//     timers.delete(timer)
+//     goToPage(page)
+//     showGrid.value = true
+//     nextTick(() => {
+//       animateCardsIn()
+//     })
+//   }, 100)
+//   timers.add(timer)
+// }
+//
+// // 处理每页条数变化（桌面端）
+// function handlePageSizeChange(size) {
+//   // 滚动到顶部
+//   window.scrollTo({ top: 0, behavior: 'smooth' })
+//
+//   showGrid.value = false
+//
+//   const timer = setTimeout(() => {
+//     timers.delete(timer)
+//     setPageSize(size)
+//     showGrid.value = true
+//     nextTick(() => {
+//       animateCardsIn()
+//     })
+//   }, 100)
+//   timers.add(timer)
+// }
 
 function handleSelect(wallpaper) {
   emit('select', wallpaper)
@@ -738,16 +734,16 @@ const skeletonCount = computed(() => isMobile.value ? 6 : 12)
         />
       </div>
 
-      <!-- 移动端：加载中提示 -->
-      <div v-if="isMobile && isLoadingMore" class="mobile-load-more">
+      <!-- 加载中提示（滚动加载） -->
+      <div v-if="isLoadingMore" class="mobile-load-more">
         <div class="loading-more">
           <LoadingSpinner size="sm" />
           <span>加载中...</span>
         </div>
       </div>
 
-      <!-- 桌面端：分页（动画期间隐藏，避免位置错乱） -->
-      <Pagination
+      <!-- 桌面端：分页（已弃用，改用滚动加载） -->
+      <!-- <Pagination
         v-if="!isMobile && !isAnimating"
         :current="currentPage"
         :total="wallpapers.length"
@@ -755,7 +751,7 @@ const skeletonCount = computed(() => isMobile.value ? 6 : 12)
         :page-sizes="PAGE_SIZES"
         @change="handlePageChange"
         @size-change="handlePageSizeChange"
-      />
+      /> -->
     </template>
   </div>
 </template>

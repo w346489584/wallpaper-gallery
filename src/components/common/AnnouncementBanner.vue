@@ -42,7 +42,7 @@ function closeBanner() {
         <p class="banner-text desktop-text">
           <strong>欢迎来到壁纸画廊！</strong>
           网站刚刚上线，目前收录博主精选高质量壁纸，<span class="highlight">每日更新</span>中。
-          PC/手机均可访问，<span class="tag">表情包系列即将上线</span>，记得收藏哦~
+          PC/手机均可访问，记得收藏哦~
         </p>
         <!-- 移动端文案（更简洁） -->
         <p class="banner-text mobile-text">
