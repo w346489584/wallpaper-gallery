@@ -27,15 +27,15 @@ const envConfig = computed(() => {
 <style lang="scss" scoped>
 .env-badge {
   position: fixed;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 4px 12px;
+  bottom: 20px;
+  right: 20px;
+  padding: 6px 12px;
   font-size: 12px;
   font-weight: 600;
   color: white;
-  border-radius: 0 0 8px 8px;
+  border-radius: 6px;
   z-index: 9999;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  opacity: 0.9;
 }
 </style>
