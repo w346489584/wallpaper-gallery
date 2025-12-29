@@ -12,6 +12,8 @@
     LATEST_TAG=$(curl -s "https://api.github.com/repos/IT-NuanxinPro/nuanXinProPic/tags" | grep -o '"name": "[^"]*"' | head -1 | cut -d'"' -f4)
     if [ -z "$LATEST_TAG" ]; then LATEST_TAG="v1.1.1"; fi
     echo "Using CDN version: $LATEST_TAG"
+    # 删除旧的图床仓库目录（如果存在）
+    rm -rf nuanXinProPic
     # 克隆图床仓库的指定 tag（用于生成数据）
     git clone --depth 1 --branch $LATEST_TAG https://github.com/IT-NuanxinPro/nuanXinProPic.git nuanXinProPic
     # 替换版本号
@@ -69,6 +71,7 @@
   command = """
     LATEST_TAG=$(curl -s "https://api.github.com/repos/IT-NuanxinPro/nuanXinProPic/tags" | grep -o '"name": "[^"]*"' | head -1 | cut -d'"' -f4)
     if [ -z "$LATEST_TAG" ]; then LATEST_TAG="v1.1.1"; fi
+    rm -rf nuanXinProPic
     git clone --depth 1 --branch $LATEST_TAG https://github.com/IT-NuanxinPro/nuanXinProPic.git nuanXinProPic
     sed -i "s/export const CDN_VERSION = '[^']*'/export const CDN_VERSION = '$LATEST_TAG'/" src/utils/constants.js
     pnpm install
@@ -84,6 +87,7 @@
   command = """
     LATEST_TAG=$(curl -s "https://api.github.com/repos/IT-NuanxinPro/nuanXinProPic/tags" | grep -o '"name": "[^"]*"' | head -1 | cut -d'"' -f4)
     if [ -z "$LATEST_TAG" ]; then LATEST_TAG="v1.1.1"; fi
+    rm -rf nuanXinProPic
     git clone --depth 1 --branch $LATEST_TAG https://github.com/IT-NuanxinPro/nuanXinProPic.git nuanXinProPic
     sed -i "s/export const CDN_VERSION = '[^']*'/export const CDN_VERSION = '$LATEST_TAG'/" src/utils/constants.js
     pnpm install
