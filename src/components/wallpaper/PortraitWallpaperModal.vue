@@ -584,7 +584,7 @@ onUnmounted(() => {
 }
 
 .info-title {
-  font-size: $font-size-sm;
+  font-size: $font-size-md; // PC端 16px
   font-weight: $font-weight-semibold;
   color: var(--color-text-primary);
   white-space: nowrap;
@@ -592,7 +592,7 @@ onUnmounted(() => {
   text-overflow: ellipsis;
 
   @include mobile-only {
-    font-size: $font-size-xs;
+    font-size: $font-size-md; // 移动端也使用 16px，从 xs(12px) 增加到 md(16px)
   }
 }
 
@@ -610,7 +610,7 @@ onUnmounted(() => {
 
 .tag {
   padding: 2px 6px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: $font-weight-bold;
   border-radius: 4px;
   letter-spacing: 0.3px;
@@ -676,13 +676,13 @@ onUnmounted(() => {
   display: flex;
   flex-wrap: wrap;
   gap: $spacing-sm;
-  font-size: 15px; // PC端增加到 15px，更清晰
+  font-size: 13px; // PC端增加到 15px，更清晰
   color: var(--color-text-primary); // 改为 primary，对比度更高
   font-weight: 500; // 增加字重，更醒目
 
   @include mobile-only {
     gap: $spacing-xs;
-    font-size: 14px; // 移动端增加到 14px，更易读
+    font-size: 13px; // 移动端增加到 14px，更易读
   }
 }
 
