@@ -40,6 +40,9 @@ export const useWallpaperStore = defineStore('wallpaper', () => {
   // 首次加载完成后的初始数量（用于在后台加载期间稳定显示）
   const initialLoadedCount = ref(0)
 
+  // 系列总数量（从索引文件中获取，用于显示预期总数）
+  const expectedTotal = ref(0)
+
   // 重试配置
   const MAX_RETRIES = 3
   const RETRY_DELAY = 1000 // 1秒
@@ -50,12 +53,17 @@ export const useWallpaperStore = defineStore('wallpaper', () => {
 
   const total = computed(() => wallpapers.value.length)
 
-  // 用于 UI 显示的稳定总数（后台加载期间不会变化）
+  // 用于 UI 显示的稳定总数（后台加载期间显示预期总数，避免误导用户）
   const displayTotal = computed(() => {
-    // 如果正在后台加载，显示初始加载的数量
-    if (isBackgroundLoading.value && initialLoadedCount.value > 0) {
-      return initialLoadedCount.value
+    // 如果正在后台加载且有预期总数，显示预期总数（避免误导用户）
+    if (isBackgroundLoading.value && expectedTotal.value > 0) {
+      return expectedTotal.value
     }
+    // 如果有预期总数且已加载完成，显示实际数量
+    if (expectedTotal.value > 0 && !isBackgroundLoading.value) {
+      return wallpapers.value.length
+    }
+    // 默认显示实际数量
     return wallpapers.value.length
   })
 
@@ -78,7 +86,7 @@ export const useWallpaperStore = defineStore('wallpaper', () => {
         const i = Math.floor(Math.log(totalSize) / Math.log(k))
         totalSizeFormatted = `${Number.parseFloat((totalSize / k ** i).toFixed(2))} ${units[i]}`
       }
-      catch (e) {
+      catch {
         totalSizeFormatted = `${totalSize} B`
       }
     }
@@ -366,7 +374,8 @@ export const useWallpaperStore = defineStore('wallpaper', () => {
   }
 
   /**
-   * 初始化系列（加载所有分类 - 确保数据完整）
+   * 初始化系列（首屏优化：先加载前3个分类，后台加载剩余分类）
+   * 确保数据完整且不会出现数字递增的问题
    */
   async function initSeries(seriesId, forceRefresh = false) {
     // 如果已加载相同系列且有数据，跳过
@@ -381,30 +390,46 @@ export const useWallpaperStore = defineStore('wallpaper', () => {
     loadedCategories.value = new Set()
     isBackgroundLoading.value = false
     initialLoadedCount.value = 0
+    expectedTotal.value = 0
 
     try {
       // 1. 加载分类索引
       const indexData = await loadSeriesIndex(seriesId)
 
-      // 2. 加载所有分类（确保数据完整）
-      const allCategories = indexData.categories
-      const categoryPromises = allCategories.map(cat => loadCategory(seriesId, cat.file))
-      const categoryDataArrays = await Promise.all(categoryPromises)
+      // 2. 记录预期总数（从索引文件中获取，用于显示）
+      expectedTotal.value = indexData.total || 0
 
-      // 3. 合并所有数据
-      wallpapers.value = categoryDataArrays.flat()
+      // 3. 首屏优化：只加载前3个分类（快速显示）
+      const initialCategories = indexData.categories.slice(0, 3)
+      const initialPromises = initialCategories.map(cat => loadCategory(seriesId, cat.file))
+      const initialDataArrays = await Promise.all(initialPromises)
 
-      // 4. 记录已加载的分类
-      allCategories.forEach((cat) => {
+      // 4. 立即显示前3个分类的数据
+      wallpapers.value = initialDataArrays.flat()
+
+      // 5. 记录已加载的分类
+      initialCategories.forEach((cat) => {
         loadedCategories.value.add(cat.file)
       })
 
-      // 5. 记录初始加载数量（用于 UI 稳定显示）
+      // 6. 记录初始加载数量（用于 UI 稳定显示）
       initialLoadedCount.value = wallpapers.value.length
 
-      // 清除错误状态
+      // 7. 清除错误状态
       error.value = null
       errorType.value = null
+
+      // 8. 后台加载剩余分类（不阻塞主流程）
+      const remainingCategories = indexData.categories.slice(3)
+      if (remainingCategories.length > 0) {
+        isBackgroundLoading.value = true
+        // 后台加载，但不更新 wallpapers，而是收集完整数据后一次性更新
+        loadRemainingCategoriesSilently(seriesId, remainingCategories)
+      }
+      else {
+        // 如果没有剩余分类，直接设置预期总数为实际数量
+        expectedTotal.value = wallpapers.value.length
+      }
     }
     catch (e) {
       console.error(`Failed to init series ${seriesId}:`, e)
@@ -415,6 +440,82 @@ export const useWallpaperStore = defineStore('wallpaper', () => {
     }
     finally {
       loading.value = false
+    }
+  }
+
+  /**
+   * 后台静默加载剩余分类（收集完整数据后一次性更新，避免数字递增）
+   */
+  async function loadRemainingCategoriesSilently(seriesId, categories) {
+    try {
+      // 批量加载：每次加载3个分类
+      const BATCH_SIZE = 3
+      const batches = []
+
+      for (let i = 0; i < categories.length; i += BATCH_SIZE) {
+        batches.push(categories.slice(i, i + BATCH_SIZE))
+      }
+
+      // 收集所有后台加载的数据
+      const allRemainingData = []
+
+      for (const batch of batches) {
+        // 检查系列是否已切换，如果切换则停止加载
+        if (currentLoadedSeries.value !== seriesId) {
+          return
+        }
+
+        // 过滤已加载的分类
+        const unloadedBatch = batch.filter(cat => !loadedCategories.value.has(cat.file))
+        if (unloadedBatch.length === 0)
+          continue
+
+        try {
+          // 并行加载批次内的所有分类
+          const batchPromises = unloadedBatch.map(cat => loadCategory(seriesId, cat.file))
+          const batchResults = await Promise.all(batchPromises)
+
+          // 再次检查系列是否已切换（加载完成后）
+          if (currentLoadedSeries.value !== seriesId) {
+            return
+          }
+
+          // 收集本批次的数据（不立即更新 wallpapers）
+          const batchData = batchResults.flat()
+          allRemainingData.push(...batchData)
+
+          // 标记本批次的分类为已加载
+          unloadedBatch.forEach((cat) => {
+            loadedCategories.value.add(cat.file)
+          })
+
+          // 批次间暂停，避免阻塞主线程
+          await delay(150)
+        }
+        catch (e) {
+          console.warn(`Failed to load batch:`, e)
+          // 继续加载下一批次
+        }
+      }
+
+      // 所有后台数据加载完成后，一次性更新 wallpapers（避免数字递增）
+      if (currentLoadedSeries.value === seriesId && allRemainingData.length > 0) {
+        // 先关闭后台加载标记，再更新数据
+        // 这样 displayTotal 会立即显示完整数量，不会出现中间状态
+        isBackgroundLoading.value = false
+        // 一次性追加所有剩余数据
+        wallpapers.value = [...wallpapers.value, ...allRemainingData]
+        // 更新初始加载数量（现在显示完整数量）
+        initialLoadedCount.value = wallpapers.value.length
+      }
+      else {
+        // 如果没有数据或系列已切换，也要关闭后台加载标记
+        isBackgroundLoading.value = false
+      }
+    }
+    catch (e) {
+      console.error('Background loading failed:', e)
+      isBackgroundLoading.value = false
     }
   }
 
