@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import DiyAvatarBanner from '@/components/avatar/DiyAvatarBanner.vue'
 import AnnouncementBanner from '@/components/common/AnnouncementBanner.vue'
 import BackToTop from '@/components/common/BackToTop.vue'
@@ -11,6 +11,7 @@ import PortraitWallpaperModal from '@/components/wallpaper/PortraitWallpaperModa
 import WallpaperGrid from '@/components/wallpaper/WallpaperGrid.vue'
 import WallpaperModal from '@/components/wallpaper/WallpaperModal.vue'
 
+import { isMobileDevice } from '@/composables/useDevice'
 // Composables
 import { useModal } from '@/composables/useModal'
 // Pinia Stores
@@ -18,8 +19,11 @@ import { useFilterStore } from '@/stores/filter'
 import { usePopularityStore } from '@/stores/popularity'
 import { useSeriesStore } from '@/stores/series'
 import { useWallpaperStore } from '@/stores/wallpaper'
+// Constants
+import { DEVICE_SERIES } from '@/utils/constants'
 
 const route = useRoute()
+const router = useRouter()
 
 // ========================================
 // Stores
@@ -165,9 +169,23 @@ watch(currentSeries, async (newSeries, oldSeries) => {
 
 // 初始化（只执行一次）
 onMounted(async () => {
-  // 如果路由带有系列参数，初始化系列（不触发 watch）
+  // 如果路由带有系列参数，先检查设备兼容性
   const routeSeries = route.meta?.series
   if (routeSeries) {
+    // 检查当前系列是否对当前设备可用
+    const deviceType = isMobileDevice() ? 'mobile' : 'desktop'
+    const availableSeries = DEVICE_SERIES[deviceType] || DEVICE_SERIES.desktop
+
+    // 如果当前系列对设备不可用，等待路由守卫重定向
+    // 不加载数据，避免显示不兼容的内容
+    if (!availableSeries.includes(routeSeries)) {
+      console.log(`[Home] 系列 "${routeSeries}" 对设备类型 "${deviceType}" 不可用，等待重定向...`)
+      // 主动重定向到正确的系列（兜底保护）
+      const defaultSeries = deviceType === 'mobile' ? 'mobile' : 'desktop'
+      router.replace(`/${defaultSeries}`)
+      return
+    }
+
     seriesStore.currentSeries = routeSeries
   }
   else if (!seriesStore.currentSeries) {
