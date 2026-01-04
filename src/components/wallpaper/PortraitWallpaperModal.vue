@@ -128,6 +128,11 @@ function animateIn() {
   if (!modalRef.value || !contentRef.value)
     return
 
+  // 先设置初始状态，防止闪烁
+  // 使用 visibility: hidden 配合 opacity: 0 确保元素在动画前完全不可见
+  gsap.set(modalRef.value, { opacity: 0, visibility: 'visible' })
+  gsap.set(contentRef.value, { scale: 0.9, y: 30, opacity: 0 })
+
   const tl = gsap.timeline({
     onComplete: () => {
       // 动画完成后清除 transform，避免留下 translate(0px, 0px)
@@ -137,19 +142,13 @@ function animateIn() {
     },
   })
 
-  tl.fromTo(modalRef.value, {
-    opacity: 0,
-  }, {
+  tl.to(modalRef.value, {
     opacity: 1,
     duration: 0.3,
     ease: 'power2.out',
   })
 
-  tl.fromTo(contentRef.value, {
-    scale: 0.9,
-    y: 30,
-    opacity: 0,
-  }, {
+  tl.to(contentRef.value, {
     scale: 1,
     y: 0,
     opacity: 1,
@@ -468,6 +467,7 @@ onUnmounted(() => {
       ref="modalRef"
       class="portrait-modal-overlay"
       :class="{ 'is-device-mode-overlay': isDeviceMode && isMobile && canUseDeviceMode }"
+      style="opacity: 0; visibility: hidden"
       @click.self="handleClose"
     >
       <div ref="contentRef" class="portrait-modal-content" :class="{ 'is-device-mode-content': isDeviceMode && isMobile && canUseDeviceMode }">
@@ -538,6 +538,7 @@ onUnmounted(() => {
               :src="wallpaper.url"
               :alt="wallpaper.filename"
               class="portrait-image portrait-image--in-frame"
+              :class="{ 'portrait-image--avatar': currentSeries === 'avatar' }"
               @load="handleImageLoad"
               @error="handleImageError"
             >
@@ -565,7 +566,10 @@ onUnmounted(() => {
               :src="wallpaper.url"
               :alt="wallpaper.filename"
               class="portrait-image"
-              :class="{ 'portrait-image--device-mode': isDeviceMode }"
+              :class="{
+                'portrait-image--device-mode': isDeviceMode,
+                'portrait-image--loaded': imageLoaded && !imageError,
+              }"
               @load="handleImageLoad"
               @error="handleImageError"
             >
@@ -682,6 +686,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  // 初始状态：透明，防止闪烁
+  opacity: 0;
   // 普通弹窗：朦胧感的遮罩层
   background: var(--color-bg-modal);
   backdrop-filter: blur(12px);
@@ -863,7 +869,7 @@ onUnmounted(() => {
   justify-content: center;
   flex: 1;
   min-height: 60vh; // 竖屏壁纸需要更大的初始高度,避免加载后弹窗突然变大
-  max-height: 70vh;
+  // max-height: 70vh;
   background: var(--color-bg-primary);
   overflow: hidden;
 
@@ -874,12 +880,14 @@ onUnmounted(() => {
     z-index: 2000;
     min-height: 100vh;
     max-height: 100vh;
-    background: #ffffff; // 白色背景
+    // 使用更柔和的背景色，避免与图片对比太强烈
+    background: #f5f5f5; // 浅灰色背景，比纯白更柔和
+    transition: background-color 0.2s ease;
   }
 
   @include mobile-only {
     min-height: 55vh; // 移动端稍小一些
-    max-height: 65vh;
+    // max-height: 65vh;
   }
 }
 
@@ -940,8 +948,10 @@ onUnmounted(() => {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
+  // 初始状态：透明，避免白色背景闪烁
   opacity: 0;
-  animation: imageReveal 0.5s ease forwards;
+  // 图片加载完成后通过类名触发动画
+  transition: opacity 0.3s ease;
 
   // 在手机框架中的样式
   &--in-frame {
@@ -950,9 +960,18 @@ onUnmounted(() => {
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover; // 使用 cover 填充整个屏幕区域
+    object-fit: cover; // 手机壁纸使用 cover 填充整个屏幕区域
     object-position: center; // 居中显示
     display: block; // 确保是块级元素
+    // 真机模式下的图片直接显示，不需要动画
+    opacity: 1;
+    transition: none;
+  }
+
+  // 头像壁纸：使用 contain 保持完整显示，避免上下留白
+  &--in-frame.portrait-image--avatar {
+    object-fit: contain; // 头像使用 contain 保持完整显示
+    background: #000000; // 黑色背景填充空白区域
   }
 
   // 真机显示模式：全屏显示
@@ -965,6 +984,12 @@ onUnmounted(() => {
     left: 0;
     z-index: 2000;
   }
+}
+
+// 图片加载完成后的样式
+.portrait-image--loaded {
+  opacity: 1;
+  animation: imageReveal 0.4s ease forwards;
 }
 
 @keyframes imageReveal {
