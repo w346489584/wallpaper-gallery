@@ -105,28 +105,34 @@ export const usePopularityStore = defineStore('popularity', () => {
    * 获取指定文件的下载次数
    */
   function getDownloadCount(filename) {
-    const stats = statsMap.value.get(filename)
-    if (!stats)
-      return 0
+    // 依赖 optimisticVersion 触发响应式更新
+    // eslint-disable-next-line no-unused-expressions
+    optimisticVersion.value
 
-    // 合并乐观更新
+    const stats = statsMap.value.get(filename)
+    const baseDownloads = stats?.downloads || 0
+
+    // 合并乐观更新（即使没有静态数据也要返回乐观更新的值）
     const queue = getOptimisticQueue()
     const optimistic = queue.downloads[filename] || 0
-    return (stats.downloads || 0) + optimistic
+    return baseDownloads + optimistic
   }
 
   /**
    * 获取指定文件的浏览次数
    */
   function getViewCount(filename) {
-    const stats = statsMap.value.get(filename)
-    if (!stats)
-      return 0
+    // 依赖 optimisticVersion 触发响应式更新
+    // eslint-disable-next-line no-unused-expressions
+    optimisticVersion.value
 
-    // 合并乐观更新
+    const stats = statsMap.value.get(filename)
+    const baseViews = stats?.views || 0
+
+    // 合并乐观更新（即使没有静态数据也要返回乐观更新的值）
     const queue = getOptimisticQueue()
     const optimistic = queue.views[filename] || 0
-    return (stats.views || 0) + optimistic
+    return baseViews + optimistic
   }
 
   /**

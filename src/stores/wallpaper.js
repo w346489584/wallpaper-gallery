@@ -8,17 +8,18 @@ import { isWorkerAvailable, workerDecodeAndParse } from '@/composables/useWorker
 import { decodeData } from '@/utils/codec'
 import { DATA_CACHE_BUSTER, SERIES_CONFIG } from '@/utils/constants'
 import { buildBingPreviewUrl, buildBingThumbnailUrl, buildBingUHDUrl, buildImageUrl } from '@/utils/format'
+import { LRUCache } from '@/utils/lruCache'
 
 export const useWallpaperStore = defineStore('wallpaper', () => {
   // ========================================
   // State
   // ========================================
 
-  // 系列数据缓存（只存储索引信息）
+  // 系列数据缓存（只存储索引信息，最多缓存 5 个系列）
   const seriesIndexCache = ref({})
 
-  // 分类数据缓存（按需加载）
-  const categoryCache = ref({})
+  // 分类数据缓存（使用 LRU 缓存，最多保留 15 个分类，约 60MB）
+  const categoryCache = new LRUCache(15)
 
   // Bing 壁纸缓存（完整加载后缓存）
   const bingWallpapersCache = ref(null)
@@ -354,8 +355,8 @@ export const useWallpaperStore = defineStore('wallpaper', () => {
     const cacheKey = `${seriesId}:${categoryFile}`
 
     // 如果已有缓存，直接返回
-    if (categoryCache.value[cacheKey]) {
-      return categoryCache.value[cacheKey]
+    if (categoryCache.has(cacheKey)) {
+      return categoryCache.get(cacheKey)
     }
 
     const seriesConfig = SERIES_CONFIG[seriesId]
@@ -411,8 +412,8 @@ export const useWallpaperStore = defineStore('wallpaper', () => {
       // 转换 URL
       const transformedList = wallpaperList.map(w => transformWallpaperUrls(w))
 
-      // 存入缓存
-      categoryCache.value[cacheKey] = transformedList
+      // 存入缓存（LRU 会自动淘汰旧数据）
+      categoryCache.set(cacheKey, transformedList)
       return transformedList
     }
     catch (e) {
@@ -875,11 +876,7 @@ export const useWallpaperStore = defineStore('wallpaper', () => {
     if (seriesId) {
       // 清除指定系列的缓存
       delete seriesIndexCache.value[seriesId]
-      Object.keys(categoryCache.value).forEach((key) => {
-        if (key.startsWith(`${seriesId}:`)) {
-          delete categoryCache.value[key]
-        }
-      })
+      categoryCache.deleteByPrefix(`${seriesId}:`)
       // 清除 Bing 缓存
       if (seriesId === 'bing') {
         bingWallpapersCache.value = null
@@ -888,7 +885,7 @@ export const useWallpaperStore = defineStore('wallpaper', () => {
     else {
       // 清除所有缓存
       seriesIndexCache.value = {}
-      categoryCache.value = {}
+      categoryCache.clear()
       bingWallpapersCache.value = null
     }
   }
