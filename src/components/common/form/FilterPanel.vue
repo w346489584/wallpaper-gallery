@@ -105,8 +105,15 @@ const hasActiveFilters = computed(() => {
   return props.categoryFilter !== 'all'
 })
 
+// Bing 系列是否隐藏瀑布流（Bing 图片比例固定，瀑布流效果不佳）
+const hideMasonryForBing = computed(() => props.currentSeries === 'bing')
+
 // 视图模式滑动指示器位置
 const viewModeSliderPosition = computed(() => {
+  // Bing 系列只有两个选项（网格/列表）
+  if (hideMasonryForBing.value) {
+    return viewMode.value === 'list' ? 'is-list-two' : 'is-grid'
+  }
   switch (viewMode.value) {
     case 'list':
       return 'is-list'
@@ -267,7 +274,7 @@ function resetFilters() {
     <!-- PC 端筛选项 -->
     <div v-if="!isMobileOrTablet" class="filter-right">
       <!-- View Mode Toggle -->
-      <div class="view-mode-toggle">
+      <div class="view-mode-toggle" :class="{ 'is-two-options': hideMasonryForBing }">
         <!-- 滑动指示器 -->
         <div class="view-mode-slider" :class="viewModeSliderPosition" />
         <button
@@ -294,6 +301,7 @@ function resetFilters() {
           </svg>
         </button>
         <button
+          v-if="!hideMasonryForBing"
           class="view-mode-btn"
           :class="{ 'is-active': viewMode === 'masonry' }"
           aria-label="瀑布流视图"
@@ -645,6 +653,7 @@ function resetFilters() {
 .view-mode-toggle {
   display: flex;
   align-items: center;
+  gap: 4px;
   background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -663,8 +672,8 @@ function resetFilters() {
   position: absolute;
   top: 4px;
   left: 4px;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 34px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: $radius-md;
   box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
@@ -672,11 +681,18 @@ function resetFilters() {
   z-index: 0;
 
   &.is-list {
-    transform: translateX(32px);
+    // 三个选项时列表位置：按钮宽度(40px) + 间距(4px)
+    transform: translateX(44px);
+  }
+
+  &.is-list-two {
+    // 两个选项时列表位置
+    transform: translateX(44px);
   }
 
   &.is-masonry {
-    transform: translateX(64px);
+    // 瀑布流位置：(按钮宽度 + 间距) * 2
+    transform: translateX(88px);
   }
 }
 
@@ -684,8 +700,8 @@ function resetFilters() {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 34px;
   border-radius: $radius-md;
   color: var(--color-text-muted);
   background: transparent;
