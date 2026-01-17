@@ -270,7 +270,6 @@ wallpaper-gallery/
 │   │   └── demo/         # Demo 演示页面（IPhoneDemo、MacBookDemo）
 │   └── utils/            # 工具函数和常量
 └── index.html
-```
 │       ├── desktop/      # 电脑壁纸分类数据
 │       ├── mobile/       # 手机壁纸分类数据
 │       ├── avatar/       # 头像分类数据

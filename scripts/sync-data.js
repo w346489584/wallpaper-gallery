@@ -19,17 +19,20 @@ const __dirname = path.dirname(__filename)
 // 配置
 const CONFIG = {
   // 线上数据源（图床 CDN）
-  ONLINE_DATA_BASE_URL: 'https://wallpaper.061129.xyz/data',
+  ONLINE_DATA_BASE_URL: 'https://cdn.jsdelivr.net/gh/IT-NuanxinPro/nuanXinProPic@main/data',
+
+  // Bing 系列特殊路径（使用 /bing/meta 而不是 /data/bing）
+  BING_DATA_BASE_URL: 'https://cdn.jsdelivr.net/gh/IT-NuanxinPro/nuanXinProPic@main/bing/meta',
 
   // 输出目录
   OUTPUT_DIR: path.resolve(__dirname, '../public/data'),
 
   // 系列配置
   SERIES: {
-    desktop: { name: '电脑壁纸' },
-    mobile: { name: '手机壁纸' },
-    avatar: { name: '头像' },
-    bing: { name: '每日Bing' },
+    desktop: { name: '电脑壁纸', isBing: false },
+    mobile: { name: '手机壁纸', isBing: false },
+    avatar: { name: '头像', isBing: false },
+    bing: { name: '每日Bing', isBing: true },
   },
 }
 
@@ -88,7 +91,11 @@ async function syncSeries(seriesId, seriesConfig) {
   console.log(`\n📥 同步 ${seriesConfig.name} (${seriesId})...`)
 
   const seriesDir = path.join(CONFIG.OUTPUT_DIR, seriesId)
-  const baseUrl = `${CONFIG.ONLINE_DATA_BASE_URL}/${seriesId}`
+
+  // Bing 系列使用特殊路径
+  const baseUrl = seriesConfig.isBing
+    ? CONFIG.BING_DATA_BASE_URL
+    : `${CONFIG.ONLINE_DATA_BASE_URL}/${seriesId}`
 
   // 创建输出目录
   if (!fs.existsSync(seriesDir)) {
@@ -106,32 +113,69 @@ async function syncSeries(seriesId, seriesConfig) {
     downloadedCount++
     console.log(`  ✅ index.json (${totalItems} 项)`)
 
-    // 2. 获取分类文件列表
-    const categoryFiles = await listJsonFiles(baseUrl)
+    // 2. 如果是 Bing 系列，下载年度数据文件
+    if (seriesConfig.isBing) {
+      // 从 index.json 获取年份列表
+      const years = indexData.years || []
+      const currentYear = new Date().getFullYear()
 
-    // 3. 下载所有分类文件
-    for (const file of categoryFiles) {
+      for (const yearInfo of years) {
+        try {
+          const filePath = path.join(seriesDir, yearInfo.file)
+
+          // 只下载会变化的文件：latest.json、今年的年份文件
+          const isLatest = yearInfo.file === 'latest.json'
+          const isCurrentYear = yearInfo.year === currentYear
+          const shouldDownload = isLatest || isCurrentYear
+
+          if (!shouldDownload) {
+            // 历史年份数据不会变化，检查是否存在
+            if (fs.existsSync(filePath)) {
+              console.log(`  ⏭️  ${yearInfo.file} (${yearInfo.year} 年) - 历史数据，跳过`)
+              continue
+            }
+            else {
+              console.log(`  📥 ${yearInfo.file} (${yearInfo.year} 年) - 首次下载`)
+            }
+          }
+
+          await downloadFile(`${baseUrl}/${yearInfo.file}`, filePath)
+          downloadedCount++
+          console.log(`  ✅ ${yearInfo.file} (${yearInfo.year} 年)`)
+        }
+        catch (e) {
+          console.warn(`  ⚠️  ${yearInfo.file} 下载失败`, e)
+        }
+      }
+    }
+    else {
+      // 3. 普通系列：获取分类文件列表
+      const categoryFiles = await listJsonFiles(baseUrl)
+
+      // 4. 下载所有分类文件
+      for (const file of categoryFiles) {
+        try {
+          const filePath = path.join(seriesDir, file)
+          await downloadFile(`${baseUrl}/${file}`, filePath)
+          downloadedCount++
+          console.log(`  ✅ ${file}`)
+        }
+        catch (e) {
+          console.warn(`  ⚠️  ${file} 下载失败`, e)
+        }
+      }
+
+      // 5. 下载传统单文件（向后兼容）
       try {
-        const filePath = path.join(seriesDir, file)
-        await downloadFile(`${baseUrl}/${file}`, filePath)
+        const legacyPath = path.join(CONFIG.OUTPUT_DIR, `${seriesId}.json`)
+        await downloadFile(`${CONFIG.ONLINE_DATA_BASE_URL}/${seriesId}.json`, legacyPath)
         downloadedCount++
-        console.log(`  ✅ ${file}`)
+        console.log(`  ✅ ${seriesId}.json (兼容格式)`)
       }
       catch (e) {
-        console.warn(`  ⚠️  ${file} 下载失败`, e)
+        // 兼容格式可选
+        console.log(e)
       }
-    }
-
-    // 4. 下载传统单文件（向后兼容）
-    try {
-      const legacyPath = path.join(CONFIG.OUTPUT_DIR, `${seriesId}.json`)
-      await downloadFile(`${CONFIG.ONLINE_DATA_BASE_URL}/${seriesId}.json`, legacyPath)
-      downloadedCount++
-      console.log(`  ✅ ${seriesId}.json (兼容格式)`)
-    }
-    catch (e) {
-      // 兼容格式可选
-      console.log(e)
     }
 
     console.log(`  🎉 完成 (${downloadedCount} 个文件)`)
