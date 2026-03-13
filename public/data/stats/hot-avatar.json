@@ -295,6 +295,11 @@
     "downloads": 1
   },
   {
+    "image_id": "牛马水豚.jpg",
+    "views": 3,
+    "downloads": 2
+  },
+  {
     "image_id": "微信图片_20260119095917_476_4.jpg",
     "views": 3,
     "downloads": 1
@@ -488,11 +493,6 @@
     "image_id": "小熊骑车.jpg",
     "views": 2,
     "downloads": 0
-  },
-  {
-    "image_id": "牛马水豚.jpg",
-    "views": 2,
-    "downloads": 2
   },
   {
     "image_id": "盘腿坐.png",
@@ -726,6 +726,11 @@
   },
   {
     "image_id": "微信图片_20260310202252_657_4.jpg",
+    "views": 2,
+    "downloads": 1
+  },
+  {
+    "image_id": "微信图片_20260310202253_658_4.jpg",
     "views": 2,
     "downloads": 1
   },
@@ -1218,5 +1223,20 @@
     "image_id": "金发双马尾.jpg",
     "views": 1,
     "downloads": 1
+  },
+  {
+    "image_id": "微信图片_20260310202250_653_4.jpg",
+    "views": 1,
+    "downloads": 0
+  },
+  {
+    "image_id": "怀中白猫安睡.jpg",
+    "views": 1,
+    "downloads": 2
+  },
+  {
+    "image_id": "微信图片_20260310202252_656_4.jpg",
+    "views": 1,
+    "downloads": 0
   }
 ]
