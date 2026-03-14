@@ -580,6 +580,11 @@
     "downloads": 1
   },
   {
+    "image_id": "微信图片_20260120161538_484_4.jpg",
+    "views": 2,
+    "downloads": 2
+  },
+  {
     "image_id": "微信图片_20260119095918_477_4.jpg",
     "views": 2,
     "downloads": 1
@@ -965,11 +970,6 @@
     "downloads": 1
   },
   {
-    "image_id": "微信图片_20260120161538_484_4.jpg",
-    "views": 1,
-    "downloads": 1
-  },
-  {
     "image_id": "杰瑞大笑.jpg",
     "views": 1,
     "downloads": 1
@@ -1238,5 +1238,10 @@
     "image_id": "微信图片_20260310202252_656_4.jpg",
     "views": 1,
     "downloads": 0
+  },
+  {
+    "image_id": "番茄_抱煎蛋.png",
+    "views": 1,
+    "downloads": 1
   }
 ]
