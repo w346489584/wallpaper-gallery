@@ -14,6 +14,35 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
 // 静态统计文件路径
 const STATS_BASE_URL = '/data/stats'
 
+function normalizeStatsImageId(imageId, series) {
+  if (!imageId)
+    return ''
+
+  if (series === 'bing') {
+    if (/^bing-\d{4}-\d{2}-\d{2}\.jpg$/i.test(imageId)) {
+      return imageId
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}\.jpg$/i.test(imageId)) {
+      return `bing-${imageId}`
+    }
+  }
+
+  return imageId
+}
+
+function mergeStatsEntry(statsMap, imageId, stats, series) {
+  const normalizedId = normalizeStatsImageId(imageId, series)
+  if (!normalizedId)
+    return
+
+  const prev = statsMap.get(normalizedId) || { views: 0, downloads: 0 }
+  statsMap.set(normalizedId, {
+    views: prev.views + (stats.views || 0),
+    downloads: prev.downloads + (stats.downloads || 0),
+  })
+}
+
 /**
  * 检查 Supabase 是否配置
  */
@@ -59,10 +88,10 @@ export async function loadStaticStats(series, forceRefresh = false) {
     if (Array.isArray(data)) {
       // 数组格式：[{ image_id, views, downloads }, ...]
       data.forEach((item) => {
-        statsMap.set(item.image_id, {
+        mergeStatsEntry(statsMap, item.image_id, {
           views: item.views || item.total_views || 0,
           downloads: item.downloads || item.total_downloads || 0,
-        })
+        }, series)
       })
     }
     else if (typeof data === 'object') {
@@ -70,13 +99,13 @@ export async function loadStaticStats(series, forceRefresh = false) {
       Object.entries(data).forEach(([imageId, stats]) => {
         if (typeof stats === 'number') {
           // 简化格式：{ image_id: views }
-          statsMap.set(imageId, { views: stats, downloads: 0 })
+          mergeStatsEntry(statsMap, imageId, { views: stats, downloads: 0 }, series)
         }
         else {
-          statsMap.set(imageId, {
+          mergeStatsEntry(statsMap, imageId, {
             views: stats.views || stats.total_views || 0,
             downloads: stats.downloads || stats.total_downloads || 0,
-          })
+          }, series)
         }
       })
     }
@@ -105,7 +134,7 @@ export function recordView(wallpaper, series) {
   if (!isSupabaseConfigured())
     return
 
-  const imageId = wallpaper.filename || wallpaper.id
+  const imageId = normalizeStatsImageId(wallpaper.filename || wallpaper.id, series)
 
   // 异步写入 Supabase（静默失败）
   callRPC('increment_view', {
@@ -128,7 +157,7 @@ export function recordDownload(wallpaper, series) {
   if (!isSupabaseConfigured())
     return
 
-  const imageId = wallpaper.filename || wallpaper.id
+  const imageId = normalizeStatsImageId(wallpaper.filename || wallpaper.id, series)
 
   // 异步写入 Supabase（静默失败）
   callRPC('increment_download', {
@@ -205,10 +234,10 @@ export async function loadStatsFromSupabase(series, limit = 100) {
 
     if (Array.isArray(data)) {
       data.forEach((item) => {
-        statsMap.set(item.image_id, {
+        mergeStatsEntry(statsMap, item.image_id, {
           views: item.total_views || 0,
           downloads: item.total_downloads || 0,
-        })
+        }, series)
       })
     }
 

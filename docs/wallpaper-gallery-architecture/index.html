@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wallpaper Gallery 架构汇报</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="deck" id="deck">
+    <section class="slide active slide--cover" data-title="封面" data-notes="这页先把主语定住：今天汇报的主角是 Wallpaper Gallery，而不是单独讲图床或工作流。开场就要强调，网站之所以能稳定更新，是因为背后有 Studio、Workflow、nuanXinProPic 三个项目支撑。">
+      <div class="slide-head">
+        <div class="eyebrow">Wallpaper Gallery Architecture</div>
+        <div class="slide-index">01 / 12</div>
+      </div>
+      <div class="hero-grid">
+        <div class="hero-copy hero-cover glass">
+          <span class="kicker">Open Source Architecture Briefing</span>
+          <div class="cover-title-block">
+            <p class="cover-overline">WALLPAPER GALLERY</p>
+            <h1>Wallpaper Gallery</h1>
+            <p class="cover-title-cn">开源壁纸网站架构</p>
+            <p class="cover-subtitle">围绕最终成品站，拆解上传后台、自动化工作流与图床仓库如何协同支撑内容生产、版本发布和前端展示。</p>
+          </div>
+          <div class="cover-meta-row">
+            <div class="cover-meta">
+              <strong>展示重点</strong>
+              <span>为什么前台网站能持续更新、可追踪版本、可统计热门。</span>
+            </div>
+            <div class="cover-meta">
+              <strong>核心视角</strong>
+              <span>以 Wallpaper Gallery 为中心，反向拆解背后 3 个支撑项目。</span>
+            </div>
+          </div>
+        </div>
+        <div class="hero-side hero-cover-side">
+          <article class="cover-system glass">
+            <span class="stat-label">前台主角</span>
+            <b>Wallpaper Gallery</b>
+            <p>统一承接浏览、筛选、下载、SEO 与热门排行展示。</p>
+          </article>
+          <div class="support-stack">
+            <article class="support-card support-card--a glass">
+              <small>上传入口</small>
+              <strong>Studio</strong>
+              <p>AI 分类、批量上传、权限控制、工作流触发。</p>
+            </article>
+            <article class="support-card support-card--b glass">
+              <small>自动化中枢</small>
+              <strong>Workflow</strong>
+              <p>缩略图生成、时间戳维护、元数据处理、发布与回滚。</p>
+            </article>
+            <article class="support-card support-card--c glass">
+              <small>内容源头</small>
+              <strong>nuanXinProPic</strong>
+              <p>原图、预览图、metadata、data、Bing 数据与版本历史。</p>
+            </article>
+          </div>
+          <article class="cover-summary glass">
+            <span class="stat-label">支撑能力</span>
+            <p><strong>上传</strong>、<strong>处理</strong>、<strong>分发</strong>、<strong>统计</strong> 四条能力链共同服务同一个网站。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide slide--gallery-role" data-title="网站定位" data-notes="这里明确 Wallpaper Gallery 本身的定位，避免听众把注意力全放到后台。它是用户界面、SEO 页面、数据消费层和统计上报层。这里要强调：前端不是内容生产者，而是内容消费者与展示者。">
+      <div class="slide-head">
+        <div class="eyebrow">Wallpaper Gallery</div>
+        <div class="slide-index">02 / 12</div>
+      </div>
+      <div class="content-stack">
+        <div class="title-block">
+          <h2>先看主角：Wallpaper Gallery 到底负责什么</h2>
+          <p>它面向的是最终用户，所以它的设计重点不是“怎么上传”，而是“怎么稳定展示、怎么快、怎么利于 SEO、怎么把内容消费掉”。</p>
+        </div>
+        <div class="chip-grid">
+          <article class="glass mini-info">
+            <strong>用户入口</strong>
+            <span>浏览、搜索、筛选、预览、下载统一发生在这里。</span>
+          </article>
+          <article class="glass mini-info">
+            <strong>内容消费层</strong>
+            <span>消费图床仓库导出的 `data/` 与 `bing/meta/`，而不是动态拼主内容。</span>
+          </article>
+          <article class="glass mini-info">
+            <strong>统计上报层</strong>
+            <span>把浏览和下载行为写入 Supabase，再反哺热门排行。</span>
+          </article>
+        </div>
+        <div class="split-layout split-layout--main">
+          <article class="glass info-card info-card--dense">
+            <h3>网站直接承担的职责</h3>
+            <ul class="detail-list">
+              <li>渲染桌面、手机、头像、Bing 四个系列页面。</li>
+              <li>在部署阶段拉取图床仓库的 `data/` 和 `bing/meta/` 作为静态数据源。</li>
+              <li>生成对搜索引擎友好的静态页面与可访问路由。</li>
+              <li>把浏览与下载行为写入 Supabase，支撑热门排行功能。</li>
+              <li>负责用户可见的交互体验，包括筛选、弹窗、预览、下载与 SEO 页面组织。</li>
+            </ul>
+          </article>
+          <article class="glass info-card accent-card info-card--dense">
+            <h3>网站刻意不做的事情</h3>
+            <ul class="detail-list">
+              <li>不直接处理上传，不做原图生产。</li>
+              <li>不在运行时现算主内容数据，而是消费预先生成好的 JSON。</li>
+              <li>不承担图片衍生资源生成，不负责发版 tag 与 release。</li>
+              <li>不把动态统计数据库反向作为主内容源。</li>
+              <li>不把“内容真相”保存在当前仓库，而是把展示站严格限制为消费层。</li>
+            </ul>
+          </article>
+        </div>
+        <div class="story-strip story-strip--compact">
+          <div class="story-node glass story-node--compact">
+            <span>用户输入</span>
+            <strong>访问与下载</strong>
+          </div>
+          <div class="story-arrow">→</div>
+          <div class="story-node glass story-node--compact">
+            <span>前端行为</span>
+            <strong>拉取 JSON + 渲染页面</strong>
+          </div>
+          <div class="story-arrow">→</div>
+          <div class="story-node glass story-node--compact">
+            <span>后台配合</span>
+            <strong>上报 Supabase 统计</strong>
+          </div>
+          <div class="story-arrow">→</div>
+          <div class="story-node glass story-node--compact">
+            <span>最终结果</span>
+            <strong>稳定展示和热门排行</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="整体架构图" data-notes="这一页是全局关系图，要先讲人从哪里进，再讲数据最后落到哪里。建议从左往右讲：Studio 解决人机交互，Workflow 解决自动处理，nuanXinProPic 解决单一事实来源，Wallpaper Gallery 解决最终展示。统计和 Bing 是两条补充支线。">
+      <div class="slide-head">
+        <div class="eyebrow">System Overview</div>
+        <div class="slide-index">03 / 12</div>
+      </div>
+      <div class="content-stack">
+        <div class="title-block">
+          <h2>整体协作关系</h2>
+          <p>从内容生产视角看，这是一套四层系统：操作入口、自动化编排、内容源仓库、前端展示站。</p>
+        </div>
+        <div class="architecture-grid architecture-grid--dense">
+          <div class="arch-col">
+            <div class="arch-box glass">
+              <small>操作入口</small>
+              <h3>Studio</h3>
+              <p>接住人类上传动作，把文件、AI 分类与任务信息送进系统。</p>
+            </div>
+            <div class="arch-box glass">
+              <small>外部补充源</small>
+              <h3>Gitee / Bing</h3>
+              <p>并行提供每日内容与额外图源，补充图床仓库。</p>
+            </div>
+          </div>
+          <div class="arch-core glass">
+            <div class="core-step">
+              <span>自动化编排</span>
+              <strong>Workflow</strong>
+              <p>负责图片处理、时间戳、metadata 合并、版本发布、回滚治理。</p>
+            </div>
+            <div class="core-link"></div>
+            <div class="core-step">
+              <span>内容真相</span>
+              <strong>nuanXinProPic</strong>
+              <p>保存原图、衍生图、metadata、data、bing/meta 与 stats，作为单一事实来源。</p>
+            </div>
+          </div>
+          <div class="arch-col">
+            <div class="arch-box glass">
+              <small>用户可见层</small>
+              <h3>Wallpaper Gallery</h3>
+              <p>消费图床数据，构建页面、承接浏览下载、输出最终网站体验。</p>
+            </div>
+            <div class="arch-box glass">
+              <small>行为统计层</small>
+              <h3>Supabase</h3>
+              <p>只管记录行为与聚合排行，不反向承担主内容数据职责。</p>
+            </div>
+          </div>
+        </div>
+        <div class="architecture-note-row">
+          <article class="glass mini-info">
+            <strong>主链路</strong>
+            <span>Studio → Workflow → nuanXinProPic → Wallpaper Gallery</span>
+          </article>
+          <article class="glass mini-info">
+            <strong>并行支线</strong>
+            <span>Bing / Gitee 补内容，Supabase 补统计，但两者都不取代主内容源。</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide slide--studio" data-title="Studio" data-notes="这页单独讲 Studio。重点是：它不负责长期存储，不负责生成最终 data，它负责把人的上传动作标准化，并把结果安全送入图床仓库。讲输入、处理、输出三段。">
+      <div class="slide-head">
+        <div class="eyebrow">wallpaper-gallery-studio</div>
+        <div class="slide-index">04 / 12</div>
+      </div>
+      <div class="content-stack">
+        <div class="title-block">
+          <h2>Studio：把人工上传变成结构化输入</h2>
+          <p>这个项目的价值在于，它把“同事上传图片”这件原本很随意的事情，变成可控、可追踪、可接入工作流的标准化流程。</p>
+        </div>
+        <div class="section-grid section-grid--studio">
+          <div class="stack-grid">
+            <article class="glass compact-card">
+              <span class="phase">输入</span>
+              <h3>用户选择图片</h3>
+              <p>上传前先做格式、大小、权限和重复记录校验。</p>
+            </article>
+            <article class="glass compact-card">
+              <span class="phase">处理</span>
+              <h3>AI 与本地预处理</h3>
+              <p>做压缩、Hash 去重、类型识别，再调用 AI 生成系列、分类、关键词、描述与文件名建议。</p>
+            </article>
+            <article class="glass compact-card">
+              <span class="phase">输出</span>
+              <h3>原图 + pending metadata</h3>
+              <p>原图进入目标目录，批量生成 `metadata-pending/*.json` 作为工作流输入。</p>
+            </article>
+            <article class="glass compact-card">
+              <span class="phase">协同</span>
+              <h3>触发 Workflow</h3>
+              <p>用 GitHub `repository_dispatch` 把这次上传正式送进自动化链路。</p>
+            </article>
+          </div>
+          <div class="stack-grid">
+            <article class="glass info-card info-card--dense">
+              <h3>Studio 实际解决的业务问题</h3>
+              <ul class="detail-list">
+                <li>把人工上传动作转成标准化、可追踪的任务。</li>
+                <li>把高交互的 AI 分类前置到后台，而不是留给离线工作流瞎猜。</li>
+                <li>把原图提交与元数据提交拆成“同一次操作、两类产物”，便于后续处理。</li>
+                <li>把工作流触发交给后台用户，而不是要求人工再去 GitHub 页面补一步。</li>
+              </ul>
+            </article>
+            <div class="chip-grid chip-grid--2">
+              <article class="glass mini-info">
+                <strong>上传前</strong>
+                <span>压缩、查重、预览、路径选择。</span>
+              </article>
+              <article class="glass mini-info">
+                <strong>上传中</strong>
+                <span>文件逐个写入图床仓库，支持失败重试。</span>
+              </article>
+              <article class="glass mini-info">
+                <strong>上传后</strong>
+                <span>生成 pending metadata，留给 workflow 合并进正式体系。</span>
+              </article>
+              <article class="glass mini-info">
+                <strong>边界约束</strong>
+                <span>不直接生成缩略图、不直接发布、不承担前端部署。</span>
+              </article>
+            </div>
+          </div>
+        </div>
+        <div class="layout-2col">
+          <article class="glass info-card info-card--dense">
+            <h3>为什么这样设计</h3>
+            <ul class="detail-list">
+              <li>AI 分类是高交互环节，适合放在可视化后台，而不是工作流里盲跑。</li>
+              <li>先上传原图，再生成 metadata-pending，能把“文件提交”和“结构化描述”绑定成一次任务。</li>
+              <li>Studio 只负责发起，不负责长任务执行，减少页面阻塞与失败面。</li>
+            </ul>
+          </article>
+          <article class="glass info-card info-card--dense">
+            <h3>它的边界</h3>
+            <ul class="detail-list">
+              <li>不生成缩略图和预览图。</li>
+              <li>不负责最终 metadata 合并。</li>
+              <li>不负责前端部署。</li>
+              <li>不负责图床版本号和 release 管理。</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Workflow" data-notes="这一页是汇报重点。要让同事听明白：workflow 不是一个可有可无的中间层，而是整个自动化加工与版本治理中心。这里先讲它承担什么，再强调它是如何从 repository_dispatch 接手流程的。">
+      <div class="slide-head">
+        <div class="eyebrow">wallpaper-gallery-workflow</div>
+        <div class="slide-index">05 / 12</div>
+      </div>
+      <div class="content-stack">
+        <div class="title-block">
+          <h2>Workflow：整个发布链的自动化中枢</h2>
+          <p>如果没有这个项目，Studio 上传之后就只是“文件进仓库了”。真正把新图加工成正式内容版本、并保证能追踪和回滚的，是 Workflow。</p>
+        </div>
+        <div class="layout-feature layout-feature--dense">
+          <article class="feature-panel glass info-card--dense">
+            <h3>它接收的输入</h3>
+            <ul class="detail-list">
+              <li>来自 Studio 的 `process-wallpapers` 触发事件。</li>
+              <li>图床仓库里的新增原图。</li>
+              <li>`metadata-pending` 里的 AI 分类结果。</li>
+              <li>历史 tag、timestamps、metadata、stats.json。</li>
+            </ul>
+          </article>
+          <article class="feature-panel glass highlight info-card--dense">
+            <h3>它产出的结果</h3>
+            <ul class="detail-list">
+              <li>缩略图和预览图。</li>
+              <li>新的版本 tag 与 GitHub Release。</li>
+              <li>更新后的 timestamps、metadata、data、stats.json。</li>
+              <li>可回滚、可追踪的正式发布状态。</li>
+            </ul>
+          </article>
+        </div>
+        <div class="flow-ribbon glass">
+          <span>repository_dispatch</span>
+          <b>→ process-new-images</b>
+          <b>→ create-tag</b>
+          <b>→ update-timestamps</b>
+          <b>→ verify</b>
+          <b>→ process-metadata</b>
+          <b>→ publish-release</b>
+        </div>
+        <div class="chip-grid chip-grid--3">
+          <article class="glass mini-info">
+            <strong>自动化价值</strong>
+            <span>把图片处理、版本创建和数据补齐从人工步骤变成稳定流水线。</span>
+          </article>
+          <article class="glass mini-info">
+            <strong>治理价值</strong>
+            <span>支持中断恢复、重复运行、回滚和发布者记录，适合长期维护。</span>
+          </article>
+          <article class="glass mini-info">
+            <strong>开源价值</strong>
+            <span>上传后台和前端站都不需要掌握完整发布细节，只需要接入它。</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Workflow 细节" data-notes="这一页要把 workflow 的关键步骤拆开讲，尤其说明为什么先 create-tag 再 process-metadata，再 publish-release。要强调 tag 是版本基线，timestamps 是首发记录，process-metadata 既吃 Studio 的 pending 也能补 Gitee 同步过来的图片。">
+      <div class="slide-head">
+        <div class="eyebrow">Workflow Deep Dive</div>
+        <div class="slide-index">06 / 12</div>
+      </div>
+      <div class="content-stack">
+        <div class="title-block">
+          <h2>Workflow 的具体业务步骤</h2>
+          <p>这些脚本不是随便排顺序的，而是围绕“版本基线、内容补全、数据一致性”三个目标设计出来的。</p>
+        </div>
+        <div class="process-table process-table--rich">
+          <div class="process-row glass process-row--rich">
+            <strong>process-new-images.sh</strong>
+            <span>通过 Git diff 只处理新增图片，生成 thumbnail 和 preview，避免全量扫描。随着仓库变大，仍能把耗时控制在新增文件范围内。</span>
+          </div>
+          <div class="process-row glass process-row--rich">
+            <strong>create-tag.sh</strong>
+            <span>先提交和打 tag，建立版本基线，并带有中断恢复逻辑。后面所有 metadata、release、首发记录都会引用这个版本。</span>
+          </div>
+          <div class="process-row glass process-row--rich">
+            <strong>update-timestamps.sh</strong>
+            <span>把新图写入 `timestamps-backup-all.txt`，记录首次出现时间与首发 tag。它是内容追溯和回滚的重要索引。</span>
+          </div>
+          <div class="process-row glass process-row--rich">
+            <strong>verify-*.sh</strong>
+            <span>校验时间戳与数据完整性，减少缩略图漏生成、元数据漏补齐的问题，让自动化流程更像“可治理系统”而不是“脚本拼盘”。</span>
+          </div>
+          <div class="process-row glass process-row--rich">
+            <strong>process-metadata.js</strong>
+            <span>一方面合并 Studio 写入的 `metadata-pending`，另一方面从 timestamps 同步直接进仓库的图片，再生成 `data/`。它同时统一“后台上传流”和“直接同步流”。</span>
+          </div>
+          <div class="process-row glass process-row--rich">
+            <strong>publish-release.sh</strong>
+            <span>回写 `stats.json`，记录发布者，提交统计文件，并创建 GitHub Release。到这一步内容才真正成为正式版本。</span>
+          </div>
+        </div>
+        <div class="layout-2col">
+          <article class="glass info-card info-card--dense">
+            <h3>为什么先打 tag 再处理 metadata</h3>
+            <p>这样生成 metadata 时就能写入正确的 `cdnTag` 和首发版本信息，前端以后追溯某张图属于哪个版本时不会丢上下文。</p>
+          </article>
+          <article class="glass info-card info-card--dense">
+            <h3>为什么 process-metadata 要读 timestamps</h3>
+            <p>因为不只有 Studio 会写入图片，Gitee 同步或其他直接入仓方式也会产生新图。读 timestamps 能把“绕过后台”的内容补进统一 metadata 体系。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="nuanXinProPic" data-notes="这里要说明图床仓库不是附件仓库，而是主内容系统。前端、工作流、Bing、回滚、版本追踪都围着它转。可以用“单一事实来源”这个词，但一定解释清楚它具体体现在哪里。">
+      <div class="slide-head">
+        <div class="eyebrow">nuanXinProPic</div>
+        <div class="slide-index">07 / 12</div>
+      </div>
+      <div class="content-stack">
+        <div class="title-block">
+          <h2>nuanXinProPic：整个系统的单一事实来源</h2>
+          <p>这里不只是放原图，还保存衍生资源、元数据、前端 JSON、Bing 数据、发布时间线和版本历史。前端和工作流都把它当作最终内容状态。</p>
+        </div>
+        <div class="layout-3col">
+          <article class="glass cluster-card info-card--dense">
+            <h3>资产层</h3>
+            <ul class="detail-list">
+              <li>`wallpaper/` 原图</li>
+              <li>`thumbnail/` 列表缩略图</li>
+              <li>`preview/` 详情预览图</li>
+              <li>为前端提供所有图片资源的最终来源。</li>
+            </ul>
+          </article>
+          <article class="glass cluster-card info-card--dense">
+            <h3>元数据层</h3>
+            <ul class="detail-list">
+              <li>`metadata/` 最终元数据</li>
+              <li>`metadata-pending/` 中间态元数据</li>
+              <li>`timestamps-backup-all.txt` 首发记录</li>
+              <li>支持从 AI 上传流和外部同步流统一补齐。</li>
+            </ul>
+          </article>
+          <article class="glass cluster-card info-card--dense">
+            <h3>消费层</h3>
+            <ul class="detail-list">
+              <li>`data/` 前端 JSON 分片</li>
+              <li>`bing/meta/` Bing 系列元数据</li>
+              <li>`stats.json` 发布统计与历史</li>
+              <li>提供给前端部署与开源使用者直接消费。</li>
+            </ul>
+          </article>
+        </div>
+        <div class="layout-2col">
+          <article class="glass info-card info-card--dense">
+            <h3>为什么叫“单一事实来源”</h3>
+            <ul class="detail-list">
+              <li>前端部署时拉的是它。</li>
+              <li>工作流处理完成后写回的是它。</li>
+              <li>Bing 定时同步沉淀的是它。</li>
+              <li>回滚时删除和恢复的也是它。</li>
+            </ul>
+          </article>
+          <article class="glass info-card accent-card info-card--dense">
+            <h3>为什么不把 data 直接放前端仓库维护</h3>
+            <ul class="detail-list">
+              <li>前端仓库应专注界面与构建，不应承载主内容真相。</li>
+              <li>图床仓库更适合作为版本化内容源，方便 CDN、tag、release 和回滚。</li>
+              <li>内容与界面分离后，排障边界会清晰很多。</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide slide--deploy" data-title="部署流程" data-notes="回到 Wallpaper Gallery，详细讲它部署时怎么消费图床数据。这里要强调它不是运行时去拼数据，而是在构建阶段把图床 JSON 复制进 public/data。这样对 SEO、静态分发和稳定性都更友好。">
+      <div class="slide-head">
+        <div class="eyebrow">Wallpaper Gallery Deploy</div>
+        <div class="slide-index">08 / 12</div>
+      </div>
+      <div class="content-stack">
+        <div class="title-block">
+          <h2>Wallpaper Gallery 的部署流程</h2>
+          <p>前端站点的部署流程，核心思想是“构建时吃入图床数据”，而不是“运行时依赖后端接口”。这非常适合静态站点、CDN 和 SEO。</p>
+        </div>
+        <div class="deploy-layout">
+          <div class="deploy-flow">
+            <article class="deploy-step deploy-step--1 glass">
+              <span>步骤 1</span>
+              <strong>获取最新 CDN 版本</strong>
+              <p>读取 `nuanXinProPic` 最新 tag，并同步到前端常量配置。</p>
+            </article>
+            <div class="deploy-link deploy-link--down"></div>
+            <article class="deploy-step deploy-step--2 glass">
+              <span>步骤 2</span>
+              <strong>checkout 图床仓库</strong>
+              <p>在 GitHub Actions 中直接拉取图床内容源，建立构建时数据基线。</p>
+            </article>
+            <div class="deploy-link deploy-link--turn"></div>
+            <article class="deploy-step deploy-step--3 glass">
+              <span>步骤 3</span>
+              <strong>复制 `data/` 与 `bing/meta/`</strong>
+              <p>把主系列和 Bing 的 JSON 分片复制到 `public/data/`，让前端构建产物自带内容。</p>
+            </article>
+            <div class="deploy-link deploy-link--down"></div>
+            <article class="deploy-step deploy-step--4 glass">
+              <span>步骤 4</span>
+              <strong>构建 SEO 页面并发布</strong>
+              <p>执行 `build:seo` 后发布到 Cloudflare Pages，生成最终可访问站点。</p>
+            </article>
+          </div>
+          <div class="deploy-notes">
+            <article class="glass info-card">
+              <h3>这样做的好处</h3>
+              <ul class="detail-list">
+                <li>对搜索引擎更友好，静态内容可直接被抓取。</li>
+                <li>站点运行时不依赖图床仓库接口，降低外部波动影响。</li>
+                <li>页面首次打开更快，内容可借助 Pages 和 CDN 分发。</li>
+                <li>Bing 与主系列都能在同一套静态数据体系里管理。</li>
+              </ul>
+            </article>
+            <article class="glass info-card accent-card">
+              <h3>用户视角的结果</h3>
+              <ul class="detail-list">
+                <li>访问时看到的是已经就绪的数据和资源。</li>
+                <li>即使内容源临时不可访问，已部署站点仍能正常浏览。</li>
+                <li>站点更稳定，缓存命中率更高，SEO 页面也更完整。</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="统计链路" data-notes="这页解释热门统计为什么是独立支线。要讲清楚：内容数据和行为数据不是一回事。Supabase 只存行为事件，export-stats 定时导出排行 JSON，让前端继续走静态消费模式。">
+      <div class="slide-head">
+        <div class="eyebrow">Analytics Pipeline</div>
+        <div class="slide-index">09 / 12</div>
+      </div>
+      <div class="content-stack">
+        <div class="title-block">
+          <h2>热门统计是另一条并行链路</h2>
+          <p>Wallpaper Gallery 既展示内容，也记录用户行为。但行为统计不会反过来成为主内容源，而是独立写入 Supabase，再定时导出成静态排行 JSON。</p>
+        </div>
+        <div class="layout-2col">
+          <article class="glass info-card info-card--dense">
+            <h3>统计链路怎么走</h3>
+            <ul class="detail-list">
+              <li>用户浏览预览图或下载壁纸时，前端上报行为事件。</li>
+              <li>Supabase 存储下载、浏览及聚合统计。</li>
+              <li>`export-stats.yml` 定时调用 `export-stats.js`。</li>
+              <li>生成 `public/data/stats/*.json`，由前端页面读取并展示热门排行。</li>
+              <li>前端依然消费静态排行 JSON，不让数据库直接侵入页面主内容链。</li>
+            </ul>
+          </article>
+          <article class="glass info-card accent-card info-card--dense">
+            <h3>为什么不用统计系统直接当内容数据库</h3>
+            <ul class="detail-list">
+              <li>统计数据是动态的、行为驱动的，不适合承载全量内容结构。</li>
+              <li>图床数据强调稳定和可版本化，统计数据库强调查询和聚合。</li>
+              <li>两者解耦后，即使统计服务异常，网站主内容仍然可用。</li>
+            </ul>
+          </article>
+        </div>
+        <div class="metric-band glass">
+          <div>
+            <span>内容链路</span>
+            <strong>nuanXinProPic → public/data → 页面展示</strong>
+          </div>
+          <div>
+            <span>统计链路</span>
+            <strong>用户行为 → Supabase → stats JSON → 热门排行</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="端到端主流程" data-notes="这一页把四个项目重新串起来，适合作为汇报中的总复盘。建议一口气讲完整条链：上传、AI、入图床、工作流、数据生成、前端部署、用户访问、统计回流。">
+      <div class="slide-head">
+        <div class="eyebrow">End-to-End Flow</div>
+        <div class="slide-index">10 / 12</div>
+      </div>
+      <div class="content-stack">
+        <div class="title-block">
+          <h2>从同事上传，到用户看到新壁纸</h2>
+          <p>这一页把四个项目真正串成一条业务链路，方便第一次接触系统的人快速建立完整心智模型。</p>
+        </div>
+        <div class="e2e-grid">
+          <div class="e2e-card glass">
+            <span>1</span>
+            <h3>Studio 上传并 AI 分类</h3>
+          </div>
+          <div class="e2e-card glass">
+            <span>2</span>
+            <h3>原图与 pending metadata 写入 nuanXinProPic</h3>
+          </div>
+          <div class="e2e-card glass">
+            <span>3</span>
+            <h3>Workflow 生成缩略图、时间戳、metadata、data</h3>
+          </div>
+          <div class="e2e-card glass">
+            <span>4</span>
+            <h3>Workflow 创建 tag / release / stats</h3>
+          </div>
+          <div class="e2e-card glass">
+            <span>5</span>
+            <h3>Wallpaper Gallery 部署时拉取最新内容</h3>
+          </div>
+          <div class="e2e-card glass">
+            <span>6</span>
+            <h3>用户浏览下载，统计数据回流 Supabase</h3>
+          </div>
+        </div>
+        <div class="chip-grid chip-grid--3">
+          <article class="glass mini-info">
+            <strong>内容生产</strong>
+            <span>Studio 和 Workflow 负责让图片从“文件”变成“正式版本内容”。</span>
+          </article>
+          <article class="glass mini-info">
+            <strong>内容消费</strong>
+            <span>Wallpaper Gallery 只消费图床已准备好的稳定 JSON 与资源。</span>
+          </article>
+          <article class="glass mini-info">
+            <strong>行为回流</strong>
+            <span>Supabase 记录用户行为，补充热门排行，而不改动主内容链路。</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="设计原因" data-notes="这页是开源用户最关心的：为什么要拆这么多项目。要把‘复杂’解释成‘职责清晰、便于部署和维护’，而不是为了炫技。这里建议强调开源可替换性：图源、AI、部署、统计都能替换。">
+      <div class="slide-head">
+        <div class="eyebrow">Why This Design</div>
+        <div class="slide-index">11 / 12</div>
+      </div>
+      <div class="content-stack">
+        <div class="title-block">
+          <h2>为什么这套系统要拆成四个项目</h2>
+          <p>从开源视角看，这种拆分不是为了“做复杂”，而是为了让每一层都可以独立维护、独立替换、独立部署。</p>
+        </div>
+        <div class="layout-2col">
+          <article class="glass info-card info-card--dense">
+            <h3>这样拆的收益</h3>
+            <ul class="detail-list">
+              <li>前端展示和内容生产解耦，任何一边出问题不会直接拖垮另一边。</li>
+              <li>图床仓库天然适合做 CDN、tag、release 和内容版本管理。</li>
+              <li>Workflow 可以重跑和回滚，便于运维与自动化审计。</li>
+              <li>Studio 可以单独演进 AI 能力，而不影响内容源结构。</li>
+              <li>内容与界面分离后，开源用户也更容易按需裁剪和组合。</li>
+            </ul>
+          </article>
+          <article class="glass info-card info-card--dense">
+            <h3>对开源用户意味着什么</h3>
+            <ul class="detail-list">
+              <li>可以替换图床仓库实现，但保留前端站。</li>
+              <li>可以替换 AI Provider，但上传后台流程仍成立。</li>
+              <li>可以只部署前端 + 图床，后续再接入 Workflow。</li>
+              <li>也可以把 Supabase 换成自己的统计实现，而不动主内容链路。</li>
+              <li>每一层都更容易单独阅读、单独 Fork、单独替换。</li>
+            </ul>
+          </article>
+        </div>
+        <div class="chip-grid chip-grid--4">
+          <article class="glass mini-info">
+            <strong>前端层</strong>
+            <span>保证用户体验与 SEO。</span>
+          </article>
+          <article class="glass mini-info">
+            <strong>后台层</strong>
+            <span>承接 AI 与上传交互。</span>
+          </article>
+          <article class="glass mini-info">
+            <strong>工作流层</strong>
+            <span>保证发布治理和自动化。</span>
+          </article>
+          <article class="glass mini-info">
+            <strong>图床层</strong>
+            <span>保证内容真相与版本沉淀。</span>
+          </article>
+        </div>
+        <div class="quote-panel glass">
+          <strong>一句话总结设计思想</strong>
+          <p>让 Wallpaper Gallery 始终保持“面向用户的纯展示站”定位，把复杂性有意识地下沉到支撑项目里。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="开源与演示" data-notes="最后收口时，不要只做概念总结，而要真正面向 GitHub 用户给出入口：网站地址、四个仓库链接、每个项目的亮点，以及明确的 Star / Fork 引导。最后要有感谢和邀请，形成完整的开源展示结束页。">
+      <div class="slide-head">
+        <div class="eyebrow">Open Source Showcase</div>
+        <div class="slide-index">12 / 12</div>
+      </div>
+      <div class="content-stack">
+        <div class="title-block">
+          <h2>感谢观看，这个开源壁纸系统架构展示</h2>
+          <p>Wallpaper Gallery 是面向用户的成品站，Studio、Workflow、nuanXinProPic 是背后的内容生产系统。你可以直接访问网站体验，也可以按需 Fork 任意一层进行二次开发。</p>
+        </div>
+        <div class="oss-grid">
+          <article class="glass repo-card repo-card--hero">
+            <span class="repo-tag">在线体验</span>
+            <h3>Wallpaper Gallery</h3>
+            <p>最终用户访问的壁纸网站，负责内容展示、筛选、下载、SEO 与热门排行。</p>
+            <a href="https://wallpaper.061129.xyz/" target="_blank" rel="noreferrer">https://wallpaper.061129.xyz/</a>
+            <a href="https://github.com/IT-NuanxinPro/wallpaper-gallery" target="_blank" rel="noreferrer">github.com/IT-NuanxinPro/wallpaper-gallery</a>
+          </article>
+          <article class="glass repo-card">
+            <span class="repo-tag">图床仓库</span>
+            <h3>nuanXinProPic</h3>
+            <p>保存原图、缩略图、预览图、metadata、data、Bing 数据与发布历史，是单一事实来源。</p>
+            <a href="https://github.com/IT-NuanxinPro/nuanXinProPic" target="_blank" rel="noreferrer">github.com/IT-NuanxinPro/nuanXinProPic</a>
+          </article>
+          <article class="glass repo-card">
+            <span class="repo-tag">自动化工作流</span>
+            <h3>wallpaper-gallery-workflow</h3>
+            <p>负责图片处理、时间戳维护、metadata 合并、release 发布与回滚治理。</p>
+            <a href="https://github.com/IT-NuanxinPro/wallpaper-gallery-workflow" target="_blank" rel="noreferrer">github.com/IT-NuanxinPro/wallpaper-gallery-workflow</a>
+          </article>
+          <article class="glass repo-card">
+            <span class="repo-tag">上传后台</span>
+            <h3>wallpaper-gallery-studio</h3>
+            <p>提供 GitHub 登录、AI 分类、批量上传、工作流触发和发布管理能力。</p>
+            <a href="https://github.com/IT-NuanxinPro/wallpaper-gallery-studio" target="_blank" rel="noreferrer">github.com/IT-NuanxinPro/wallpaper-gallery-studio</a>
+          </article>
+        </div>
+        <div class="cta-band glass">
+          <div class="cta-copy">
+            <strong>如果这套开源系统对你有帮助</strong>
+            <p>欢迎访问项目主页，点一个 <span>Star</span> 支持，或者直接 <span>Fork</span> 开始你的二次开发。你的反馈、Issue 和 PR 都会帮助这个项目继续成长。</p>
+          </div>
+          <div class="cta-actions">
+            <a class="cta-link" href="https://github.com/IT-NuanxinPro/wallpaper-gallery" target="_blank" rel="noreferrer">Star Wallpaper Gallery</a>
+            <a class="cta-link" href="https://github.com/IT-NuanxinPro/wallpaper-gallery/fork" target="_blank" rel="noreferrer">Fork 主仓库</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="deck-footer">
+    <div class="progress-meta">
+      <span class="mono" id="progressText">1 / 12</span>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+    <div class="footer-actions">
+      <div class="nav-cluster" aria-label="页面导航">
+        <button class="nav-btn nav-btn--minimal" id="prevBtn" type="button" aria-label="上一页">‹</button>
+        <div class="nav-divider" aria-hidden="true"></div>
+        <button class="nav-btn nav-btn--minimal" id="nextBtn" type="button" aria-label="下一页">›</button>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./app.js"></script>
+</body>
+</html>

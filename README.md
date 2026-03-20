@@ -12,6 +12,7 @@
   
   <p>
     <a href="https://wallpaper.061129.xyz">🌐 访问体验站</a> | 
+    <a href="https://wallpaper-gallery-architecture.061129.xyz/">🏗️ 架构静态页</a> | 
     <a href="#-特性">✨ 功能亮点</a> | 
     <a href="#-技术栈">🛠️ 技术栈实现</a>
   </p>
@@ -273,9 +274,12 @@ wallpaper-gallery/
 ├── scripts/
 │   ├── sync-data.js      # 数据同步脚本（从 CDN 拉取）
 │   ├── export-stats.js   # 统计数据导出脚本
-│   └── supabase-migration.sql  # 数据库迁移脚本
+│   ├── supabase-init.sql  # 新项目一键初始化 SQL
+│   ├── supabase-migration.sql  # 新统计结构初始化/迁移脚本
+│   └── supabase-retire-legacy.sql  # 旧统计结构标记/下线脚本
 ├── docs/
 │   ├── Fork部署指南.md   # Fork 用户部署指南
+│   ├── Supabase统计系统.md # 当前 Supabase 统计架构说明
 │   └── ...               # 其他文档
 ├── WORKFLOW.md           # 开发工作流程说明
 ├── src/

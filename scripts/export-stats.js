@@ -22,6 +22,23 @@ const SERIES_LIST = ['desktop', 'mobile', 'avatar', 'bing']
 const OUTPUT_DIR = path.join(__dirname, '../public/data/stats')
 const LIMIT_PER_SERIES = 500 // 每个系列导出前 500 条
 
+function normalizeImageId(imageId, series) {
+  if (!imageId)
+    return ''
+
+  if (series === 'bing') {
+    if (/^bing-\d{4}-\d{2}-\d{2}\.jpg$/i.test(imageId)) {
+      return imageId
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}\.jpg$/i.test(imageId)) {
+      return `bing-${imageId}`
+    }
+  }
+
+  return imageId
+}
+
 /**
  * 检查 Supabase 配置
  */
@@ -61,11 +78,31 @@ async function fetchHotStats(series, limit = LIMIT_PER_SERIES) {
  * 格式化导出数据
  */
 function formatExportData(rawData) {
-  return rawData.map(item => ({
-    image_id: item.image_id,
-    views: item.total_views || 0,
-    downloads: item.total_downloads || 0,
-  }))
+  return rawData
+}
+
+function mergeExportData(rawData, series) {
+  const merged = new Map()
+
+  rawData.forEach((item) => {
+    const imageId = normalizeImageId(item.image_id, series)
+    if (!imageId)
+      return
+
+    const prev = merged.get(imageId) || { image_id: imageId, views: 0, downloads: 0 }
+    prev.views += item.total_views || 0
+    prev.downloads += item.total_downloads || 0
+    merged.set(imageId, prev)
+  })
+
+  return Array.from(merged.values())
+    .sort((a, b) => {
+      if (b.views !== a.views)
+        return b.views - a.views
+      if (b.downloads !== a.downloads)
+        return b.downloads - a.downloads
+      return a.image_id.localeCompare(b.image_id, 'zh-CN')
+    })
 }
 
 /**
@@ -97,7 +134,13 @@ function formatDateTime(date = new Date()) {
 function writeJsonFile(filename, data) {
   const filepath = path.join(OUTPUT_DIR, filename)
   fs.writeFileSync(filepath, JSON.stringify(data, null, 2), 'utf-8')
-  console.log(`导出完成: ${filename} (${data.length} 条)`)
+
+  if (Array.isArray(data)) {
+    console.log(`导出完成: ${filename} (${data.length} 条)`)
+    return
+  }
+
+  console.log(`导出完成: ${filename}`)
 }
 
 /**
@@ -121,7 +164,7 @@ async function main() {
       console.log(`\n正在导出: ${series}...`)
 
       const rawData = await fetchHotStats(series)
-      const formattedData = formatExportData(rawData)
+      const formattedData = mergeExportData(formatExportData(rawData), series)
 
       // 写入单独的系列文件
       writeJsonFile(`hot-${series}.json`, formattedData)
