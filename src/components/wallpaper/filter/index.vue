@@ -1,7 +1,6 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, defineAsyncComponent, ref } from 'vue'
 import MobileCategoryDrawer from '@/components/common/navigation/MobileCategoryDrawer.vue'
-import DesktopFilterControls from '@/components/wallpaper/filter/desktop/DesktopFilterControls.vue'
 import MobileFilterBar from '@/components/wallpaper/filter/mobile/MobileFilterBar.vue'
 import MobileFilterPopup from '@/components/wallpaper/filter/mobile/MobileFilterPopup.vue'
 import FilterSummary from '@/components/wallpaper/filter/shared/FilterSummary.vue'
@@ -72,6 +71,11 @@ const emit = defineEmits(['clearSearch', 'update:sortBy', 'update:formatFilter',
 
 const { isMobile } = useDevice()
 const { viewMode, setViewMode } = useViewMode()
+
+const DesktopFilterControls = defineAsyncComponent({
+  loader: () => import('@/components/wallpaper/filter/desktop/DesktopFilterControls.vue'),
+  suspensible: false,
+})
 
 // 移动端弹窗状态
 const showFilterPopup = ref(false) // 格式+排序筛选弹窗
@@ -221,24 +225,25 @@ function resetFilters() {
       @reset="handleReset"
     />
 
-    <DesktopFilterControls
-      v-if="!isMobile"
-      :category-filter="categoryFilter"
-      :category-options="categoryOptions"
-      :current-series="currentSeries"
-      :format-filter="formatFilter"
-      :hide-format-filter="hideFormatFilter"
-      :resolution-filter="resolutionFilter"
-      :sort-by="sortBy"
-      :subcategory-filter="subcategoryFilter"
-      :view-mode="viewMode"
-      @view-mode-change="setViewMode"
-      @category-update="handleCategoryUpdate"
-      @subcategory-update="handleSubcategoryUpdate"
-      @format-change="handleFormatChange"
-      @resolution-change="handleResolutionChange"
-      @sort-change="handleSortChange"
-    />
+    <div v-if="!isMobile" class="desktop-filter-slot">
+      <DesktopFilterControls
+        :category-filter="categoryFilter"
+        :category-options="categoryOptions"
+        :current-series="currentSeries"
+        :format-filter="formatFilter"
+        :hide-format-filter="hideFormatFilter"
+        :resolution-filter="resolutionFilter"
+        :sort-by="sortBy"
+        :subcategory-filter="subcategoryFilter"
+        :view-mode="viewMode"
+        @view-mode-change="setViewMode"
+        @category-update="handleCategoryUpdate"
+        @subcategory-update="handleSubcategoryUpdate"
+        @format-change="handleFormatChange"
+        @resolution-change="handleResolutionChange"
+        @sort-change="handleSortChange"
+      />
+    </div>
 
     <MobileFilterBar
       v-else
@@ -294,7 +299,7 @@ function resetFilters() {
   position: -webkit-sticky;
   position: sticky;
   top: $header-height;
-  z-index: 99;
+  z-index: 89;
 
   // 确保 sticky 在各浏览器正常工作
   -webkit-transform: translateZ(0);
@@ -315,6 +320,15 @@ function resetFilters() {
       border-color: rgba(102, 126, 234, 0.25);
     }
   }
+}
+
+.desktop-filter-slot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 38px;
+  flex: 1;
+  min-width: 0;
 }
 
 // 响应式

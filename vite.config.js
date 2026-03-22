@@ -36,11 +36,11 @@ export default defineConfig({
     cdnPlugin(),
     // 自动导入
     AutoImport({
-      resolvers: [ElementPlusResolver(), VantResolver()],
+      resolvers: [ElementPlusResolver({ importStyle: 'css' }), VantResolver()],
     }),
     // 组件自动注册
     Components({
-      resolvers: [ElementPlusResolver(), VantResolver()],
+      resolvers: [ElementPlusResolver({ importStyle: 'css' }), VantResolver()],
     }),
     // Brotli 压缩（压缩率更高，GitHub Pages 支持）
     compression({
@@ -116,9 +116,8 @@ export default defineConfig({
         },
         manualChunks: {
           // 保留这些库的分包配置（不使用 CDN）
-          'element-plus': ['element-plus'],
-          'vant': ['vant'],
-          'gsap': ['gsap'],
+          vant: ['vant'],
+          gsap: ['gsap'],
         },
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',

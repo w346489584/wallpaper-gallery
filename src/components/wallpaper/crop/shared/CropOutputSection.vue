@@ -1,15 +1,63 @@
 <script setup>
 defineProps({
-  outputOriginal: {
+  exactOutputEnabled: {
     type: Boolean,
     default: false,
   },
+  exactOutputValid: {
+    type: Boolean,
+    default: true,
+  },
+  outputFormat: {
+    type: String,
+    default: 'jpeg',
+  },
+  outputQuality: {
+    type: Number,
+    default: 92,
+  },
+  outputHeight: {
+    type: [String, Number],
+    default: '',
+  },
+  outputWidth: {
+    type: [String, Number],
+    default: '',
+  },
 })
 
-const emit = defineEmits(['update:outputOriginal'])
+const emit = defineEmits([
+  'update:exactOutputEnabled',
+  'update:outputFormat',
+  'update:outputQuality',
+  'update:outputHeight',
+  'update:outputWidth',
+])
 
-function handleChange(event) {
-  emit('update:outputOriginal', event.target.checked)
+const formatOptions = [
+  { value: 'jpeg', label: 'JPG', hint: '兼顾体积与画质' },
+  { value: 'png', label: 'PNG', hint: '无损，适合纯净边缘' },
+  { value: 'webp', label: 'WebP', hint: '更轻，适合网页使用' },
+]
+
+function handleExactToggle(event) {
+  emit('update:exactOutputEnabled', event.target.checked)
+}
+
+function handleFormatChange(format) {
+  emit('update:outputFormat', format)
+}
+
+function handleQualityChange(event) {
+  emit('update:outputQuality', Number.parseInt(event.target.value, 10))
+}
+
+function handleWidthInput(event) {
+  emit('update:outputWidth', event.target.value)
+}
+
+function handleHeightInput(event) {
+  emit('update:outputHeight', event.target.value)
 }
 </script>
 
@@ -21,16 +69,66 @@ function handleChange(event) {
       </svg>
       输出选项
     </h3>
-    <label class="option-toggle">
-      <input :checked="outputOriginal" type="checkbox" @change="handleChange">
+
+    <div class="format-group">
+      <button
+        v-for="option in formatOptions"
+        :key="option.value"
+        class="format-chip"
+        :class="{ 'format-chip--active': outputFormat === option.value }"
+        @click="handleFormatChange(option.value)"
+      >
+        <span class="format-chip__label">{{ option.label }}</span>
+        <span class="format-chip__hint">{{ option.hint }}</span>
+      </button>
+    </div>
+
+    <div v-if="outputFormat !== 'png'" class="quality-group">
+      <div class="quality-header">
+        <span class="quality-label">导出质量</span>
+        <span class="quality-value">{{ outputQuality }}%</span>
+      </div>
+      <input
+        class="quality-range"
+        type="range"
+        min="60"
+        max="100"
+        step="1"
+        :value="outputQuality"
+        @input="handleQualityChange"
+      >
+      <div class="quality-scale">
+        <span>小体积</span>
+        <span>高画质</span>
+      </div>
+    </div>
+
+    <label class="option-toggle option-toggle--exact">
+      <input :checked="exactOutputEnabled" type="checkbox" @change="handleExactToggle">
       <span class="toggle-track">
         <span class="toggle-thumb" />
       </span>
       <span class="toggle-label">
-        <span class="label-text">超高分辨率</span>
-        <span class="label-hint">最大 16K，适合大屏显示器</span>
+        <span class="label-text">精确输出尺寸</span>
+        <span class="label-hint">导出固定宽高，适合指定屏幕或设备</span>
       </span>
     </label>
+
+    <div v-if="exactOutputEnabled" class="exact-size-card" :class="{ 'exact-size-card--invalid': !exactOutputValid }">
+      <div class="exact-size-inputs">
+        <label class="size-field">
+          <span>宽度</span>
+          <input :value="outputWidth" type="number" min="1" placeholder="1920" @input="handleWidthInput">
+        </label>
+        <label class="size-field">
+          <span>高度</span>
+          <input :value="outputHeight" type="number" min="1" placeholder="1080" @input="handleHeightInput">
+        </label>
+      </div>
+      <p class="exact-size-hint" :class="{ 'exact-size-hint--error': !exactOutputValid }">
+        {{ exactOutputValid ? '会按你填写的尺寸精确导出，并自动同步裁剪比例' : '请输入有效的宽度和高度' }}
+      </p>
+    </div>
   </div>
 </template>
 
@@ -41,7 +139,7 @@ function handleChange(event) {
   flex-shrink: 0;
 
   &--output {
-    padding: 12px 16px;
+    padding: 14px 16px 16px;
   }
 }
 
@@ -63,6 +161,113 @@ function handleChange(event) {
   }
 }
 
+.format-group {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.format-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 10px 11px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  &--active {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.18) 0%, rgba(118, 75, 162, 0.12) 100%);
+    border-color: rgba(102, 126, 234, 0.36);
+    box-shadow: 0 0 0 1px rgba(102, 126, 234, 0.12) inset;
+
+    .format-chip__label {
+      color: #dfe6ff;
+    }
+
+    .format-chip__hint {
+      color: rgba(222, 230, 255, 0.72);
+    }
+  }
+}
+
+.format-chip__label {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.format-chip__hint {
+  font-size: 9px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.quality-group {
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+
+.quality-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.quality-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.quality-value {
+  font-size: 11px;
+  font-weight: 700;
+  color: #8ea2ff;
+  font-family: 'SF Mono', Monaco, monospace;
+}
+
+.quality-range {
+  width: 100%;
+  appearance: none;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  outline: none;
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid #667eea;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.32);
+    cursor: pointer;
+  }
+}
+
+.quality-scale {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
 .option-toggle {
   display: flex;
   align-items: center;
@@ -79,6 +284,10 @@ function handleChange(event) {
     border-color: rgba(255, 255, 255, 0.08);
   }
 
+  &--exact {
+    margin-bottom: 10px;
+  }
+
   input {
     display: none;
 
@@ -89,6 +298,70 @@ function handleChange(event) {
         transform: translateX(14px);
       }
     }
+  }
+}
+
+.exact-size-card {
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+
+  &--invalid {
+    border-color: rgba(248, 113, 113, 0.34);
+    box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.08) inset;
+  }
+}
+
+.exact-size-inputs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.size-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  span {
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.46);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+
+  input {
+    width: 100%;
+    min-width: 0;
+    padding: 8px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.24);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    outline: none;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+
+    &:focus {
+      border-color: rgba(102, 126, 234, 0.42);
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+    }
+  }
+}
+
+.exact-size-hint {
+  margin: 8px 0 0;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.42);
+
+  &--error {
+    color: rgba(248, 113, 113, 0.9);
   }
 }
 

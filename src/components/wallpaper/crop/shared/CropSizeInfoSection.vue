@@ -4,9 +4,29 @@ defineProps({
     type: Object,
     default: () => ({ width: 0, height: 0 }),
   },
+  exportFormatLabel: {
+    type: String,
+    default: '',
+  },
+  exportQualityLabel: {
+    type: String,
+    default: '',
+  },
+  exportScaleHint: {
+    type: String,
+    default: '',
+  },
+  finalExportSize: {
+    type: Object,
+    default: () => ({ width: 0, height: 0 }),
+  },
   originalResolution: {
     type: Object,
     default: null,
+  },
+  selectedBatchCount: {
+    type: Number,
+    default: 0,
   },
 })
 </script>
@@ -18,9 +38,23 @@ defineProps({
         <span class="size-label">裁剪尺寸</span>
         <span class="size-value highlight">{{ cropInfo.width || '—' }} × {{ cropInfo.height || '—' }}</span>
       </div>
+      <div class="size-row">
+        <span class="size-label">单张导出</span>
+        <span class="size-value">{{ finalExportSize.width || '—' }} × {{ finalExportSize.height || '—' }}</span>
+      </div>
       <div v-if="originalResolution" class="size-row">
         <span class="size-label">原图尺寸</span>
         <span class="size-value">{{ originalResolution.width }} × {{ originalResolution.height }}</span>
+      </div>
+      <div class="size-row">
+        <span class="size-label">输出格式</span>
+        <span class="size-value">{{ exportFormatLabel }}<span v-if="exportQualityLabel" class="size-sub">{{ exportQualityLabel }}</span></span>
+      </div>
+      <div v-if="exportScaleHint" class="size-note">
+        {{ exportScaleHint }}
+      </div>
+      <div v-if="selectedBatchCount > 0" class="size-note size-note--accent">
+        已选择 {{ selectedBatchCount }} 个批量导出版本
       </div>
     </div>
   </div>
@@ -68,6 +102,29 @@ defineProps({
 
   &.highlight {
     color: #667eea;
+  }
+}
+
+.size-sub {
+  margin-left: 6px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: inherit;
+}
+
+.size-note {
+  padding: 9px 10px;
+  font-size: 10px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.44);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+
+  &--accent {
+    color: #cbd7ff;
+    border-color: rgba(102, 126, 234, 0.18);
+    background: rgba(102, 126, 234, 0.08);
   }
 }
 </style>

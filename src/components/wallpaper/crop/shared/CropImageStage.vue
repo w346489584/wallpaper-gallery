@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner.vue'
 
 defineProps({
@@ -18,10 +19,6 @@ defineProps({
     type: Boolean,
     default: false,
   },
-  imageRef: {
-    type: Object,
-    default: null,
-  },
   imageUrl: {
     type: String,
     default: '',
@@ -29,10 +26,26 @@ defineProps({
 })
 
 const emit = defineEmits(['error', 'load'])
+const stageImageRef = ref(null)
+
+function getImageElement() {
+  return stageImageRef.value
+}
+
+defineExpose({
+  getImageElement,
+})
 </script>
 
 <template>
   <div class="crop-area">
+    <div
+      v-if="imageLoaded && !imageError && imageUrl"
+      class="crop-area__backdrop"
+      :style="{ backgroundImage: `url(${imageUrl})` }"
+    />
+    <div class="crop-area__overlay" />
+
     <div v-if="cropInfo.width > 0" class="crop-size-badge">
       <span class="size-dimensions">{{ cropInfo.width }} × {{ cropInfo.height }}</span>
       <span class="size-divider">|</span>
@@ -57,7 +70,7 @@ const emit = defineEmits(['error', 'load'])
 
     <img
       v-show="imageLoaded && !imageError"
-      :ref="imageRef"
+      ref="stageImageRef"
       :src="imageUrl"
       class="crop-image"
       crossorigin="anonymous"
@@ -77,8 +90,32 @@ const emit = defineEmits(['error', 'load'])
   overflow: hidden;
   min-height: 0;
   will-change: contents;
-  padding: 8px;
-  background: rgba(0, 0, 0, 0.15);
+  padding: 4px;
+  background:
+    radial-gradient(circle at top, rgba(120, 144, 255, 0.14), transparent 42%),
+    linear-gradient(180deg, rgba(5, 10, 25, 0.72) 0%, rgba(5, 10, 25, 0.58) 100%);
+}
+
+.crop-area__backdrop,
+.crop-area__overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.crop-area__backdrop {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter: blur(22px) saturate(1.08);
+  transform: scale(1.08);
+  opacity: 0.38;
+}
+
+.crop-area__overlay {
+  background:
+    linear-gradient(180deg, rgba(5, 10, 25, 0.12) 0%, rgba(5, 10, 25, 0.32) 100%),
+    linear-gradient(90deg, rgba(102, 126, 234, 0.08), transparent 22%, transparent 78%, rgba(102, 126, 234, 0.08));
 }
 
 .crop-size-badge {
@@ -147,5 +184,7 @@ const emit = defineEmits(['error', 'load'])
   display: block;
   max-width: 100%;
   max-height: 100%;
+  position: relative;
+  z-index: 1;
 }
 </style>

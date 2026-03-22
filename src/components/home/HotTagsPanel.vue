@@ -370,7 +370,7 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .hot-tags-panel {
   position: relative;
-  z-index: 110;
+  z-index: 90;
   margin-bottom: $spacing-lg;
   padding: $spacing-lg;
   border-radius: $radius-lg;

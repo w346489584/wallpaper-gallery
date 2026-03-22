@@ -1,8 +1,14 @@
 <script setup>
+import { ref } from 'vue'
+
 defineProps({
   cropInfo: {
     type: Object,
     default: () => ({ width: 0, height: 0 }),
+  },
+  currentAspectRatio: {
+    type: Number,
+    default: 1,
   },
   imageLoaded: {
     type: Boolean,
@@ -12,13 +18,19 @@ defineProps({
     type: Boolean,
     default: false,
   },
-  previewCanvasRef: {
-    type: Object,
-    default: null,
-  },
 })
 
 defineEmits(['immersivePreview'])
+
+const previewCanvasEl = ref(null)
+
+function getCanvasElement() {
+  return previewCanvasEl.value
+}
+
+defineExpose({
+  getCanvasElement,
+})
 </script>
 
 <template>
@@ -47,17 +59,21 @@ defineEmits(['immersivePreview'])
       </div>
     </div>
     <div class="preview-canvas-wrapper">
-      <canvas :ref="previewCanvasRef" class="preview-canvas" />
+      <canvas ref="previewCanvasEl" class="preview-canvas" />
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .preview-section {
+  display: flex;
+  flex-direction: column;
   flex-shrink: 0;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(0, 0, 0, 0.2);
-  height: 260px;
+  background:
+    radial-gradient(circle at top, rgba(102, 126, 234, 0.12), transparent 55%),
+    linear-gradient(180deg, rgba(8, 14, 32, 0.72) 0%, rgba(8, 14, 32, 0.9) 100%);
+  height: 340px;
 }
 
 .preview-header {
@@ -66,6 +82,7 @@ defineEmits(['immersivePreview'])
   justify-content: space-between;
   padding: 6px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  flex-shrink: 0;
 }
 
 .preview-title {
@@ -132,16 +149,21 @@ defineEmits(['immersivePreview'])
 }
 
 .preview-canvas-wrapper {
-  padding: 8px 16px 12px;
-  height: calc(100% - 30px);
+  flex: 1;
+  min-height: 0;
+  padding: 14px 18px;
   box-sizing: border-box;
 }
 
 .preview-canvas {
   width: 100%;
   height: 100%;
-  border-radius: 10px;
-  background: #0a0a12;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(6, 10, 22, 0.92) 0%, rgba(10, 15, 30, 0.96) 100%);
+  display: block;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 14px 36px rgba(0, 0, 0, 0.22);
 }
 </style>

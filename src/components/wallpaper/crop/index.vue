@@ -10,6 +10,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner.vue'
 import { trackImageCrop } from '@/utils/common/analytics'
 import { buildRawImageUrl } from '@/utils/common/format'
+import CropBatchExportSection from './shared/CropBatchExportSection.vue'
 import CropImageStage from './shared/CropImageStage.vue'
 import CropModalHeader from './shared/CropModalHeader.vue'
 import CropOutputSection from './shared/CropOutputSection.vue'
@@ -40,11 +41,32 @@ const props = defineProps({
 
 const emit = defineEmits(['close'])
 
+const OUTPUT_FORMAT_CONFIG = {
+  jpeg: {
+    extension: 'jpg',
+    label: 'JPG',
+    mime: 'image/jpeg',
+    supportsQuality: true,
+  },
+  png: {
+    extension: 'png',
+    label: 'PNG',
+    mime: 'image/png',
+    supportsQuality: false,
+  },
+  webp: {
+    extension: 'webp',
+    label: 'WebP',
+    mime: 'image/webp',
+    supportsQuality: true,
+  },
+}
+
 // Refs
 const modalRef = ref(null)
 const contentRef = ref(null)
-const imageRef = ref(null)
-const previewCanvasRef = ref(null)
+const imageStageRef = ref(null)
+const previewSectionRef = ref(null)
 const cropper = ref(null)
 
 // State
@@ -58,7 +80,12 @@ const zoomLevel = ref(1)
 const initialZoomRatio = ref(1) // 记录初始缩放比例，用于计算相对缩放
 const isImmersivePreview = ref(false)
 const immersiveImageUrl = ref('')
-const outputOriginal = ref(false)
+const outputFormat = ref('jpeg')
+const outputQuality = ref(92)
+const exactOutputEnabled = ref(false)
+const outputWidth = ref('')
+const outputHeight = ref('')
+const selectedBatchPresetIds = ref([])
 const showCustomInput = ref(false)
 const customWidth = ref('')
 const customHeight = ref('')
@@ -127,16 +154,226 @@ const currentRatioDisplay = computed(() => {
 
 // 处理大文件：使用 jsDelivr CDN，如果失败则回退到 GitHub Raw
 const croppedImageUrl = computed(() => actualImageUrl.value || props.imageUrl)
+const outputFormatInfo = computed(() => OUTPUT_FORMAT_CONFIG[outputFormat.value] || OUTPUT_FORMAT_CONFIG.jpeg)
+const parsedOutputWidth = computed(() => parseDimensionValue(outputWidth.value))
+const parsedOutputHeight = computed(() => parseDimensionValue(outputHeight.value))
+const exactOutputValid = computed(() =>
+  !exactOutputEnabled.value || (parsedOutputWidth.value > 0 && parsedOutputHeight.value > 0),
+)
+const currentAspectRatio = computed(() => {
+  if (cropInfo.value.width > 0 && cropInfo.value.height > 0) {
+    return cropInfo.value.width / cropInfo.value.height
+  }
+
+  if (imageNaturalSize.value.width > 0 && imageNaturalSize.value.height > 0) {
+    return imageNaturalSize.value.width / imageNaturalSize.value.height
+  }
+
+  if (Number.isFinite(currentPreset.value?.ratio) && currentPreset.value.ratio > 0) {
+    return currentPreset.value.ratio
+  }
+
+  return 16 / 9
+})
+const finalExportSize = computed(() => {
+  if (exactOutputEnabled.value && exactOutputValid.value) {
+    return {
+      width: parsedOutputWidth.value,
+      height: parsedOutputHeight.value,
+    }
+  }
+
+  return {
+    width: cropInfo.value.width || 0,
+    height: cropInfo.value.height || 0,
+  }
+})
+const exportQualityLabel = computed(() =>
+  outputFormatInfo.value.supportsQuality ? `${outputQuality.value}%` : '无损',
+)
+const exportScaleHint = computed(() => {
+  if (cropInfo.value.width <= 0 || cropInfo.value.height <= 0 || finalExportSize.value.width <= 0 || finalExportSize.value.height <= 0) {
+    return ''
+  }
+
+  const scale = Math.max(
+    finalExportSize.value.width / cropInfo.value.width,
+    finalExportSize.value.height / cropInfo.value.height,
+  )
+
+  if (scale > 1.02) {
+    return `当前单张导出会放大约 ${scale.toFixed(2)}x，更适合指定屏幕尺寸，但细节不会超过原图本身。`
+  }
+
+  if (scale < 0.98) {
+    return `当前单张导出会缩小到约 ${Math.round(scale * 100)}%，更适合轻量下载和网页使用。`
+  }
+
+  return '当前单张导出会保持裁剪区域的原生尺寸。'
+})
+const canSingleExport = computed(() =>
+  imageLoaded.value && !imageError.value && !isProcessing.value && Boolean(cropper.value) && exactOutputValid.value,
+)
+const rawBatchPresets = computed(() => {
+  const ratio = currentAspectRatio.value
+  if (!Number.isFinite(ratio) || ratio <= 0) {
+    return []
+  }
+
+  const cropWidth = cropInfo.value.width || 0
+  const cropHeight = cropInfo.value.height || 0
+  const presets = []
+
+  if (cropWidth > 0 && cropHeight > 0) {
+    presets.push(buildBatchPreset('native', cropWidth, cropHeight, ratio, true))
+  }
+
+  for (const width of getBatchPresetWidths(ratio)) {
+    const height = normalizeEven(width / ratio)
+    const id = `${width}x${height}`
+    if (presets.some(preset => preset.id === id))
+      continue
+    presets.push(buildBatchPreset(id, width, height, ratio))
+  }
+
+  return presets
+})
+const recommendedBatchPresetIds = computed(() => {
+  const cropWidth = cropInfo.value.width || 0
+  const cropHeight = cropInfo.value.height || 0
+  const nativeFriendlyIds = rawBatchPresets.value
+    .filter((preset) => {
+      if (preset.id === 'native')
+        return true
+
+      if (cropWidth <= 0 || cropHeight <= 0)
+        return true
+
+      return preset.width <= cropWidth && preset.height <= cropHeight
+    })
+    .map(preset => preset.id)
+
+  const sourceIds = nativeFriendlyIds.length > 0
+    ? nativeFriendlyIds
+    : rawBatchPresets.value.map(preset => preset.id)
+
+  return sourceIds.slice(0, 3)
+})
+const batchPresets = computed(() =>
+  rawBatchPresets.value.map(preset => ({
+    ...preset,
+    recommended: recommendedBatchPresetIds.value.includes(preset.id),
+  })),
+)
+
+watch(batchPresets, (presets) => {
+  const validIds = new Set(presets.map(preset => preset.id))
+  selectedBatchPresetIds.value = selectedBatchPresetIds.value.filter(id => validIds.has(id))
+})
+
+function getImageElement() {
+  return imageStageRef.value?.getImageElement?.() || null
+}
+
+function getPreviewCanvasElement() {
+  return previewSectionRef.value?.getCanvasElement?.() || null
+}
+
+function parseDimensionValue(value) {
+  const parsed = Number.parseInt(String(value || '').trim(), 10)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0
+}
+
+function normalizeEven(value) {
+  const rounded = Math.max(1, Math.round(value))
+  return rounded % 2 === 0 ? rounded : rounded + 1
+}
+
+function getBatchPresetWidths(ratio) {
+  if (ratio > 2.05) {
+    return [2560, 3440, 5120]
+  }
+
+  if (ratio < 0.85) {
+    return [1080, 1440, 2160]
+  }
+
+  if (Math.abs(ratio - 1) < 0.08) {
+    return [1080, 2048, 3072]
+  }
+
+  return [1920, 2560, 3840]
+}
+
+function getBatchPresetLabel(width, height, ratio) {
+  const longSide = Math.max(width, height)
+
+  if (ratio > 2.05) {
+    if (width >= 5000)
+      return '5K 带鱼'
+    if (width >= 3400)
+      return '3440 宽屏'
+    return '宽屏'
+  }
+
+  if (Math.abs(ratio - 1) < 0.08) {
+    if (width >= 3000)
+      return '3K 方图'
+    if (width >= 2000)
+      return '2K 方图'
+    return '1080 方图'
+  }
+
+  if (ratio < 0.85) {
+    if (longSide >= 3800)
+      return '4K 竖屏'
+    if (longSide >= 2500)
+      return '2K 竖屏'
+    return '1080P 竖屏'
+  }
+
+  if (longSide >= 3800)
+    return '4K'
+  if (longSide >= 2500)
+    return '2K'
+  return '1080P'
+}
+
+function buildBatchPreset(id, width, height, ratio, isNative = false) {
+  const cropWidth = cropInfo.value.width || width
+  const cropHeight = cropInfo.value.height || height
+  const scale = Math.max(width / cropWidth, height / cropHeight)
+
+  let description = '适合当前比例的常用尺寸'
+  if (isNative) {
+    description = '当前选区原生尺寸'
+  }
+  else if (scale > 1.02) {
+    description = `约放大 ${scale.toFixed(2)}x，适合目标设备尺寸`
+  }
+  else if (scale < 0.98) {
+    description = '更轻量，适合网页或副屏'
+  }
+
+  return {
+    description,
+    height,
+    id,
+    label: isNative ? '当前裁剪' : getBatchPresetLabel(width, height, ratio),
+    width,
+  }
+}
 
 // 初始化 Cropper
 function initCropper() {
-  if (!imageRef.value || cropper.value)
+  const imageElement = getImageElement()
+  if (!imageElement || cropper.value)
     return
 
   const preset = currentPreset.value
   const aspectRatio = Number.isNaN(preset.ratio) ? Number.NaN : preset.ratio
 
-  cropper.value = new Cropper(imageRef.value, {
+  cropper.value = new Cropper(imageElement, {
     aspectRatio,
     viewMode: 1, // viewMode 1: 限制裁剪框不超出图片
     dragMode: 'move',
@@ -202,7 +439,8 @@ function debouncedUpdatePreview() {
 
 // 更新实时预览 - 高性能版本
 function updatePreview() {
-  if (!cropper.value || !previewCanvasRef.value)
+  const previewCanvasElement = getPreviewCanvasElement()
+  if (!cropper.value || !previewCanvasElement)
     return
 
   try {
@@ -215,9 +453,9 @@ function updatePreview() {
     })
 
     if (previewCanvas) {
-      const ctx = previewCanvasRef.value.getContext('2d', { alpha: false })
-      const containerWidth = previewCanvasRef.value.offsetWidth || 800
-      const containerHeight = previewCanvasRef.value.offsetHeight || 220
+      const ctx = previewCanvasElement.getContext('2d', { alpha: false })
+      const containerWidth = previewCanvasElement.offsetWidth || 800
+      const containerHeight = previewCanvasElement.offsetHeight || 220
 
       // 计算缩放比例保持比例
       const scale = Math.min(
@@ -228,6 +466,14 @@ function updatePreview() {
       const drawHeight = previewCanvas.height * scale
       const offsetX = (containerWidth - drawWidth) / 2
       const offsetY = (containerHeight - drawHeight) / 2
+      const coverScale = Math.max(
+        containerWidth / previewCanvas.width,
+        containerHeight / previewCanvas.height,
+      )
+      const coverWidth = previewCanvas.width * coverScale
+      const coverHeight = previewCanvas.height * coverScale
+      const coverOffsetX = (containerWidth - coverWidth) / 2
+      const coverOffsetY = (containerHeight - coverHeight) / 2
 
       // 使用设备像素比提高清晰度
       const dpr = Math.min(window.devicePixelRatio || 1, 2) // 限制最大 2x
@@ -235,16 +481,26 @@ function updatePreview() {
       const canvasHeight = containerHeight * dpr
 
       // 只在尺寸变化时重设 canvas
-      if (previewCanvasRef.value.width !== canvasWidth || previewCanvasRef.value.height !== canvasHeight) {
-        previewCanvasRef.value.width = canvasWidth
-        previewCanvasRef.value.height = canvasHeight
-        previewCanvasRef.value.style.width = `${containerWidth}px`
-        previewCanvasRef.value.style.height = `${containerHeight}px`
+      if (previewCanvasElement.width !== canvasWidth || previewCanvasElement.height !== canvasHeight) {
+        previewCanvasElement.width = canvasWidth
+        previewCanvasElement.height = canvasHeight
+        previewCanvasElement.style.width = `${containerWidth}px`
+        previewCanvasElement.style.height = `${containerHeight}px`
       }
 
       // 清除并绘制
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      ctx.fillStyle = '#0a0a12'
+      ctx.fillStyle = '#0b1020'
+      ctx.fillRect(0, 0, containerWidth, containerHeight)
+      ctx.save()
+      ctx.globalAlpha = 0.42
+      ctx.filter = 'blur(26px) saturate(0.9)'
+      ctx.drawImage(previewCanvas, coverOffsetX, coverOffsetY, coverWidth, coverHeight)
+      ctx.restore()
+      const gradient = ctx.createLinearGradient(0, 0, 0, containerHeight)
+      gradient.addColorStop(0, 'rgba(8, 12, 24, 0.12)')
+      gradient.addColorStop(1, 'rgba(8, 12, 24, 0.42)')
+      ctx.fillStyle = gradient
       ctx.fillRect(0, 0, containerWidth, containerHeight)
       ctx.imageSmoothingEnabled = true
       ctx.imageSmoothingQuality = 'high'
@@ -353,10 +609,11 @@ function closeImmersivePreview() {
 function handleImageLoad() {
   imageLoaded.value = true
   // 记录图片原始尺寸
-  if (imageRef.value) {
+  const imageElement = getImageElement()
+  if (imageElement) {
     imageNaturalSize.value = {
-      width: imageRef.value.naturalWidth,
-      height: imageRef.value.naturalHeight,
+      width: imageElement.naturalWidth,
+      height: imageElement.naturalHeight,
     }
   }
   nextTick(() => {
@@ -381,67 +638,167 @@ function handleImageError() {
   imageLoaded.value = true
 }
 
+function buildCanvasOptions(targetSize = null) {
+  const options = {
+    imageSmoothingEnabled: true,
+    imageSmoothingQuality: 'high',
+  }
+
+  if (targetSize?.width > 0 && targetSize?.height > 0) {
+    options.width = targetSize.width
+    options.height = targetSize.height
+    return options
+  }
+
+  if (exactOutputEnabled.value && exactOutputValid.value) {
+    options.width = parsedOutputWidth.value
+    options.height = parsedOutputHeight.value
+    return options
+  }
+
+  options.maxWidth = 8192
+  options.maxHeight = 8192
+
+  return options
+}
+
+async function canvasToBlob(canvas) {
+  const quality = outputFormatInfo.value.supportsQuality ? outputQuality.value / 100 : undefined
+
+  return await new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => {
+        if (blob)
+          resolve(blob)
+        else reject(new Error('转换失败'))
+      },
+      outputFormatInfo.value.mime,
+      quality,
+    )
+  })
+}
+
+async function createExportPayload(targetSize = null) {
+  const canvas = cropper.value?.getCroppedCanvas(buildCanvasOptions(targetSize))
+
+  if (!canvas) {
+    throw new Error('裁剪失败')
+  }
+
+  const blob = await canvasToBlob(canvas)
+
+  return {
+    blob,
+    height: canvas.height,
+    width: canvas.width,
+  }
+}
+
+function triggerDownload(blob, width, height) {
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  const baseName = props.filename.replace(/\.[^.]+$/, '')
+
+  link.href = url
+  link.download = `${baseName}_${width}x${height}.${outputFormatInfo.value.extension}`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+}
+
+function toggleBatchPreset(id) {
+  if (selectedBatchPresetIds.value.includes(id)) {
+    selectedBatchPresetIds.value = selectedBatchPresetIds.value.filter(item => item !== id)
+    return
+  }
+
+  selectedBatchPresetIds.value = [...selectedBatchPresetIds.value, id]
+}
+
+function selectRecommendedBatchPresets() {
+  selectedBatchPresetIds.value = [...recommendedBatchPresetIds.value]
+}
+
+function clearBatchPresets() {
+  selectedBatchPresetIds.value = []
+}
+
+watch(
+  [exactOutputEnabled, parsedOutputWidth, parsedOutputHeight, cropper],
+  ([enabled, width, height, cropperInstance]) => {
+    if (!enabled || width <= 0 || height <= 0 || !cropperInstance)
+      return
+
+    cropperInstance.setAspectRatio(width / height)
+    selectedRatio.value = 'custom'
+  },
+)
+
 // 裁剪并下载
 async function handleCropAndDownload() {
-  if (!cropper.value || isProcessing.value)
+  if (!cropper.value || isProcessing.value || !exactOutputValid.value)
     return
 
   isProcessing.value = true
 
   try {
-    const options = {
-      imageSmoothingEnabled: true,
-      imageSmoothingQuality: 'high',
-    }
-
-    if (outputOriginal.value) {
-      options.maxWidth = 16384
-      options.maxHeight = 16384
-    }
-    else {
-      options.maxWidth = 8192
-      options.maxHeight = 8192
-    }
-
-    const canvas = cropper.value.getCroppedCanvas(options)
-
-    if (!canvas) {
-      throw new Error('裁剪失败')
-    }
-
-    const blob = await new Promise((resolve, reject) => {
-      canvas.toBlob(
-        (b) => {
-          if (b)
-            resolve(b)
-          else reject(new Error('转换失败'))
-        },
-        'image/jpeg', // 使用 JPEG 格式，压缩效果更好
-        0.92, // 质量 92%，平衡质量与文件大小
-      )
-    })
+    const payload = await createExportPayload()
 
     // 追踪裁剪完成
     trackImageCrop('complete', {
       aspect_ratio: selectedRatio.value,
-      output_size: `${cropInfo.value.width}x${cropInfo.value.height}`,
+      export_format: outputFormat.value,
+      export_mode: exactOutputEnabled.value ? 'single_exact' : 'single',
+      output_size: `${payload.width}x${payload.height}`,
     })
     isCropCompleted.value = true // 标记为完成
 
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    const baseName = props.filename.replace(/\.[^.]+$/, '')
-    link.href = url
-    link.download = `${baseName}_${cropInfo.value.width}x${cropInfo.value.height}.jpg`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    triggerDownload(payload.blob, payload.width, payload.height)
 
     setTimeout(() => handleClose(), 300)
   }
   catch (error) {
     console.error('裁剪下载失败:', error)
+  }
+  finally {
+    isProcessing.value = false
+  }
+}
+
+async function handleBatchExport() {
+  if (!cropper.value || isProcessing.value || selectedBatchPresetIds.value.length === 0)
+    return
+
+  const selectedPresets = batchPresets.value.filter(preset => selectedBatchPresetIds.value.includes(preset.id))
+  if (selectedPresets.length === 0)
+    return
+
+  isProcessing.value = true
+
+  try {
+    for (const preset of selectedPresets) {
+      const payload = await createExportPayload({
+        width: preset.width,
+        height: preset.height,
+      })
+      triggerDownload(payload.blob, payload.width, payload.height)
+      await new Promise(resolve => setTimeout(resolve, 180))
+    }
+
+    trackImageCrop('complete', {
+      aspect_ratio: selectedRatio.value,
+      export_format: outputFormat.value,
+      export_mode: 'batch',
+      output_size: selectedPresets.map(preset => `${preset.width}x${preset.height}`).join(','),
+      variant_count: selectedPresets.length,
+    })
+    isCropCompleted.value = true
+
+    setTimeout(() => handleClose(), 400)
+  }
+  catch (error) {
+    console.error('批量导出失败:', error)
   }
   finally {
     isProcessing.value = false
@@ -505,7 +862,12 @@ watch(() => props.isOpen, async (isOpen) => {
     selectedRatio.value = 'auto'
     zoomLevel.value = 1
     initialZoomRatio.value = 1 // 重置初始缩放比例
-    outputOriginal.value = false
+    outputFormat.value = 'jpeg'
+    outputQuality.value = 92
+    exactOutputEnabled.value = false
+    outputWidth.value = ''
+    outputHeight.value = ''
+    selectedBatchPresetIds.value = []
     showCustomInput.value = false
     customWidth.value = ''
     customHeight.value = ''
@@ -600,21 +962,22 @@ onUnmounted(() => {
             <!-- 左侧：裁剪区域 + 实时预览 -->
             <div class="crop-left">
               <CropImageStage
+                ref="imageStageRef"
                 :crop-info="cropInfo"
                 :current-ratio-display="currentRatioDisplay"
                 :image-loaded="imageLoaded"
                 :image-error="imageError"
-                :image-ref="imageRef"
                 :image-url="croppedImageUrl"
                 @load="handleImageLoad"
                 @error="handleImageError"
               />
 
               <CropPreviewSection
+                ref="previewSectionRef"
                 :crop-info="cropInfo"
+                :current-aspect-ratio="currentAspectRatio"
                 :image-loaded="imageLoaded"
                 :is-processing="isProcessing"
-                :preview-canvas-ref="previewCanvasRef"
                 @immersive-preview="showImmersivePreview"
               />
             </div>
@@ -641,20 +1004,44 @@ onUnmounted(() => {
               />
 
               <CropOutputSection
-                :output-original="outputOriginal"
-                @update:output-original="outputOriginal = $event"
+                :exact-output-enabled="exactOutputEnabled"
+                :exact-output-valid="exactOutputValid"
+                :output-format="outputFormat"
+                :output-quality="outputQuality"
+                :output-width="outputWidth"
+                :output-height="outputHeight"
+                @update:exact-output-enabled="exactOutputEnabled = $event"
+                @update:output-format="outputFormat = $event"
+                @update:output-quality="outputQuality = $event"
+                @update:output-width="outputWidth = $event"
+                @update:output-height="outputHeight = $event"
+              />
+
+              <CropBatchExportSection
+                :batch-presets="batchPresets"
+                :selected-batch-preset-ids="selectedBatchPresetIds"
+                :is-processing="isProcessing"
+                @toggle-preset="toggleBatchPreset"
+                @select-recommended="selectRecommendedBatchPresets"
+                @clear-presets="clearBatchPresets"
+                @batch-export="handleBatchExport"
               />
 
               <CropSizeInfoSection
                 :crop-info="cropInfo"
+                :export-format-label="outputFormatInfo.label"
+                :export-quality-label="exportQualityLabel"
+                :export-scale-hint="exportScaleHint"
+                :final-export-size="finalExportSize"
                 :original-resolution="originalResolution"
+                :selected-batch-count="selectedBatchPresetIds.length"
               />
 
               <!-- 操作按钮 -->
               <div class="panel-actions">
                 <button
                   class="action-btn action-btn--primary"
-                  :disabled="!imageLoaded || imageError || isProcessing"
+                  :disabled="!canSingleExport"
                   @click="handleCropAndDownload"
                 >
                   <LoadingSpinner v-if="isProcessing" size="sm" />
@@ -737,10 +1124,10 @@ onUnmounted(() => {
 .crop-modal-content {
   display: flex;
   flex-direction: column;
-  width: 1100px; // 固定宽度，更紧凑
-  max-width: 94vw;
-  height: 92vh;
-  max-height: 900px;
+  width: min(1360px, 96vw);
+  max-width: 96vw;
+  height: min(94vh, 960px);
+  max-height: 960px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 24px;
@@ -826,7 +1213,7 @@ onUnmounted(() => {
 
 // Panel
 .crop-panel {
-  width: 280px;
+  width: clamp(340px, 27vw, 390px);
   display: flex;
   flex-direction: column;
   background: rgba(255, 255, 255, 0.05);
@@ -861,6 +1248,9 @@ onUnmounted(() => {
   background: rgba(255, 255, 255, 0.03);
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  backdrop-filter: blur(18px);
 }
 
 .action-btn {
