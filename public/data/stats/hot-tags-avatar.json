@@ -1,14 +1,14 @@
 {
-  "generatedAt": "2026-03-22T04:37:33.028Z",
+  "generatedAt": "2026-03-25T07:50:51.984Z",
   "series": "avatar",
-  "total": 367,
+  "total": 381,
   "tags": [
     {
       "tag": "人像",
-      "score": 314,
-      "views": 236,
-      "downloads": 108,
-      "wallpaperCount": 75,
+      "score": 326,
+      "views": 252,
+      "downloads": 113,
+      "wallpaperCount": 81,
       "series": [
         "avatar"
       ],
@@ -37,10 +37,10 @@
     },
     {
       "tag": "氛围感",
-      "score": 213,
-      "views": 147,
+      "score": 212,
+      "views": 154,
       "downloads": 79,
-      "wallpaperCount": 45,
+      "wallpaperCount": 46,
       "series": [
         "avatar"
       ],
@@ -69,10 +69,10 @@
     },
     {
       "tag": "动漫",
-      "score": 190,
-      "views": 167,
-      "downloads": 53,
-      "wallpaperCount": 62,
+      "score": 200,
+      "views": 184,
+      "downloads": 54,
+      "wallpaperCount": 67,
       "series": [
         "avatar"
       ],
@@ -101,10 +101,10 @@
     },
     {
       "tag": "萌宠",
-      "score": 162,
-      "views": 112,
-      "downloads": 61,
-      "wallpaperCount": 21,
+      "score": 169,
+      "views": 120,
+      "downloads": 62,
+      "wallpaperCount": 24,
       "series": [
         "avatar"
       ],
@@ -134,7 +134,7 @@
     {
       "tag": "猫咪",
       "score": 148,
-      "views": 103,
+      "views": 105,
       "downloads": 56,
       "wallpaperCount": 14,
       "series": [
@@ -165,10 +165,10 @@
     },
     {
       "tag": "IP形象",
-      "score": 134,
-      "views": 109,
+      "score": 132,
+      "views": 115,
       "downloads": 41,
-      "wallpaperCount": 38,
+      "wallpaperCount": 39,
       "series": [
         "avatar"
       ],
@@ -186,20 +186,20 @@
           "cdnTag": "v1.1.4"
         },
         {
-          "thumbnail": "/thumbnail/avatar/IP形象/水豚噜噜/%E8%B6%B4%E5%9C%A8%E6%A0%8F%E6%9D%86%E4%B8%8A%E7%9C%8B%E6%97%A5%E5%87%BA.webp",
-          "cdnTag": "v1.1.4"
+          "thumbnail": "/thumbnail/avatar/IP形象/水豚噜噜/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260310202253_658_4.webp",
+          "cdnTag": "v1.2.8"
         },
         {
-          "thumbnail": "/thumbnail/avatar/IP形象/水豚噜噜/%E4%B8%BE%E6%A9%99%E6%8F%A1%E5%88%80%E5%9A%A3%E5%BC%A0%E7%99%BB%E5%9C%BA.webp",
+          "thumbnail": "/thumbnail/avatar/IP形象/水豚噜噜/%E8%B6%B4%E5%9C%A8%E6%A0%8F%E6%9D%86%E4%B8%8A%E7%9C%8B%E6%97%A5%E5%87%BA.webp",
           "cdnTag": "v1.1.4"
         }
       ]
     },
     {
       "tag": "插画",
-      "score": 100,
-      "views": 75,
-      "downloads": 35,
+      "score": 101,
+      "views": 76,
+      "downloads": 36,
       "wallpaperCount": 30,
       "series": [
         "avatar"
@@ -229,7 +229,7 @@
     },
     {
       "tag": "戴耳机",
-      "score": 81,
+      "score": 80,
       "views": 51,
       "downloads": 33,
       "wallpaperCount": 1,
@@ -245,8 +245,8 @@
     },
     {
       "tag": "水豚噜噜",
-      "score": 77,
-      "views": 62,
+      "score": 79,
+      "views": 64,
       "downloads": 26,
       "wallpaperCount": 16,
       "series": [
@@ -266,21 +266,21 @@
           "cdnTag": "v1.1.4"
         },
         {
-          "thumbnail": "/thumbnail/avatar/IP形象/水豚噜噜/%E8%B6%B4%E5%9C%A8%E6%A0%8F%E6%9D%86%E4%B8%8A%E7%9C%8B%E6%97%A5%E5%87%BA.webp",
-          "cdnTag": "v1.1.4"
+          "thumbnail": "/thumbnail/avatar/IP形象/水豚噜噜/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260310202253_658_4.webp",
+          "cdnTag": "v1.2.8"
         },
         {
-          "thumbnail": "/thumbnail/avatar/IP形象/水豚噜噜/%E4%B8%BE%E6%A9%99%E6%8F%A1%E5%88%80%E5%9A%A3%E5%BC%A0%E7%99%BB%E5%9C%BA.webp",
+          "thumbnail": "/thumbnail/avatar/IP形象/水豚噜噜/%E8%B6%B4%E5%9C%A8%E6%A0%8F%E6%9D%86%E4%B8%8A%E7%9C%8B%E6%97%A5%E5%87%BA.webp",
           "cdnTag": "v1.1.4"
         }
       ]
     },
     {
       "tag": "搞怪",
-      "score": 60,
-      "views": 55,
-      "downloads": 15,
-      "wallpaperCount": 22,
+      "score": 66,
+      "views": 58,
+      "downloads": 17,
+      "wallpaperCount": 23,
       "series": [
         "avatar"
       ],
@@ -302,16 +302,48 @@
           "cdnTag": "v1.1.53"
         },
         {
-          "thumbnail": "/thumbnail/avatar/表情包/搞怪/%E5%A2%A8%E9%95%9C%E7%8C%B4.webp",
-          "cdnTag": "v1.1.11"
+          "thumbnail": "/thumbnail/avatar/表情包/搞怪/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260310202259_665_4.webp",
+          "cdnTag": "v1.2.8"
+        }
+      ]
+    },
+    {
+      "tag": "蜡笔小新",
+      "score": 62,
+      "views": 57,
+      "downloads": 18,
+      "wallpaperCount": 15,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/蜡笔小新/%E6%88%B4%E8%80%B3%E6%9C%BA%E9%BA%A6%E5%BD%93%E5%8A%B3%E5%A4%96%E5%8D%96.webp",
+          "cdnTag": "v1.1.13"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/蜡笔小新/%E8%9C%A1%E7%AC%94%E5%B0%8F%E6%96%B0_%E8%A2%AB%E4%B9%A6%E5%8E%8B%E5%80%92.webp",
+          "cdnTag": "v1.1.22"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/蜡笔小新/%E6%BB%91%E9%9B%AA%E5%B0%8F%E6%96%B0.webp",
+          "cdnTag": "v1.1.24"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/蜡笔小新/%E6%94%B6%E5%88%B0%E4%B8%8D%E5%8A%9E.webp",
+          "cdnTag": "v1.1.22"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/蜡笔小新/%E5%90%83%E9%A5%B1%E5%86%8D%E8%AF%B4.webp",
+          "cdnTag": "v1.1.22"
         }
       ]
     },
     {
       "tag": "二次元",
-      "score": 59,
-      "views": 47,
-      "downloads": 20,
+      "score": 60,
+      "views": 48,
+      "downloads": 21,
       "wallpaperCount": 16,
       "series": [
         "avatar"
@@ -340,43 +372,11 @@
       ]
     },
     {
-      "tag": "蜡笔小新",
-      "score": 58,
-      "views": 49,
-      "downloads": 18,
-      "wallpaperCount": 12,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/蜡笔小新/%E6%88%B4%E8%80%B3%E6%9C%BA%E9%BA%A6%E5%BD%93%E5%8A%B3%E5%A4%96%E5%8D%96.webp",
-          "cdnTag": "v1.1.13"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/蜡笔小新/%E8%9C%A1%E7%AC%94%E5%B0%8F%E6%96%B0_%E8%A2%AB%E4%B9%A6%E5%8E%8B%E5%80%92.webp",
-          "cdnTag": "v1.1.22"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/蜡笔小新/%E6%94%B6%E5%88%B0%E4%B8%8D%E5%8A%9E.webp",
-          "cdnTag": "v1.1.22"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/蜡笔小新/%E6%BB%91%E9%9B%AA%E5%B0%8F%E6%96%B0.webp",
-          "cdnTag": "v1.1.24"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/蜡笔小新/%E5%90%83%E9%A5%B1%E5%86%8D%E8%AF%B4.webp",
-          "cdnTag": "v1.1.22"
-        }
-      ]
-    },
-    {
       "tag": "表情包",
-      "score": 53,
-      "views": 50,
-      "downloads": 13,
-      "wallpaperCount": 20,
+      "score": 59,
+      "views": 53,
+      "downloads": 15,
+      "wallpaperCount": 21,
       "series": [
         "avatar"
       ],
@@ -394,21 +394,21 @@
           "cdnTag": "v1.1.53"
         },
         {
-          "thumbnail": "/thumbnail/avatar/表情包/搞怪/%E5%A2%A8%E9%95%9C%E7%8C%B4.webp",
-          "cdnTag": "v1.1.11"
+          "thumbnail": "/thumbnail/avatar/表情包/搞怪/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260310202259_665_4.webp",
+          "cdnTag": "v1.2.8"
         },
         {
-          "thumbnail": "/thumbnail/avatar/表情包/搞怪/%E5%90%90%E8%88%8C%E9%BC%93%E8%84%B8.webp",
+          "thumbnail": "/thumbnail/avatar/表情包/搞怪/%E5%A2%A8%E9%95%9C%E7%8C%B4.webp",
           "cdnTag": "v1.1.11"
         }
       ]
     },
     {
       "tag": "甜妹",
-      "score": 52,
-      "views": 34,
-      "downloads": 19,
-      "wallpaperCount": 16,
+      "score": 57,
+      "views": 38,
+      "downloads": 20,
+      "wallpaperCount": 20,
       "series": [
         "avatar"
       ],
@@ -437,8 +437,8 @@
     },
     {
       "tag": "哆啦A梦",
-      "score": 46,
-      "views": 35,
+      "score": 48,
+      "views": 39,
       "downloads": 16,
       "wallpaperCount": 10,
       "series": [
@@ -500,26 +500,10 @@
       ]
     },
     {
-      "tag": "柔光金发女生",
-      "score": 33,
-      "views": 27,
-      "downloads": 11,
-      "wallpaperCount": 1,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/人像/氛围感/%E6%9F%94%E5%85%89%E9%87%91%E5%8F%91%E5%A5%B3%E7%94%9F.webp",
-          "cdnTag": "v1.1.11"
-        }
-      ]
-    },
-    {
       "tag": "卡通简笔画",
-      "score": 32,
-      "views": 36,
-      "downloads": 6,
+      "score": 39,
+      "views": 40,
+      "downloads": 10,
       "wallpaperCount": 10,
       "series": [
         "avatar"
@@ -542,16 +526,32 @@
           "cdnTag": "v1.1.11"
         },
         {
-          "thumbnail": "/thumbnail/avatar/人像/卡通简笔画/%E8%83%8C%E4%B9%A6%E5%8C%85%E5%B0%8F%E7%8C%AB.webp",
-          "cdnTag": "v1.1.24"
+          "thumbnail": "/thumbnail/avatar/人像/卡通简笔画/%E9%95%BF%E5%8F%91%E5%A5%B3%E5%AD%A9%E4%B8%BE%E5%B9%B3%E5%AE%89%E8%81%94.webp",
+          "cdnTag": "v1.1.11"
+        }
+      ]
+    },
+    {
+      "tag": "柔光金发女生",
+      "score": 32,
+      "views": 27,
+      "downloads": 11,
+      "wallpaperCount": 1,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/人像/氛围感/%E6%9F%94%E5%85%89%E9%87%91%E5%8F%91%E5%A5%B3%E7%94%9F.webp",
+          "cdnTag": "v1.1.11"
         }
       ]
     },
     {
       "tag": "银发蓝瞳男孩比耶蓝天背景",
-      "score": 30,
-      "views": 22,
-      "downloads": 12,
+      "score": 31,
+      "views": 23,
+      "downloads": 13,
       "wallpaperCount": 1,
       "series": [
         "avatar"
@@ -564,75 +564,11 @@
       ]
     },
     {
-      "tag": "小八",
-      "score": 28,
-      "views": 20,
-      "downloads": 9,
-      "wallpaperCount": 10,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165124_953.webp",
-          "cdnTag": "v1.1.53"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/IP形象/小八/%E4%B8%BE%E5%B0%8F%E4%B8%91%E9%9D%A2%E5%85%B7.webp",
-          "cdnTag": "v1.1.4"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165048_375.webp",
-          "cdnTag": "v1.1.53"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/IP形象/小八/%E6%8A%B1%E9%B1%BC%E4%B9%96%E5%B7%A7.webp",
-          "cdnTag": "v1.1.4"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/IP形象/小八/%E6%8F%A3%E6%89%8B%E7%AB%99%E5%AE%9A.webp",
-          "cdnTag": "v1.1.4"
-        }
-      ]
-    },
-    {
-      "tag": "戴耳机麦当劳外卖",
-      "score": 25,
-      "views": 28,
-      "downloads": 7,
-      "wallpaperCount": 1,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/蜡笔小新/%E6%88%B4%E8%80%B3%E6%9C%BA%E9%BA%A6%E5%BD%93%E5%8A%B3%E5%A4%96%E5%8D%96.webp",
-          "cdnTag": "v1.1.13"
-        }
-      ]
-    },
-    {
-      "tag": "办公电脑前皱眉",
-      "score": 24,
-      "views": 14,
-      "downloads": 11,
-      "wallpaperCount": 1,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/哆啦A梦/%E5%8A%9E%E5%85%AC%E7%94%B5%E8%84%91%E5%89%8D%E7%9A%B1%E7%9C%89.webp",
-          "cdnTag": "v1.1.13"
-        }
-      ]
-    },
-    {
       "tag": "卡通",
-      "score": 23,
-      "views": 19,
+      "score": 28,
+      "views": 26,
       "downloads": 4,
-      "wallpaperCount": 8,
+      "wallpaperCount": 10,
       "series": [
         "avatar"
       ],
@@ -660,9 +596,73 @@
       ]
     },
     {
+      "tag": "戴耳机麦当劳外卖",
+      "score": 26,
+      "views": 30,
+      "downloads": 7,
+      "wallpaperCount": 1,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/蜡笔小新/%E6%88%B4%E8%80%B3%E6%9C%BA%E9%BA%A6%E5%BD%93%E5%8A%B3%E5%A4%96%E5%8D%96.webp",
+          "cdnTag": "v1.1.13"
+        }
+      ]
+    },
+    {
+      "tag": "办公电脑前皱眉",
+      "score": 25,
+      "views": 16,
+      "downloads": 11,
+      "wallpaperCount": 1,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/哆啦A梦/%E5%8A%9E%E5%85%AC%E7%94%B5%E8%84%91%E5%89%8D%E7%9A%B1%E7%9C%89.webp",
+          "cdnTag": "v1.1.13"
+        }
+      ]
+    },
+    {
+      "tag": "小八",
+      "score": 25,
+      "views": 22,
+      "downloads": 9,
+      "wallpaperCount": 11,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165124_953.webp",
+          "cdnTag": "v1.1.53"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165048_375.webp",
+          "cdnTag": "v1.1.53"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/IP形象/小八/%E4%B8%BE%E5%B0%8F%E4%B8%91%E9%9D%A2%E5%85%B7.webp",
+          "cdnTag": "v1.1.4"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/IP形象/小八/%E6%8A%B1%E9%B1%BC%E4%B9%96%E5%B7%A7.webp",
+          "cdnTag": "v1.1.4"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/IP形象/小八/%E6%8F%A3%E6%89%8B%E7%AB%99%E5%AE%9A.webp",
+          "cdnTag": "v1.1.4"
+        }
+      ]
+    },
+    {
       "tag": "日漫",
-      "score": 22,
-      "views": 26,
+      "score": 23,
+      "views": 27,
       "downloads": 4,
       "wallpaperCount": 7,
       "series": [
@@ -708,6 +708,38 @@
       ]
     },
     {
+      "tag": "可爱",
+      "score": 20,
+      "views": 13,
+      "downloads": 5,
+      "wallpaperCount": 5,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/IP形象/水豚噜噜/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260310202253_658_4.webp",
+          "cdnTag": "v1.2.8"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165124_953.webp",
+          "cdnTag": "v1.1.53"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/IP形象/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260310202252_657_4.webp",
+          "cdnTag": "v1.2.8"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165115_601.webp",
+          "cdnTag": "v1.1.53"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/IP形象/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-02-05_112026_782.webp",
+          "cdnTag": "v1.1.74"
+        }
+      ]
+    },
+    {
       "tag": "猫和老鼠",
       "score": 19,
       "views": 17,
@@ -740,34 +772,34 @@
       ]
     },
     {
-      "tag": "可爱",
+      "tag": "狗狗",
       "score": 19,
-      "views": 11,
+      "views": 14,
       "downloads": 5,
-      "wallpaperCount": 5,
+      "wallpaperCount": 9,
       "series": [
         "avatar"
       ],
       "topWallpapers": [
         {
-          "thumbnail": "/thumbnail/avatar/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165124_953.webp",
+          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165009_180.webp",
           "cdnTag": "v1.1.53"
         },
         {
-          "thumbnail": "/thumbnail/avatar/IP形象/水豚噜噜/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260310202253_658_4.webp",
-          "cdnTag": "v1.2.8"
+          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/%E6%9F%AF%E5%9F%BA_%E5%A2%A8%E9%95%9C%E9%85%B7%E7%8B%97.webp",
+          "cdnTag": "v1.1.11"
         },
         {
-          "thumbnail": "/thumbnail/avatar/IP形象/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260310202252_657_4.webp",
-          "cdnTag": "v1.2.8"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165115_601.webp",
-          "cdnTag": "v1.1.53"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/IP形象/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-02-05_112026_782.webp",
+          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-02-05_112228_078.webp",
           "cdnTag": "v1.1.74"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260126155445_539_4.webp",
+          "cdnTag": "v1.1.53"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/654.webp",
+          "cdnTag": "v1.1.96"
         }
       ]
     },
@@ -788,27 +820,11 @@
       ]
     },
     {
-      "tag": "戴眼镜男孩肩上趴着小猫",
-      "score": 17,
-      "views": 15,
-      "downloads": 6,
-      "wallpaperCount": 1,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/萌宠/猫咪/%E6%88%B4%E7%9C%BC%E9%95%9C%E7%94%B7%E5%AD%A9%E8%82%A9%E4%B8%8A%E8%B6%B4%E7%9D%80%E5%B0%8F%E7%8C%AB.webp",
-          "cdnTag": "v1.1.4"
-        }
-      ]
-    },
-    {
       "tag": "海贼王",
-      "score": 17,
-      "views": 12,
+      "score": 18,
+      "views": 15,
       "downloads": 5,
-      "wallpaperCount": 6,
+      "wallpaperCount": 7,
       "series": [
         "avatar"
       ],
@@ -826,37 +842,37 @@
           "cdnTag": "v1.1.24"
         },
         {
-          "thumbnail": "/thumbnail/avatar/动漫/海贼王/%E7%B4%A2%E9%9A%86_%E5%88%80%E5%AE%A2%E7%8B%82%E6%80%92.webp",
-          "cdnTag": "v1.1.24"
-        },
-        {
           "thumbnail": "/thumbnail/avatar/动漫/海贼王/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260120161534_480_4.webp",
           "cdnTag": "v1.1.42"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/海贼王/%E5%85%89%E6%9C%88%E5%BE%A1%E7%94%B0%E4%B9%8B%E5%A5%B3.webp",
+          "cdnTag": "v1.1.24"
         }
       ]
     },
     {
-      "tag": "街角回眸男生",
-      "score": 16,
-      "views": 5,
-      "downloads": 8,
+      "tag": "戴眼镜男孩肩上趴着小猫",
+      "score": 17,
+      "views": 16,
+      "downloads": 6,
       "wallpaperCount": 1,
       "series": [
         "avatar"
       ],
       "topWallpapers": [
         {
-          "thumbnail": "/thumbnail/avatar/人像/氛围感/%E8%A1%97%E8%A7%92%E5%9B%9E%E7%9C%B8%E7%94%B7%E7%94%9F.webp",
-          "cdnTag": "v1.1.11"
+          "thumbnail": "/thumbnail/avatar/萌宠/猫咪/%E6%88%B4%E7%9C%BC%E9%95%9C%E7%94%B7%E5%AD%A9%E8%82%A9%E4%B8%8A%E8%B6%B4%E7%9D%80%E5%B0%8F%E7%8C%AB.webp",
+          "cdnTag": "v1.1.4"
         }
       ]
     },
     {
       "tag": "背影",
-      "score": 16,
-      "views": 18,
+      "score": 17,
+      "views": 19,
       "downloads": 4,
-      "wallpaperCount": 3,
+      "wallpaperCount": 4,
       "series": [
         "avatar"
       ],
@@ -872,6 +888,26 @@
         {
           "thumbnail": "/thumbnail/avatar/人像/背影/%E4%BC%A6%E6%95%A6%E7%9C%BC%E5%89%8D%E8%93%9D%E5%8F%91%E5%A5%B3%E5%AD%A9%E8%83%8C%E5%BD%B1.webp",
           "cdnTag": "v1.1.4"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/人像/背影/653.webp",
+          "cdnTag": "v1.1.96"
+        }
+      ]
+    },
+    {
+      "tag": "街角回眸男生",
+      "score": 16,
+      "views": 6,
+      "downloads": 8,
+      "wallpaperCount": 1,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/人像/氛围感/%E8%A1%97%E8%A7%92%E5%9B%9E%E7%9C%B8%E7%94%B7%E7%94%9F.webp",
+          "cdnTag": "v1.1.11"
         }
       ]
     },
@@ -893,9 +929,9 @@
     },
     {
       "tag": "萌系",
-      "score": 13,
-      "views": 19,
-      "downloads": 1,
+      "score": 14,
+      "views": 20,
+      "downloads": 2,
       "wallpaperCount": 4,
       "series": [
         "avatar"
@@ -906,15 +942,35 @@
           "cdnTag": "v1.1.36"
         },
         {
-          "thumbnail": "/thumbnail/avatar/IP形象/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260119095917_476_4.webp",
-          "cdnTag": "v1.1.40"
-        },
-        {
           "thumbnail": "/thumbnail/avatar/人像/卡通简笔画/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260119095916_475_4.webp",
           "cdnTag": "v1.1.40"
         },
         {
+          "thumbnail": "/thumbnail/avatar/IP形象/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260119095917_476_4.webp",
+          "cdnTag": "v1.1.40"
+        },
+        {
           "thumbnail": "/thumbnail/avatar/表情包/搞怪/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260126155237_72_1186.webp",
+          "cdnTag": "v1.1.53"
+        }
+      ]
+    },
+    {
+      "tag": "搞笑",
+      "score": 13,
+      "views": 10,
+      "downloads": 4,
+      "wallpaperCount": 2,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/萌宠/猫咪/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165613_598.webp",
+          "cdnTag": "v1.1.53"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165009_180.webp",
           "cdnTag": "v1.1.53"
         }
       ]
@@ -944,34 +1000,66 @@
       ]
     },
     {
-      "tag": "狗狗",
+      "tag": "少女",
       "score": 12,
-      "views": 8,
-      "downloads": 4,
-      "wallpaperCount": 6,
+      "views": 9,
+      "downloads": 3,
+      "wallpaperCount": 7,
       "series": [
         "avatar"
       ],
       "topWallpapers": [
         {
-          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/%E6%9F%AF%E5%9F%BA_%E5%A2%A8%E9%95%9C%E9%85%B7%E7%8B%97.webp",
-          "cdnTag": "v1.1.11"
+          "thumbnail": "/thumbnail/avatar/人像/甜妹/662.webp",
+          "cdnTag": "v1.1.96"
         },
         {
-          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-02-05_112228_078.webp",
-          "cdnTag": "v1.1.74"
+          "thumbnail": "/thumbnail/avatar/人像/甜妹/663.webp",
+          "cdnTag": "v1.1.96"
         },
         {
-          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165009_180.webp",
+          "thumbnail": "/thumbnail/avatar/插画/二次元/%E5%B0%91%E5%A5%B3%E4%B8%8E%E7%8C%AB.webp",
+          "cdnTag": "v1.1.29"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/人像/甜妹/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165538_262.webp",
           "cdnTag": "v1.1.53"
         },
         {
-          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260126155445_539_4.webp",
+          "thumbnail": "/thumbnail/avatar/插画/二次元/%E8%93%9D%E8%A3%99%E5%B0%91%E5%A5%B3.webp",
+          "cdnTag": "v1.1.29"
+        }
+      ]
+    },
+    {
+      "tag": "甜美",
+      "score": 12,
+      "views": 8,
+      "downloads": 3,
+      "wallpaperCount": 7,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/人像/甜妹/662.webp",
+          "cdnTag": "v1.1.96"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/人像/甜妹/663.webp",
+          "cdnTag": "v1.1.96"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/人像/甜妹/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165538_262.webp",
           "cdnTag": "v1.1.53"
         },
         {
-          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/%E5%8F%AF%E7%88%B1%E6%9F%AF%E5%9F%BA.webp",
-          "cdnTag": "v1.1.24"
+          "thumbnail": "/thumbnail/avatar/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165626_116.webp",
+          "cdnTag": "v1.1.53"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/人像/甜妹/644.webp",
+          "cdnTag": "v1.1.96"
         }
       ]
     },
@@ -988,58 +1076,6 @@
         {
           "thumbnail": "/thumbnail/avatar/插画/创意/%E9%97%AD%E7%9C%BC%E5%86%A5%E6%83%B3%E7%9A%84%E5%B0%8F%E7%94%B7%E5%AD%A9%E9%98%B3%E5%85%89%E5%BA%8A.webp",
           "cdnTag": "v1.1.4"
-        }
-      ]
-    },
-    {
-      "tag": "浴室里的小黄鸭猫",
-      "score": 11,
-      "views": 9,
-      "downloads": 4,
-      "wallpaperCount": 1,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/萌宠/猫咪/%E6%B5%B4%E5%AE%A4%E9%87%8C%E7%9A%84%E5%B0%8F%E9%BB%84%E9%B8%AD%E7%8C%AB.webp",
-          "cdnTag": "v1.1.4"
-        }
-      ]
-    },
-    {
-      "tag": "车窗边夕阳下的少年背影",
-      "score": 11,
-      "views": 12,
-      "downloads": 3,
-      "wallpaperCount": 1,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/人像/背影/%E8%BD%A6%E7%AA%97%E8%BE%B9%E5%A4%95%E9%98%B3%E4%B8%8B%E7%9A%84%E5%B0%91%E5%B9%B4%E8%83%8C%E5%BD%B1.webp",
-          "cdnTag": "v1.1.4"
-        }
-      ]
-    },
-    {
-      "tag": "骑行",
-      "score": 11,
-      "views": 15,
-      "downloads": 1,
-      "wallpaperCount": 2,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/日漫/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260116220358_22518_100.webp",
-          "cdnTag": "v1.1.36"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/IP形象/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260119095917_476_4.webp",
-          "cdnTag": "v1.1.40"
         }
       ]
     }

@@ -334,6 +334,7 @@ function handleAvatarMakerClose() {
         </div>
 
         <HotTagsPanel
+          :is-mobile="isMobile"
           :category-tags="isHotTagsVisible ? hotCategoryTags : []"
           :keyword-tags="isHotTagsVisible ? hotKeywordTags : []"
           :loading="!isHotTagsVisible"

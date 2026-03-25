@@ -1,9 +1,13 @@
 <script setup>
 import { gsap } from 'gsap'
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { buildImageUrl } from '@/utils/common/format'
 
 const props = defineProps({
+  isMobile: {
+    type: Boolean,
+    default: false,
+  },
   categoryTags: {
     type: Array,
     default: () => [],
@@ -26,7 +30,7 @@ const props = defineProps({
   },
 })
 
-defineEmits(['select'])
+const emit = defineEmits(['select'])
 
 const containerRef = ref(null)
 const animationPlayed = ref(false)
@@ -37,8 +41,11 @@ const hoveredPreviewPlacement = ref({
 })
 const isCategoryExpanded = ref(false)
 const isKeywordExpanded = ref(false)
+const isPanelExpanded = ref(!props.isMobile)
 
 const MOBILE_VISIBLE_COUNT = 6
+
+const isPanelCollapsible = computed(() => props.isMobile)
 
 const visibleCategoryTags = computed(() =>
   isCategoryExpanded.value ? props.categoryTags : props.categoryTags.slice(0, MOBILE_VISIBLE_COUNT),
@@ -151,6 +158,72 @@ function handleTagLeave() {
   }
 }
 
+function handlePanelToggle() {
+  isPanelExpanded.value = !isPanelExpanded.value
+}
+
+function onPanelBeforeEnter(el) {
+  el.style.height = '0'
+  el.style.opacity = '0'
+  el.style.transform = 'translateY(-6px)'
+  el.style.overflow = 'hidden'
+}
+
+function onPanelEnter(el) {
+  el.style.transition = 'height 240ms ease, opacity 180ms ease, transform 240ms ease'
+
+  requestAnimationFrame(() => {
+    el.style.height = `${el.scrollHeight}px`
+    el.style.opacity = '1'
+    el.style.transform = 'translateY(0)'
+  })
+}
+
+function onPanelAfterEnter(el) {
+  el.style.height = 'auto'
+  el.style.opacity = ''
+  el.style.transform = ''
+  el.style.overflow = ''
+  el.style.transition = ''
+}
+
+function onPanelBeforeLeave(el) {
+  el.style.height = `${el.scrollHeight}px`
+  el.style.opacity = '1'
+  el.style.transform = 'translateY(0)'
+  el.style.overflow = 'hidden'
+}
+
+function onPanelLeave(el) {
+  void el.offsetHeight
+  el.style.transition = 'height 240ms ease, opacity 160ms ease, transform 240ms ease'
+
+  requestAnimationFrame(() => {
+    el.style.height = '0'
+    el.style.opacity = '0'
+    el.style.transform = 'translateY(-6px)'
+  })
+}
+
+function onPanelAfterLeave(el) {
+  el.style.height = ''
+  el.style.opacity = ''
+  el.style.transform = ''
+  el.style.overflow = ''
+  el.style.transition = ''
+}
+
+function handleTagSelect(tag) {
+  emit('select', tag)
+
+  if (!props.isMobile) {
+    return
+  }
+
+  handleTagLeave()
+  isPanelExpanded.value = false
+}
+
 function setChipInitialState(el) {
   if (el && !animationPlayed.value) {
     gsap.set(el, { opacity: 0, y: 12 })
@@ -162,12 +235,20 @@ watch(
     props.loading,
     props.categoryTags.length,
     props.keywordTags.length,
+    isPanelExpanded.value,
   ],
-  ([loading, categoryCount, keywordCount]) => {
+  async ([loading, categoryCount, keywordCount, isExpanded]) => {
     if (loading || (!categoryCount && !keywordCount)) {
       animationPlayed.value = false
       return
     }
+
+    if (isPanelCollapsible.value && !isExpanded) {
+      animationPlayed.value = false
+      return
+    }
+
+    await nextTick()
 
     const chips = containerRef.value
       ? [...containerRef.value.querySelectorAll('.hot-tag-chip')]
@@ -193,8 +274,13 @@ watch(
 )
 
 watch(() => props.currentSeries, () => {
+  isPanelExpanded.value = !props.isMobile
   isCategoryExpanded.value = false
   isKeywordExpanded.value = false
+})
+
+watch(() => props.isMobile, (isMobile) => {
+  isPanelExpanded.value = !isMobile
 })
 
 onBeforeUnmount(() => {
@@ -210,7 +296,7 @@ onBeforeUnmount(() => {
 <template>
   <section v-if="loading || categoryTags.length > 0 || keywordTags.length > 0" class="hot-tags-panel">
     <div class="hot-tags-header">
-      <div>
+      <div class="hot-tags-header__content">
         <p class="hot-tags-eyebrow">
           热门标签
         </p>
@@ -218,152 +304,185 @@ onBeforeUnmount(() => {
           大家最近更爱搜这些内容
         </h2>
       </div>
-      <span class="hot-tags-hint">分类会直接切换筛选，关键词会进入搜索</span>
-    </div>
-
-    <div v-if="loading" class="hot-tags-groups">
-      <div class="hot-tags-group">
-        <div class="hot-tags-group__title">
-          热门分类
-        </div>
-        <div class="hot-tags-skeleton">
-          <span v-for="index in 4" :key="`category-${index}`" class="skeleton-chip" />
-        </div>
-      </div>
-
-      <div class="hot-tags-group">
-        <div class="hot-tags-group__title">
-          热门关键词
-        </div>
-        <div class="hot-tags-skeleton">
-          <span v-for="index in 6" :key="`keyword-${index}`" class="skeleton-chip" />
-        </div>
-      </div>
-    </div>
-
-    <div v-else ref="containerRef" class="hot-tags-groups">
-      <div v-if="categoryTags.length > 0" class="hot-tags-group">
-        <div class="hot-tags-group__header">
-          <div class="hot-tags-group__title">
-            热门分类
-          </div>
-          <div class="hot-tags-group__desc">
-            点击后直接切换筛选回显
-          </div>
-        </div>
-
-        <div class="hot-tags-list">
-          <div
-            v-for="tag in visibleCategoryTags"
-            :key="`category-${tag.tag}`"
-            class="hot-tag-chip-wrapper"
-            @mouseenter="handleTagHover(tag, $event)"
-            @mouseleave="handleTagLeave"
-          >
-            <button
-              :ref="setChipInitialState"
-              class="hot-tag-chip hot-tag-chip--category"
-              :class="{ 'hot-tag-chip--active': activeTag === tag.tag }"
-              @click="$emit('select', tag)"
-            >
-              <span class="hot-tag-chip__name">{{ tag.tag }}</span>
-              <span class="hot-tag-chip__meta">{{ tag.wallpaperCount }} 张</span>
-            </button>
-            <Transition name="preview-fade">
-              <div
-                v-if="showPreview && hoveredTag === tag.tag && tag.topWallpapers?.length"
-                class="hot-tag-preview"
-                :class="[
-                  previewClass,
-                  `hot-tag-preview--align-${hoveredPreviewPlacement.horizontal}`,
-                  { 'hot-tag-preview--below': hoveredPreviewPlacement.vertical === 'bottom' },
-                ]"
-                :style="getPreviewStyle(tag)"
-              >
-                <img
-                  v-for="(wp, i) in tag.topWallpapers.slice(0, 3)"
-                  :key="i"
-                  :src="getThumbnailUrl(wp)"
-                  :alt="tag.tag"
-                  class="hot-tag-preview__img"
-                  loading="lazy"
-                >
-              </div>
-            </Transition>
-          </div>
-        </div>
-
-        <button
-          v-if="showCategoryToggle"
-          class="hot-tags-toggle"
-          type="button"
-          @click="isCategoryExpanded = !isCategoryExpanded"
+      <button
+        v-if="isPanelCollapsible"
+        class="hot-tags-panel-toggle"
+        type="button"
+        :aria-expanded="isPanelExpanded"
+        @click="handlePanelToggle"
+      >
+        <span>{{ isPanelExpanded ? '收起热门推荐' : '展开热门推荐' }}</span>
+        <span
+          class="hot-tags-panel-toggle__icon"
+          :class="{ 'hot-tags-panel-toggle__icon--expanded': isPanelExpanded }"
+          aria-hidden="true"
         >
-          {{ isCategoryExpanded ? '收起热门分类' : '展开更多分类' }}
-        </button>
-      </div>
-
-      <div v-if="keywordTags.length > 0" class="hot-tags-group">
-        <div class="hot-tags-group__header">
-          <div class="hot-tags-group__title">
-            热门关键词
-          </div>
-          <div class="hot-tags-group__desc">
-            点击后在当前系列内搜索
-          </div>
-        </div>
-
-        <div class="hot-tags-list">
-          <div
-            v-for="tag in visibleKeywordTags"
-            :key="`keyword-${tag.tag}`"
-            class="hot-tag-chip-wrapper"
-            @mouseenter="handleTagHover(tag, $event)"
-            @mouseleave="handleTagLeave"
-          >
-            <button
-              :ref="setChipInitialState"
-              class="hot-tag-chip hot-tag-chip--keyword"
-              :class="{ 'hot-tag-chip--active': activeTag === tag.tag }"
-              @click="$emit('select', tag)"
-            >
-              <span class="hot-tag-chip__name"># {{ tag.tag }}</span>
-              <span class="hot-tag-chip__meta">{{ tag.wallpaperCount }} 张</span>
-            </button>
-            <Transition name="preview-fade">
-              <div
-                v-if="showPreview && hoveredTag === tag.tag && tag.topWallpapers?.length"
-                class="hot-tag-preview"
-                :class="[
-                  previewClass,
-                  `hot-tag-preview--align-${hoveredPreviewPlacement.horizontal}`,
-                  { 'hot-tag-preview--below': hoveredPreviewPlacement.vertical === 'bottom' },
-                ]"
-                :style="getPreviewStyle(tag)"
-              >
-                <img
-                  v-for="(wp, i) in tag.topWallpapers.slice(0, 3)"
-                  :key="i"
-                  :src="getThumbnailUrl(wp)"
-                  :alt="tag.tag"
-                  class="hot-tag-preview__img"
-                  loading="lazy"
-                >
-              </div>
-            </Transition>
-          </div>
-        </div>
-
-        <button
-          v-if="showKeywordToggle"
-          class="hot-tags-toggle"
-          type="button"
-          @click="isKeywordExpanded = !isKeywordExpanded"
-        >
-          {{ isKeywordExpanded ? '收起热门关键词' : '展开更多关键词' }}
-        </button>
-      </div>
+          <svg viewBox="0 0 16 16" fill="none">
+            <path d="M4 6.5L8 10L12 6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </span>
+      </button>
+      <span v-else class="hot-tags-hint">分类会直接切换筛选，关键词会进入搜索</span>
     </div>
+
+    <p v-if="isPanelCollapsible && isPanelExpanded" class="hot-tags-hint hot-tags-hint--mobile">
+      分类会直接切换筛选，关键词会进入搜索
+    </p>
+
+    <Transition
+      @before-enter="onPanelBeforeEnter"
+      @enter="onPanelEnter"
+      @after-enter="onPanelAfterEnter"
+      @before-leave="onPanelBeforeLeave"
+      @leave="onPanelLeave"
+      @after-leave="onPanelAfterLeave"
+    >
+      <div v-if="!isPanelCollapsible || isPanelExpanded">
+        <div v-if="loading" class="hot-tags-groups">
+          <div class="hot-tags-group">
+            <div class="hot-tags-group__title">
+              热门分类
+            </div>
+            <div class="hot-tags-skeleton">
+              <span v-for="index in 4" :key="`category-${index}`" class="skeleton-chip" />
+            </div>
+          </div>
+
+          <div class="hot-tags-group">
+            <div class="hot-tags-group__title">
+              热门关键词
+            </div>
+            <div class="hot-tags-skeleton">
+              <span v-for="index in 6" :key="`keyword-${index}`" class="skeleton-chip" />
+            </div>
+          </div>
+        </div>
+
+        <div v-else ref="containerRef" class="hot-tags-groups">
+          <div v-if="categoryTags.length > 0" class="hot-tags-group">
+            <div class="hot-tags-group__header">
+              <div class="hot-tags-group__title">
+                热门分类
+              </div>
+              <div class="hot-tags-group__desc">
+                点击后直接切换筛选回显
+              </div>
+            </div>
+
+            <div class="hot-tags-list">
+              <div
+                v-for="tag in visibleCategoryTags"
+                :key="`category-${tag.tag}`"
+                class="hot-tag-chip-wrapper"
+                @mouseenter="handleTagHover(tag, $event)"
+                @mouseleave="handleTagLeave"
+              >
+                <button
+                  :ref="setChipInitialState"
+                  class="hot-tag-chip hot-tag-chip--category"
+                  :class="{ 'hot-tag-chip--active': activeTag === tag.tag }"
+                  @click="handleTagSelect(tag)"
+                >
+                  <span class="hot-tag-chip__name">{{ tag.tag }}</span>
+                  <span class="hot-tag-chip__meta">{{ tag.wallpaperCount }} 张</span>
+                </button>
+                <Transition name="preview-fade">
+                  <div
+                    v-if="showPreview && hoveredTag === tag.tag && tag.topWallpapers?.length"
+                    class="hot-tag-preview"
+                    :class="[
+                      previewClass,
+                      `hot-tag-preview--align-${hoveredPreviewPlacement.horizontal}`,
+                      { 'hot-tag-preview--below': hoveredPreviewPlacement.vertical === 'bottom' },
+                    ]"
+                    :style="getPreviewStyle(tag)"
+                  >
+                    <img
+                      v-for="(wp, i) in tag.topWallpapers.slice(0, 3)"
+                      :key="i"
+                      :src="getThumbnailUrl(wp)"
+                      :alt="tag.tag"
+                      class="hot-tag-preview__img"
+                      loading="lazy"
+                    >
+                  </div>
+                </Transition>
+              </div>
+            </div>
+
+            <button
+              v-if="showCategoryToggle"
+              class="hot-tags-toggle"
+              type="button"
+              @click="isCategoryExpanded = !isCategoryExpanded"
+            >
+              {{ isCategoryExpanded ? '收起热门分类' : '展开更多分类' }}
+            </button>
+          </div>
+
+          <div v-if="keywordTags.length > 0" class="hot-tags-group">
+            <div class="hot-tags-group__header">
+              <div class="hot-tags-group__title">
+                热门关键词
+              </div>
+              <div class="hot-tags-group__desc">
+                点击后在当前系列内搜索
+              </div>
+            </div>
+
+            <div class="hot-tags-list">
+              <div
+                v-for="tag in visibleKeywordTags"
+                :key="`keyword-${tag.tag}`"
+                class="hot-tag-chip-wrapper"
+                @mouseenter="handleTagHover(tag, $event)"
+                @mouseleave="handleTagLeave"
+              >
+                <button
+                  :ref="setChipInitialState"
+                  class="hot-tag-chip hot-tag-chip--keyword"
+                  :class="{ 'hot-tag-chip--active': activeTag === tag.tag }"
+                  @click="handleTagSelect(tag)"
+                >
+                  <span class="hot-tag-chip__name"># {{ tag.tag }}</span>
+                  <span class="hot-tag-chip__meta">{{ tag.wallpaperCount }} 张</span>
+                </button>
+                <Transition name="preview-fade">
+                  <div
+                    v-if="showPreview && hoveredTag === tag.tag && tag.topWallpapers?.length"
+                    class="hot-tag-preview"
+                    :class="[
+                      previewClass,
+                      `hot-tag-preview--align-${hoveredPreviewPlacement.horizontal}`,
+                      { 'hot-tag-preview--below': hoveredPreviewPlacement.vertical === 'bottom' },
+                    ]"
+                    :style="getPreviewStyle(tag)"
+                  >
+                    <img
+                      v-for="(wp, i) in tag.topWallpapers.slice(0, 3)"
+                      :key="i"
+                      :src="getThumbnailUrl(wp)"
+                      :alt="tag.tag"
+                      class="hot-tag-preview__img"
+                      loading="lazy"
+                    >
+                  </div>
+                </Transition>
+              </div>
+            </div>
+
+            <button
+              v-if="showKeywordToggle"
+              class="hot-tags-toggle"
+              type="button"
+              @click="isKeywordExpanded = !isKeywordExpanded"
+            >
+              {{ isKeywordExpanded ? '收起热门关键词' : '展开更多关键词' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </section>
 </template>
 
@@ -396,6 +515,10 @@ onBeforeUnmount(() => {
   margin-bottom: $spacing-md;
 }
 
+.hot-tags-header__content {
+  min-width: 0;
+}
+
 .hot-tags-eyebrow {
   margin-bottom: 6px;
   font-size: 12px;
@@ -415,6 +538,50 @@ onBeforeUnmount(() => {
   font-size: $font-size-xs;
   color: var(--color-text-muted);
   white-space: nowrap;
+}
+
+.hot-tags-hint--mobile {
+  margin-bottom: $spacing-md;
+  white-space: normal;
+}
+
+.hot-tags-panel-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  border-radius: $radius-full;
+  background: rgba(255, 255, 255, 0.72);
+  color: #667eea;
+  font-size: 12px;
+  font-weight: $font-weight-semibold;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(102, 126, 234, 0.24);
+  }
+}
+
+.hot-tags-panel-toggle__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  transition: transform 220ms ease;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.hot-tags-panel-toggle__icon--expanded {
+  transform: rotate(180deg);
 }
 
 .hot-tags-groups {
@@ -656,7 +823,12 @@ onBeforeUnmount(() => {
 
   .hot-tags-header {
     align-items: flex-start;
-    flex-direction: column;
+    margin-bottom: 0;
+  }
+
+  .hot-tags-panel-toggle {
+    min-height: 34px;
+    padding: 0 12px;
   }
 
   .hot-tags-group__header {
@@ -667,6 +839,10 @@ onBeforeUnmount(() => {
 
   .hot-tags-title {
     font-size: $font-size-md;
+  }
+
+  .hot-tags-hint {
+    white-space: normal;
   }
 
   .hot-tags-list {
