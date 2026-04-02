@@ -1,12 +1,14 @@
 <script setup>
 import { gsap } from 'gsap'
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, toRef, watch } from 'vue'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner.vue'
+import WallpaperCardActions from '@/components/wallpaper/card/shared/WallpaperCardActions.vue'
 import { useDevice } from '@/composables/useDevice'
+import { useInteraction } from '@/composables/useInteraction'
 import { useWallpaperType } from '@/composables/useWallpaperType'
 import { usePopularityStore } from '@/stores/popularity'
 import { trackWallpaperDownload, trackWallpaperPreview } from '@/utils/common/analytics'
-import { buildProxyImageUrl, buildRawImageUrl, downloadFile, formatDate, formatFileSize, formatRelativeTime, getDisplayFilename, getFileExtension, getResolutionLabel } from '@/utils/common/format'
+import { buildProxyImageUrl, buildRawImageUrl, buildWallpaperDownloadFilename, downloadFile, formatDate, formatFileSize, formatRelativeTime, getDisplayFilename, getFileExtension, getResolutionLabel } from '@/utils/common/format'
 import { recordDownload, recordView } from '@/utils/integrations/supabase'
 import { resolveWallpaperSeries } from '@/utils/wallpaper/identity'
 import ImageCropModal from '../crop/index.vue'
@@ -32,6 +34,7 @@ const { isMobile, isTablet, isDesktop, isLandscape, isPortrait } = useDevice()
 // 获取当前系列
 const { currentSeries } = useWallpaperType()
 const effectiveSeries = computed(() => resolveWallpaperSeries(props.wallpaper, currentSeries.value))
+const { collected, isAuthenticated, liked, toggleCollect, toggleLike } = useInteraction(toRef(props, 'wallpaper'), effectiveSeries)
 
 // 热门数据 Store
 const popularityStore = usePopularityStore()
@@ -104,6 +107,18 @@ const viewCount = computed(() => {
   if (!props.wallpaper)
     return 0
   return popularityStore.getViewCount(props.wallpaper.filename)
+})
+
+const likeCount = computed(() => {
+  if (!props.wallpaper)
+    return 0
+  return popularityStore.getLikeCount(props.wallpaper.filename)
+})
+
+const collectCount = computed(() => {
+  if (!props.wallpaper)
+    return 0
+  return popularityStore.getCollectCount(props.wallpaper.filename)
 })
 
 // 是否有预览图（仅 desktop 系列）
@@ -402,7 +417,7 @@ async function handleDownload() {
 
   downloading.value = true
   try {
-    await downloadFile(props.wallpaper.url, props.wallpaper.filename)
+    await downloadFile(props.wallpaper.url, buildWallpaperDownloadFilename(props.wallpaper))
     // 追踪下载事件,包含系列信息
     trackWallpaperDownload(props.wallpaper, effectiveSeries.value)
     // 记录到 Supabase 统计（异步 RPC）
@@ -453,8 +468,15 @@ onUnmounted(() => {
     v-if="useDesktopModal"
     :wallpaper="wallpaper"
     :is-open="isOpen"
+    :liked="liked"
+    :collected="collected"
+    :is-authenticated="isAuthenticated"
+    :like-count="likeCount"
+    :collect-count="collectCount"
     @close="emit('close')"
     @open-crop="openCropModal"
+    @toggle-like="toggleLike"
+    @toggle-collect="toggleCollect"
   />
 
   <!-- 移动端和其他情况使用原有弹窗 -->
@@ -594,6 +616,18 @@ onUnmounted(() => {
                   </svg>
                   {{ downloadCount }}
                 </span>
+                <span v-if="collectCount > 0" class="tag tag--collect">
+                  <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                  {{ collectCount }}
+                </span>
+                <span v-if="likeCount > 0" class="tag tag--like">
+                  <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                    <path d="m12 21-1.45-1.32C5.4 15.03 2 11.95 2 8.5 2 5.42 4.42 3 7.5 3A5.3 5.3 0 0 1 12 5.09 5.3 5.3 0 0 1 16.5 3C19.58 3 22 5.42 22 8.5c0 3.45-3.4 6.53-8.55 11.18z" />
+                  </svg>
+                  {{ likeCount }}
+                </span>
               </div>
             </div>
 
@@ -692,6 +726,19 @@ onUnmounted(() => {
 
             <!-- 操作按钮组 -->
             <div class="action-buttons">
+              <WallpaperCardActions
+                v-if="isAuthenticated"
+                compact
+                :show-counts="false"
+                :liked="liked"
+                :collected="collected"
+                :like-count="likeCount"
+                :collect-count="collectCount"
+                :is-authenticated="isAuthenticated"
+                @toggle-like="toggleLike"
+                @toggle-collect="toggleCollect"
+              />
+
               <!-- 裁剪按钮（仅PC端 desktop 系列显示） -->
               <button
                 v-if="showCropFeature"
@@ -1078,12 +1125,12 @@ onUnmounted(() => {
 
   &--success {
     background: rgba(16, 185, 129, 0.15);
-    color: var(--color-success);
+    color: #34d399;
   }
 
   &--warning {
     background: rgba(245, 158, 11, 0.15);
-    color: var(--color-warning);
+    color: #fbbf24;
   }
 
   &--info {
@@ -1121,8 +1168,34 @@ onUnmounted(() => {
     align-items: center;
     gap: 6px;
     background: rgba(16, 185, 129, 0.15);
-    color: var(--color-success);
+    color: #34d399;
     font-weight: $font-weight-bold;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  &--collect {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  &--like {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(244, 63, 94, 0.15);
+    color: #fb7185;
 
     svg {
       width: 12px;
@@ -1133,10 +1206,6 @@ onUnmounted(() => {
   &--dark {
     background: rgba(0, 0, 0, 0.6);
     color: white;
-
-    [data-theme='dark'] & {
-      background: rgba(255, 255, 255, 0.15);
-    }
   }
 }
 

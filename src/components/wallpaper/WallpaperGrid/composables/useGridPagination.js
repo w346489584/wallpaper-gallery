@@ -7,6 +7,9 @@ export function useGridPagination({ timers, wallpapers }) {
   const isLoadingMore = ref(false)
   const scrollPaused = ref(false)
 
+  // RAF 节流标记
+  let scrollRafId = null
+
   const displayedItems = computed(() => wallpapers.value.slice(0, displayCount.value))
 
   const hasMoreData = computed(() => displayCount.value < wallpapers.value.length)
@@ -25,7 +28,9 @@ export function useGridPagination({ timers, wallpapers }) {
     timers.add(timer)
   }
 
-  function handleScroll() {
+  function checkScroll() {
+    scrollRafId = null
+
     if (scrollPaused.value || isLoadingMore.value || !hasMoreData.value)
       return
 
@@ -36,6 +41,12 @@ export function useGridPagination({ timers, wallpapers }) {
     if (scrollTop + windowHeight >= documentHeight - 200) {
       loadMore()
     }
+  }
+
+  function handleScroll() {
+    if (scrollRafId)
+      return
+    scrollRafId = requestAnimationFrame(checkScroll)
   }
 
   function pauseScrollLoad() {

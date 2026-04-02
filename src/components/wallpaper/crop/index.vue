@@ -1106,6 +1106,36 @@ onUnmounted(() => {
 }
 
 .crop-modal-overlay {
+  // 裁剪弹窗固定使用深色视觉，不跟随全局亮色主题切换
+  --color-accent: #6ea8ff;
+  --color-accent-rgb: 110, 168, 255;
+  --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  --accent-gradient-hover: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  --accent-gradient-soft:
+    linear-gradient(180deg, rgba(30, 64, 175, 0.22), rgba(15, 23, 42, 0.18)),
+    linear-gradient(135deg, rgba(96, 165, 250, 0.1), rgba(37, 99, 235, 0.04));
+  --accent-gradient-soft-strong:
+    linear-gradient(180deg, rgba(37, 99, 235, 0.28), rgba(15, 23, 42, 0.2)),
+    linear-gradient(135deg, rgba(125, 177, 255, 0.14), rgba(37, 99, 235, 0.06));
+  --accent-surface: rgba(59, 130, 246, 0.16);
+  --accent-surface-strong: rgba(96, 165, 250, 0.24);
+  --accent-border: rgba(96, 165, 250, 0.24);
+  --accent-border-strong: rgba(147, 197, 253, 0.42);
+  --accent-ring: rgba(96, 165, 250, 0.18);
+  --accent-shadow: rgba(37, 99, 235, 0.28);
+  --accent-shadow-strong: rgba(59, 130, 246, 0.36);
+  --accent-contrast-soft: #dbeafe;
+  --crop-panel-surface: linear-gradient(180deg, rgba(20, 30, 54, 0.9), rgba(11, 18, 35, 0.96));
+  --crop-panel-surface-strong: linear-gradient(180deg, rgba(28, 41, 73, 0.94), rgba(14, 22, 41, 0.98));
+  --crop-pill-surface: rgba(9, 16, 32, 0.82);
+  --crop-pill-surface-strong: rgba(17, 28, 52, 0.92);
+  --crop-pill-border: rgba(255, 255, 255, 0.08);
+  --crop-pill-border-strong: rgba(255, 255, 255, 0.14);
+  --crop-chip-surface: linear-gradient(180deg, rgba(28, 42, 76, 0.92), rgba(12, 20, 39, 0.98));
+  --crop-chip-border: rgba(110, 168, 255, 0.2);
+  --crop-text-muted: rgba(255, 255, 255, 0.45);
+  --crop-text-soft: rgba(255, 255, 255, 0.62);
+  color-scheme: dark;
   position: fixed;
   inset: 0;
   z-index: 1100;

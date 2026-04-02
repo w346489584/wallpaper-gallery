@@ -4,6 +4,7 @@
  */
 import { computed } from 'vue'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner.vue'
+import WallpaperCardActions from '@/components/wallpaper/card/shared/WallpaperCardActions.vue'
 import { formatDate, formatFileSize, getDisplayFilename, getFileExtension, getResolutionLabel } from '@/utils/common/format'
 
 const props = defineProps({
@@ -23,6 +24,26 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
+  likeCount: {
+    type: Number,
+    default: 0,
+  },
+  collectCount: {
+    type: Number,
+    default: 0,
+  },
+  liked: {
+    type: Boolean,
+    default: false,
+  },
+  collected: {
+    type: Boolean,
+    default: false,
+  },
+  isAuthenticated: {
+    type: Boolean,
+    default: false,
+  },
   isLoading: {
     type: Boolean,
     default: true,
@@ -41,7 +62,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['download', 'toggleDeviceMode'])
+const emit = defineEmits(['download', 'toggleDeviceMode', 'toggleLike', 'toggleCollect'])
 
 // 计算属性 - 优先使用 AI 生成的 displayTitle
 const displayFilename = computed(() => {
@@ -152,6 +173,18 @@ const aiKeywords = computed(() => props.wallpaper?.keywords || [])
               </svg>
               {{ downloadCount }}
             </span>
+            <span v-if="collectCount > 0" class="tag tag--collect">
+              <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+              {{ collectCount }}
+            </span>
+            <span v-if="likeCount > 0" class="tag tag--like">
+              <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                <path d="m12 21-1.45-1.32C5.4 15.03 2 11.95 2 8.5 2 5.42 4.42 3 7.5 3A5.3 5.3 0 0 1 12 5.09 5.3 5.3 0 0 1 16.5 3C19.58 3 22 5.42 22 8.5c0 3.45-3.4 6.53-8.55 11.18z" />
+              </svg>
+              {{ likeCount }}
+            </span>
           </div>
 
           <!-- AI 关键词标签云 -->
@@ -170,6 +203,19 @@ const aiKeywords = computed(() => props.wallpaper?.keywords || [])
       </div>
 
       <div class="modal-info__actions">
+        <WallpaperCardActions
+          v-if="isAuthenticated"
+          compact
+          :show-counts="false"
+          :liked="liked"
+          :collected="collected"
+          :like-count="likeCount"
+          :collect-count="collectCount"
+          :is-authenticated="isAuthenticated"
+          @toggle-like="emit('toggleLike')"
+          @toggle-collect="emit('toggleCollect')"
+        />
+
         <!-- 真机模式按钮 -->
         <button
           v-if="canUseDeviceMode"
@@ -299,6 +345,8 @@ const aiKeywords = computed(() => props.wallpaper?.keywords || [])
   &__actions {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
     gap: $spacing-md;
     flex-shrink: 0;
   }
@@ -379,17 +427,18 @@ const aiKeywords = computed(() => props.wallpaper?.keywords || [])
 
   &--success {
     background: rgba(16, 185, 129, 0.15);
-    color: var(--color-success);
+    color: #34d399;
   }
 
   &--warning {
     background: rgba(245, 158, 11, 0.15);
-    color: var(--color-warning);
+    color: #fbbf24;
   }
 
   &--secondary {
-    background: var(--color-bg-hover);
-    color: var(--color-text-secondary);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(226, 232, 240, 0.82);
+    border: 1px solid rgba(148, 163, 184, 0.14);
   }
 
   &--view,
@@ -411,7 +460,33 @@ const aiKeywords = computed(() => props.wallpaper?.keywords || [])
 
   &--download {
     background: rgba(16, 185, 129, 0.15);
-    color: var(--color-success);
+    color: #34d399;
+  }
+
+  &--collect {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+
+    svg {
+      width: 10px;
+      height: 10px;
+    }
+  }
+
+  &--like {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background: rgba(244, 63, 94, 0.15);
+    color: #fb7185;
+
+    svg {
+      width: 10px;
+      height: 10px;
+    }
   }
 }
 
@@ -453,11 +528,6 @@ const aiKeywords = computed(() => props.wallpaper?.keywords || [])
     &:hover {
       background: var(--accent-gradient-soft-strong);
       transform: translateY(-1px);
-    }
-
-    [data-theme='dark'] & {
-      background: var(--accent-gradient-soft-strong);
-      border-color: var(--accent-border-strong);
     }
   }
 }

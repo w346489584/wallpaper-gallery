@@ -25,10 +25,12 @@ function mergeStatsEntry(statsMap, imageId, stats, series) {
   if (!normalizedId)
     return
 
-  const prev = statsMap.get(normalizedId) || { views: 0, downloads: 0 }
+  const prev = statsMap.get(normalizedId) || { views: 0, downloads: 0, likes: 0, collects: 0 }
   statsMap.set(normalizedId, {
     views: prev.views + (stats.views || 0),
     downloads: prev.downloads + (stats.downloads || 0),
+    likes: prev.likes + (stats.likes || 0),
+    collects: prev.collects + (stats.collects || 0),
   })
 }
 
@@ -75,11 +77,13 @@ export async function loadStaticStats(series, forceRefresh = false) {
     // 转换为 Map
     const statsMap = new Map()
     if (Array.isArray(data)) {
-      // 数组格式：[{ image_id, views, downloads }, ...]
+      // 数组格式：[{ image_id, views, downloads, likes, collects }, ...]
       data.forEach((item) => {
         mergeStatsEntry(statsMap, item.image_id, {
           views: item.views || item.total_views || 0,
           downloads: item.downloads || item.total_downloads || 0,
+          likes: item.likes || item.total_likes || 0,
+          collects: item.collects || item.total_collects || 0,
         }, series)
       })
     }
@@ -88,12 +92,14 @@ export async function loadStaticStats(series, forceRefresh = false) {
       Object.entries(data).forEach(([imageId, stats]) => {
         if (typeof stats === 'number') {
           // 简化格式：{ image_id: views }
-          mergeStatsEntry(statsMap, imageId, { views: stats, downloads: 0 }, series)
+          mergeStatsEntry(statsMap, imageId, { views: stats, downloads: 0, likes: 0, collects: 0 }, series)
         }
         else {
           mergeStatsEntry(statsMap, imageId, {
             views: stats.views || stats.total_views || 0,
             downloads: stats.downloads || stats.total_downloads || 0,
+            likes: stats.likes || stats.total_likes || 0,
+            collects: stats.collects || stats.total_collects || 0,
           }, series)
         }
       })
@@ -193,6 +199,54 @@ async function callRPC(functionName, params) {
 }
 
 /**
+ * 从 Supabase 加载壁纸的点赞/收藏聚合计数
+ * @param {string} series - 系列名称
+ * @returns {Promise<Map<string, {likes: number, collects: number}>>}
+ */
+export async function loadLikeCollectCounts(series) {
+  if (!isSupabaseConfigured()) {
+    return new Map()
+  }
+
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/image_stats?series=eq.${encodeURIComponent(series)}&or=(total_likes.gt.0,total_collects.gt.0)&select=image_id,total_likes,total_collects`,
+      {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+      },
+    )
+
+    if (!response.ok) {
+      return new Map()
+    }
+
+    const data = await response.json()
+    const countsMap = new Map()
+
+    if (Array.isArray(data)) {
+      data.forEach((item) => {
+        const normalizedId = normalizeStatsImageId(item.image_id, series)
+        if (normalizedId) {
+          countsMap.set(normalizedId, {
+            likes: item.total_likes || 0,
+            collects: item.total_collects || 0,
+          })
+        }
+      })
+    }
+
+    return countsMap
+  }
+  catch (error) {
+    console.error('[StatsService] 加载点赞/收藏统计失败:', error)
+    return new Map()
+  }
+}
+
+/**
  * 从 Supabase 直接加载热门数据（备用方案，仅在静态文件不可用时使用）
  * @param {string} series - 系列名称
  * @param {number} limit - 返回数量
@@ -232,6 +286,8 @@ export async function loadStatsFromSupabase(series, limit = 100) {
         mergeStatsEntry(statsMap, item.image_id, {
           views: item.total_views || 0,
           downloads: item.total_downloads || 0,
+          likes: item.total_likes || 0,
+          collects: item.total_collects || 0,
         }, series)
       })
     }

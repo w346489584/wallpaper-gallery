@@ -131,7 +131,7 @@ const emit = defineEmits([
   padding: 0;
   font-size: 11px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--crop-text-muted);
   background: transparent;
   border: none;
   transition: color 0.2s ease;
@@ -145,7 +145,7 @@ const emit = defineEmits([
   margin: 0 0 12px;
   font-size: 11px;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--crop-text-muted);
 }
 
 .batch-grid {
@@ -160,14 +160,15 @@ const emit = defineEmits([
   gap: 4px;
   padding: 10px 12px;
   text-align: left;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--crop-panel-surface);
+  border: 1px solid var(--crop-pill-border);
   border-radius: 10px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
   transition: all 0.22s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.12);
+    background: var(--crop-panel-surface-strong);
+    border-color: var(--crop-pill-border-strong);
   }
 
   &--active {
@@ -199,7 +200,8 @@ const emit = defineEmits([
   font-size: 9px;
   font-weight: 700;
   color: var(--accent-contrast-soft);
-  background: var(--accent-surface-strong);
+  background: var(--crop-chip-surface);
+  border: 1px solid var(--crop-chip-border);
   border-radius: 999px;
 }
 
@@ -227,9 +229,10 @@ const emit = defineEmits([
   font-size: 12px;
   font-weight: 700;
   color: var(--accent-contrast-soft);
-  background: var(--accent-surface);
+  background: var(--crop-panel-surface);
   border: 1px solid var(--accent-border);
   border-radius: 10px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
   transition: all 0.22s ease;
 
   svg {
@@ -240,12 +243,14 @@ const emit = defineEmits([
   &:hover:not(:disabled) {
     transform: translateY(-1px);
     color: #fff;
-    background: var(--accent-surface-strong);
+    background: var(--crop-panel-surface-strong);
     border-color: var(--accent-border-strong);
   }
 
   &:disabled {
-    opacity: 0.42;
+    color: rgba(255, 255, 255, 0.32);
+    background: rgba(9, 16, 32, 0.7);
+    border-color: rgba(255, 255, 255, 0.05);
     cursor: not-allowed;
   }
 }

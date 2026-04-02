@@ -1,6 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import PageLoadingScene from '@/components/common/feedback/PageLoadingScene.vue'
 import RemoteAvatar from '@/components/common/ui/RemoteAvatar.vue'
@@ -35,6 +35,7 @@ const {
 const pageState = ref('loading')
 const activeTab = ref(resolveLibraryTab(route.query.tab))
 const activeSeries = ref(getDefaultActiveSeries())
+const libraryContentScrollRef = ref(null)
 
 // 壁纸详情弹窗
 const selectedWallpaper = ref(null)
@@ -44,8 +45,20 @@ const authEmail = computed(() => primaryEmail.value || '')
 const authInitial = computed(() => getAvatarInitial(displayName.value || authEmail.value, 'W'))
 const authAvatarStyle = computed(() => getAvatarStyle(displayName.value || authEmail.value))
 
-const libraryTitle = computed(() => activeTab.value === 'likes' ? '我的喜欢' : '收藏夹')
-const libraryCardActionMode = computed(() => activeTab.value === 'likes' ? 'like-only' : 'collect-only')
+const libraryTabOptions = computed(() => [
+  {
+    name: 'collections',
+    label: '收藏夹',
+    hint: '长期保留、分区整理',
+    count: interactionStore.stats.collections || 0,
+  },
+  {
+    name: 'likes',
+    label: '我的喜欢',
+    hint: '快速回看、保留偏好',
+    count: interactionStore.stats.likes || 0,
+  },
+])
 
 const loginRoute = computed(() => ({
   path: '/login',
@@ -70,6 +83,10 @@ const seriesOptions = computed(() =>
 const currentTabItems = computed(() =>
   activeTab.value === 'likes' ? interactionStore.allLikes : interactionStore.allCollectionItems,
 )
+const LIBRARY_PAGE_SIZE = 24
+const displayCount = ref(LIBRARY_PAGE_SIZE)
+const isLoadingMore = ref(false)
+let loadMoreTimer = null
 
 function getUniqueAssetKeys(items = []) {
   return [...new Set(items.map(item => item?.asset_key).filter(Boolean))]
@@ -92,6 +109,8 @@ const currentAssetKeys = computed(() => {
 const resolvedWallpapers = ref([])
 const resolving = ref(false)
 let resolveRequestVersion = 0
+const visibleWallpapers = computed(() => resolvedWallpapers.value.slice(0, displayCount.value))
+const hasMoreWallpapers = computed(() => displayCount.value < resolvedWallpapers.value.length)
 
 // 当前系列统计
 const seriesCounts = computed(() => {
@@ -152,6 +171,66 @@ function getDefaultActiveSeries() {
 
 function getLibraryRoute(tab = activeTab.value) {
   return `/library?tab=${resolveLibraryTab(tab)}`
+}
+
+function setActiveTab(tab) {
+  activeTab.value = resolveLibraryTab(tab)
+}
+
+function clearLoadMoreTimer() {
+  if (loadMoreTimer) {
+    clearTimeout(loadMoreTimer)
+    loadMoreTimer = null
+  }
+}
+
+async function resetLibraryScroll() {
+  displayCount.value = LIBRARY_PAGE_SIZE
+  isLoadingMore.value = false
+  clearLoadMoreTimer()
+  await nextTick()
+  if (libraryContentScrollRef.value) {
+    libraryContentScrollRef.value.scrollTop = 0
+  }
+}
+
+function loadMoreWallpapers() {
+  if (isLoadingMore.value || !hasMoreWallpapers.value) {
+    return
+  }
+
+  isLoadingMore.value = true
+  clearLoadMoreTimer()
+
+  loadMoreTimer = window.setTimeout(async () => {
+    displayCount.value = Math.min(displayCount.value + LIBRARY_PAGE_SIZE, resolvedWallpapers.value.length)
+    isLoadingMore.value = false
+    loadMoreTimer = null
+    await ensureScrollableContent()
+  }, 120)
+}
+
+function handleLibraryContentScroll(event) {
+  const container = event.target
+  if (!container || isLoadingMore.value || !hasMoreWallpapers.value) {
+    return
+  }
+
+  if (container.scrollTop + container.clientHeight >= container.scrollHeight - 220) {
+    loadMoreWallpapers()
+  }
+}
+
+async function ensureScrollableContent() {
+  await nextTick()
+  const container = libraryContentScrollRef.value
+  if (!container || isMobile.value || isLoadingMore.value || !hasMoreWallpapers.value) {
+    return
+  }
+
+  if (container.scrollHeight <= container.clientHeight + 24) {
+    loadMoreWallpapers()
+  }
 }
 
 function syncRouteTab(tab) {
@@ -302,6 +381,7 @@ async function ensurePageReady() {
 
 // 监听 asset_key 列表变化，解析壁纸对象
 watch(currentAssetKeys, (keys) => {
+  resetLibraryScroll()
   resolveWallpapers(keys)
 }, { immediate: false })
 
@@ -342,6 +422,14 @@ watch(pageState, (state) => {
   }
 })
 
+watch(resolvedWallpapers, () => {
+  ensureScrollableContent()
+})
+
+onBeforeUnmount(() => {
+  clearLoadMoreTimer()
+})
+
 onMounted(() => {
   ensurePageReady()
 })
@@ -359,8 +447,7 @@ onMounted(() => {
 
         <template v-else>
           <header class="library-hero">
-            <!-- <span class="library-eyebrow">Library</span> -->
-            <!-- <h1>收藏夹与我的喜欢</h1> -->
+            <h1>我的壁纸空间</h1>
             <p>在这里管理你收藏和喜欢的壁纸，按系列分类浏览，点击预览图查看详情。</p>
           </header>
 
@@ -383,21 +470,23 @@ onMounted(() => {
             <!-- 侧边栏 -->
             <aside class="library-sidebar">
               <div class="library-profile-card">
-                <div class="library-profile-card__avatar-wrap">
-                  <RemoteAvatar
-                    :sources="avatarCandidates"
-                    :src="avatarUrl"
-                    :alt="`${displayName} 头像`"
-                    :initial="authInitial"
-                    :fallback-style="authAvatarStyle"
-                    image-class="library-profile-card__avatar-image"
-                    fallback-class="library-profile-card__avatar"
-                  />
-                </div>
+                <div class="library-profile-card__identity">
+                  <div class="library-profile-card__avatar-wrap">
+                    <RemoteAvatar
+                      :sources="avatarCandidates"
+                      :src="avatarUrl"
+                      :alt="`${displayName} 头像`"
+                      :initial="authInitial"
+                      :fallback-style="authAvatarStyle"
+                      image-class="library-profile-card__avatar-image"
+                      fallback-class="library-profile-card__avatar"
+                    />
+                  </div>
 
-                <div class="library-profile-card__copy">
-                  <h2>{{ displayName || '未命名用户' }}</h2>
-                  <p>{{ authEmail || '当前账号暂未返回邮箱地址' }}</p>
+                  <div class="library-profile-card__copy">
+                    <h2>{{ displayName || '未命名用户' }}</h2>
+                    <p>{{ authEmail || '当前账号暂未返回邮箱地址' }}</p>
+                  </div>
                 </div>
 
                 <div class="library-profile-card__stats">
@@ -439,19 +528,48 @@ onMounted(() => {
             <!-- 主内容区 -->
             <section class="library-main">
               <div class="library-content-card">
-                <div class="library-content-card__header">
-                  <div>
-                    <!-- <span class="library-content-card__eyebrow">Your Space</span> -->
-                    <h2>{{ libraryTitle }}</h2>
-                  </div>
-                  <span class="library-content-card__count">{{ seriesCounts[activeSeries] }} 张</span>
-                </div>
-
-                <!-- 主 Tab：收藏夹 / 我的喜欢 -->
-                <el-tabs v-model="activeTab" class="library-tabs" stretch>
+                <!-- 移动端保持紧凑 Tab，桌面/平板使用页面级双卡导航 -->
+                <el-tabs v-if="isMobile" v-model="activeTab" class="library-tabs" stretch>
                   <el-tab-pane label="收藏夹" name="collections" />
                   <el-tab-pane label="我的喜欢" name="likes" />
                 </el-tabs>
+                <div v-else class="library-view-switcher" role="tablist" aria-label="壁纸库内容切换">
+                  <button
+                    v-for="tab in libraryTabOptions"
+                    :key="tab.name"
+                    class="library-view-switcher__item"
+                    :class="{ 'is-active': activeTab === tab.name }"
+                    type="button"
+                    role="tab"
+                    :aria-selected="activeTab === tab.name"
+                    :tabindex="activeTab === tab.name ? 0 : -1"
+                    @click="setActiveTab(tab.name)"
+                  >
+                    <div class="library-view-switcher__icon" :class="`is-${tab.name}`">
+                      <svg
+                        v-if="tab.name === 'collections'"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                      </svg>
+                      <svg
+                        v-else
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path d="m12 21-1.45-1.32C5.4 15.03 2 11.95 2 8.5 2 5.42 4.42 3 7.5 3A5.3 5.3 0 0 1 12 5.09 5.3 5.3 0 0 1 16.5 3C19.58 3 22 5.42 22 8.5c0 3.45-3.4 6.53-8.55 11.18z" />
+                      </svg>
+                    </div>
+                    <div class="library-view-switcher__copy">
+                      <span class="library-view-switcher__label">{{ tab.label }}</span>
+                      <span class="library-view-switcher__hint">{{ tab.hint }}</span>
+                    </div>
+                    <span class="library-view-switcher__count">{{ tab.count }}</span>
+                  </button>
+                </div>
 
                 <!-- 系列筛选胶囊 -->
                 <div class="series-filter-pills">
@@ -467,62 +585,67 @@ onMounted(() => {
                   </button>
                 </div>
 
-                <!-- 加载状态 -->
-                <div v-if="interactionStore.libraryLoading || resolving" class="library-loading">
-                  <div class="library-loading__spinner" />
-                  <span>加载中...</span>
-                </div>
-
-                <!-- 壁纸网格 -->
                 <div
-                  v-else-if="resolvedWallpapers.length > 0"
-                  class="library-wallpaper-grid"
-                  :class="{
-                    'library-wallpaper-grid--masonry': activeSeries === 'all',
-                    'is-portrait': activeSeries === 'mobile',
-                    'is-square': activeSeries === 'avatar',
-                  }"
+                  ref="libraryContentScrollRef"
+                  class="library-content-scroll"
+                  @scroll.passive="handleLibraryContentScroll"
                 >
-                  <WallpaperCard
-                    v-for="(wallpaper, index) in resolvedWallpapers"
-                    :key="wallpaper._assetKey || wallpaper.id"
-                    :wallpaper="wallpaper"
-                    :index="index"
-                    view-mode="grid"
-                    :aspect-ratio="getAspectRatio(wallpaper)"
-                    :action-mode="libraryCardActionMode"
-                    :liked="interactionStore.isLiked(wallpaper.filename || wallpaper.id, wallpaper._series)"
-                    :collected="interactionStore.isCollected(wallpaper.filename || wallpaper.id, wallpaper._series)"
-                    :is-authenticated="true"
-                    @click="handleSelectWallpaper(wallpaper)"
-                    @toggle-like="interactionStore.handleToggleLike(wallpaper.filename || wallpaper.id, wallpaper._series)"
-                    @toggle-collect="interactionStore.handleToggleCollect(wallpaper.filename || wallpaper.id, wallpaper._series)"
-                  />
-                </div>
-
-                <!-- 空状态 -->
-                <div v-else class="library-empty-state">
-                  <div class="library-empty-state__icon">
-                    <svg v-if="activeTab === 'collections'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                    </svg>
-                    <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                      <path d="m12 21-1.45-1.32C5.4 15.03 2 11.95 2 8.5 2 5.42 4.42 3 7.5 3A5.3 5.3 0 0 1 12 5.09 5.3 5.3 0 0 1 16.5 3C19.58 3 22 5.42 22 8.5c0 3.45-3.4 6.53-8.55 11.18z" />
-                    </svg>
+                  <!-- 加载状态 -->
+                  <div v-if="interactionStore.libraryLoading || resolving" class="library-loading">
+                    <div class="library-loading__spinner" />
+                    <span>加载中...</span>
                   </div>
-                  <h3>
-                    {{ activeSeries === 'all'
-                      ? `还没有${activeTab === 'likes' ? '喜欢' : '收藏'}的壁纸`
-                      : `${seriesOptions.find(o => o.id === activeSeries)?.name || ''}分区暂无内容` }}
-                  </h3>
-                  <p>
-                    {{ activeTab === 'likes'
-                      ? '浏览主页壁纸时，点击爱心按钮即可添加到这里。'
-                      : '浏览主页壁纸时，点击星标按钮即可收藏到这里。' }}
-                  </p>
-                  <RouterLink class="library-empty-state__action" to="/">
-                    去发现壁纸
-                  </RouterLink>
+
+                  <!-- 壁纸网格 -->
+                  <div
+                    v-else-if="visibleWallpapers.length > 0"
+                    class="library-wallpaper-grid"
+                    :class="{
+                      'library-wallpaper-grid--masonry': activeSeries === 'all',
+                      'is-portrait': activeSeries === 'mobile',
+                      'is-square': activeSeries === 'avatar',
+                    }"
+                  >
+                    <WallpaperCard
+                      v-for="(wallpaper, index) in visibleWallpapers"
+                      :key="wallpaper._assetKey || wallpaper.id"
+                      :wallpaper="wallpaper"
+                      :index="index"
+                      view-mode="grid"
+                      :aspect-ratio="getAspectRatio(wallpaper)"
+                      @click="handleSelectWallpaper(wallpaper)"
+                    />
+                  </div>
+
+                  <!-- 空状态 -->
+                  <div v-else class="library-empty-state">
+                    <div class="library-empty-state__icon">
+                      <svg v-if="activeTab === 'collections'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                      </svg>
+                      <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="m12 21-1.45-1.32C5.4 15.03 2 11.95 2 8.5 2 5.42 4.42 3 7.5 3A5.3 5.3 0 0 1 12 5.09 5.3 5.3 0 0 1 16.5 3C19.58 3 22 5.42 22 8.5c0 3.45-3.4 6.53-8.55 11.18z" />
+                      </svg>
+                    </div>
+                    <h3>
+                      {{ activeSeries === 'all'
+                        ? `还没有${activeTab === 'likes' ? '喜欢' : '收藏'}的壁纸`
+                        : `${seriesOptions.find(o => o.id === activeSeries)?.name || ''}分区暂无内容` }}
+                    </h3>
+                    <p>
+                      {{ activeTab === 'likes'
+                        ? '浏览主页壁纸时，打开弹窗后点击爱心即可添加到这里。'
+                        : '浏览主页壁纸时，打开弹窗后点击星标即可收藏到这里。' }}
+                    </p>
+                    <RouterLink class="library-empty-state__action" to="/">
+                      去发现壁纸
+                    </RouterLink>
+                  </div>
+
+                  <div v-if="isLoadingMore" class="library-loading-more">
+                    <div class="library-loading__spinner" />
+                    <span>正在加载更多壁纸...</span>
+                  </div>
                 </div>
               </div>
             </section>
@@ -550,12 +673,29 @@ onMounted(() => {
 .library-page {
   padding: 16px 0 12px;
   background: transparent;
+
+  @include desktop-up {
+    height: calc(100vh - var(--header-height));
+    height: calc(100dvh - var(--header-height));
+    overflow: hidden;
+  }
+}
+
+.library-page :deep(.container) {
+  @include desktop-up {
+    height: 100%;
+  }
 }
 
 .library-shell {
   display: flex;
   flex-direction: column;
   gap: 20px;
+
+  @include desktop-up {
+    height: 100%;
+    min-height: 0;
+  }
 }
 
 .library-hero {
@@ -610,6 +750,8 @@ onMounted(() => {
 
   @include desktop-up {
     flex-direction: row;
+    flex: 1;
+    min-height: 0;
   }
 }
 
@@ -627,6 +769,10 @@ onMounted(() => {
 .library-main {
   flex: 1;
   min-width: 0;
+
+  @include desktop-up {
+    min-height: 0;
+  }
 }
 
 // ========================================
@@ -662,15 +808,47 @@ onMounted(() => {
 // ========================================
 
 .library-profile-card {
+  position: relative;
   display: flex;
   flex-direction: column;
+  gap: 20px;
+  padding: 10px 20px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 96px;
+    border-radius: 28px 28px 24px 24px;
+    background:
+      radial-gradient(circle at top left, rgba(59, 130, 246, 0.22), transparent 58%),
+      linear-gradient(135deg, rgba(191, 219, 254, 0.52), rgba(255, 255, 255, 0));
+    pointer-events: none;
+
+    [data-theme='dark'] & {
+      background:
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.18), transparent 58%),
+        linear-gradient(135deg, rgba(30, 58, 138, 0.3), rgba(2, 6, 23, 0));
+    }
+  }
+}
+
+.library-profile-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.library-profile-card__identity {
+  display: flex;
+  align-items: center;
   gap: 16px;
-  padding: 22px;
+  min-width: 0;
 }
 
 .library-profile-card__avatar-wrap {
   display: flex;
   justify-content: flex-start;
+  flex-shrink: 0;
 }
 
 :deep(.library-profile-card__avatar),
@@ -699,6 +877,12 @@ onMounted(() => {
 }
 
 .library-profile-card__copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+
   h2 {
     margin: 0;
     color: #0f172a;
@@ -711,7 +895,7 @@ onMounted(() => {
   }
 
   p {
-    margin-top: 10px;
+    margin-top: 8px;
     color: #64748b;
     line-height: 1.7;
     word-break: break-word;
@@ -815,49 +999,276 @@ onMounted(() => {
   flex-direction: column;
   gap: 20px;
   padding: 22px;
+
+  @include desktop-up {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
 }
 
-.library-content-card__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
+.library-content-scroll {
+  min-height: 0;
 
-  h2 {
-    margin: 8px 0 0;
-    color: #0f172a;
-    font-size: 28px;
-    line-height: 1.12;
+  @include desktop-up {
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 6px;
+    scrollbar-gutter: stable;
+  }
+
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.28);
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background-clip: padding-box;
 
     [data-theme='dark'] & {
-      color: #f8fafc;
+      background: rgba(96, 165, 250, 0.22);
+      border-color: transparent;
+      background-clip: padding-box;
     }
   }
 }
 
-.library-content-card__count {
-  display: inline-flex;
+.library-loading-more {
+  display: flex;
   align-items: center;
-  min-height: 32px;
-  padding: 0 12px;
-  border-radius: 999px;
-  color: #eff6ff;
-  font-size: 12px;
-  font-weight: 700;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  border: 1px solid transparent;
-  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
+  justify-content: center;
+  gap: 10px;
+  min-height: 72px;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
 
   [data-theme='dark'] & {
-    background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+    color: #94a3b8;
   }
 }
 
 // ========================================
-// Tabs（保持原有风格）
+// 页面级导航
+// ========================================
+
+.library-view-switcher {
+  display: grid;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 26px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(239, 246, 255, 0.64)),
+    linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(14, 165, 233, 0.04));
+  border: 1px solid rgba(96, 165, 250, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
+
+  [data-theme='dark'] & {
+    background:
+      linear-gradient(180deg, rgba(8, 15, 28, 0.78), rgba(8, 15, 28, 0.72)),
+      linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(14, 165, 233, 0.05));
+    border-color: rgba(96, 165, 250, 0.16);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  @include tablet-up {
+    max-width: 700px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.library-view-switcher__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  border-radius: 22px;
+  border: 1px solid rgba(96, 165, 250, 0.18);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(239, 246, 255, 0.78)),
+    linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(14, 165, 233, 0.04));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.64),
+    0 12px 30px rgba(148, 163, 184, 0.16);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    background 220ms ease;
+
+  [data-theme='dark'] & {
+    border-color: rgba(96, 165, 250, 0.16);
+    background:
+      linear-gradient(180deg, rgba(8, 15, 28, 0.92), rgba(8, 15, 28, 0.84)),
+      linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(14, 165, 233, 0.06));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 18px 40px rgba(2, 6, 23, 0.28);
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: rgba(37, 99, 235, 0.28);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.68),
+      0 18px 36px rgba(37, 99, 235, 0.14);
+
+    [data-theme='dark'] & {
+      border-color: rgba(96, 165, 250, 0.26);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 20px 44px rgba(2, 6, 23, 0.34);
+    }
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 4px rgba(37, 99, 235, 0.12),
+      0 18px 36px rgba(37, 99, 235, 0.18);
+  }
+
+  &.is-active {
+    border-color: rgba(37, 99, 235, 0.18);
+    background:
+      linear-gradient(140deg, rgba(37, 99, 235, 0.96), rgba(29, 78, 216, 0.9)),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0));
+    box-shadow:
+      0 20px 44px rgba(37, 99, 235, 0.24),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+
+    [data-theme='dark'] & {
+      border-color: rgba(96, 165, 250, 0.18);
+      background:
+        linear-gradient(140deg, rgba(59, 130, 246, 0.94), rgba(37, 99, 235, 0.9)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0));
+      box-shadow:
+        0 22px 48px rgba(37, 99, 235, 0.24),
+        inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    }
+  }
+}
+
+.library-view-switcher__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  color: #2563eb;
+  background: rgba(219, 234, 254, 0.82);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+
+  svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(30, 41, 59, 0.78);
+    color: #93c5fd;
+  }
+
+  &.is-collections {
+    color: #f59e0b;
+  }
+
+  &.is-likes {
+    color: #ef4444;
+  }
+
+  .is-active & {
+    background: rgba(255, 255, 255, 0.18);
+    color: #f8fafc;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  }
+}
+
+.library-view-switcher__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.library-view-switcher__label {
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.2;
+
+  [data-theme='dark'] & {
+    color: #f8fafc;
+  }
+
+  .is-active & {
+    color: #eff6ff;
+  }
+}
+
+.library-view-switcher__hint {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+
+  [data-theme='dark'] & {
+    color: #94a3b8;
+  }
+
+  .is-active & {
+    color: rgba(239, 246, 255, 0.82);
+  }
+}
+
+.library-view-switcher__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 999px;
+  color: #1e3a8a;
+  font-size: 14px;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82);
+
+  [data-theme='dark'] & {
+    background: rgba(15, 23, 42, 0.58);
+    color: #dbeafe;
+  }
+
+  .is-active & {
+    color: #eff6ff;
+    background: rgba(255, 255, 255, 0.14);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  }
+}
+
+// ========================================
+// 移动端 Tabs（保持原有风格）
 // ========================================
 
 .library-tabs {
+  @include tablet-up {
+    display: none;
+  }
+
   :deep(.el-tabs__nav-wrap) {
     padding: 6px 8px;
     border-radius: 18px;

@@ -89,9 +89,11 @@ function mergeExportData(rawData, series) {
     if (!imageId)
       return
 
-    const prev = merged.get(imageId) || { image_id: imageId, views: 0, downloads: 0 }
+    const prev = merged.get(imageId) || { image_id: imageId, views: 0, downloads: 0, likes: 0, collects: 0 }
     prev.views += item.total_views || 0
     prev.downloads += item.total_downloads || 0
+    prev.likes += item.total_likes || 0
+    prev.collects += item.total_collects || 0
     merged.set(imageId, prev)
   })
 

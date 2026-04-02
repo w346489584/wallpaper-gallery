@@ -11,7 +11,7 @@ import {
   toggleCollect,
   toggleLike,
 } from '@/services/interactionService'
-import { buildWallpaperAssetKey } from '@/utils/wallpaper/identity'
+import { buildWallpaperAssetKey, normalizeWallpaperFilename } from '@/utils/wallpaper/identity'
 
 export const useInteractionStore = defineStore('interaction', () => {
   // ========================================
@@ -214,6 +214,11 @@ export const useInteractionStore = defineStore('interaction', () => {
         ...stats.value,
         likes: stats.value.likes + (liked ? 1 : -1),
       }
+      // 乐观更新壁纸级聚合计数
+      const { usePopularityStore } = await import('@/stores/popularity')
+      const popularityStore = usePopularityStore()
+      const normalizedFilename = normalizeWallpaperFilename(filename, series)
+      popularityStore.adjustLikeCount(normalizedFilename, liked ? 1 : -1)
       ElMessage.success(liked ? '已加入我的喜欢' : '已取消喜欢')
       return { success: true, liked }
     }
@@ -260,6 +265,11 @@ export const useInteractionStore = defineStore('interaction', () => {
         ...stats.value,
         collections: stats.value.collections + (collected ? 1 : -1),
       }
+      // 乐观更新壁纸级聚合计数
+      const { usePopularityStore } = await import('@/stores/popularity')
+      const popularityStore = usePopularityStore()
+      const normalizedFilename = normalizeWallpaperFilename(filename, series)
+      popularityStore.adjustCollectCount(normalizedFilename, collected ? 1 : -1)
       ElMessage.success(collected ? '已加入收藏' : '已取消收藏')
       return { success: true, collected }
     }

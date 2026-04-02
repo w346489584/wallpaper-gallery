@@ -1,6 +1,4 @@
 <script setup>
-import WallpaperCardActions from './WallpaperCardActions.vue'
-
 defineProps({
   bingDate: {
     type: String,
@@ -50,6 +48,14 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  likeCount: {
+    type: Number,
+    default: 0,
+  },
+  collectCount: {
+    type: Number,
+    default: 0,
+  },
   actionMode: {
     type: String,
     default: 'all',
@@ -72,11 +78,17 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['error', 'load', 'toggleLike', 'toggleCollect'])
+const emit = defineEmits(['error', 'load', 'hoverEnter', 'hoverLeave'])
 </script>
 
 <template>
-  <div class="card-image" :class="`card-image--${viewMode}`" :style="style">
+  <div
+    class="card-image"
+    :class="`card-image--${viewMode}`"
+    :style="style"
+    @mouseenter="emit('hoverEnter')"
+    @mouseleave="emit('hoverLeave')"
+  >
     <div v-if="popularRank > 0 && popularRank <= 10" class="hot-badge" :class="{ 'hot-badge--top3': popularRank <= 3 }">
       <svg viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
@@ -127,45 +139,8 @@ const emit = defineEmits(['error', 'load', 'toggleLike', 'toggleCollect'])
       <span>{{ bingDate }}</span>
     </div>
 
-    <!-- 移动端：始终显示操作按钮（右上角） -->
-    <div v-if="isAuthenticated && isMobile && viewMode === 'grid'" class="card-actions-mobile">
-      <WallpaperCardActions
-        :liked="liked"
-        :collected="collected"
-        :action-mode="actionMode"
-        :is-authenticated="isAuthenticated"
-        compact
-        @toggle-like="emit('toggleLike')"
-        @toggle-collect="emit('toggleCollect')"
-      />
-    </div>
-
-    <!-- 状态角标：始终可见的喜欢/收藏指示器 -->
-    <div v-if="(liked || collected) && viewMode === 'grid'" class="card-status-badges">
-      <span v-if="collected" class="status-badge status-badge--collect" title="已收藏">
-        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-        </svg>
-      </span>
-      <span v-if="liked" class="status-badge status-badge--like" title="已喜欢">
-        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
-          <path d="m12 21-1.45-1.32C5.4 15.03 2 11.95 2 8.5 2 5.42 4.42 3 7.5 3A5.3 5.3 0 0 1 12 5.09 5.3 5.3 0 0 1 16.5 3C19.58 3 22 5.42 22 8.5c0 3.45-3.4 6.53-8.55 11.18z" />
-        </svg>
-      </span>
-    </div>
-
     <!-- 桌面端：hover overlay -->
     <div v-if="!isMobile" class="card-overlay">
-      <div v-if="isAuthenticated" class="overlay-actions">
-        <WallpaperCardActions
-          :liked="liked"
-          :collected="collected"
-          :action-mode="actionMode"
-          :is-authenticated="isAuthenticated"
-          @toggle-like="emit('toggleLike')"
-          @toggle-collect="emit('toggleCollect')"
-        />
-      </div>
       <div class="overlay-content">
         <span class="overlay-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -307,86 +282,11 @@ const emit = defineEmits(['error', 'load', 'toggleLike', 'toggleCollect'])
   will-change: opacity;
 }
 
-.overlay-actions {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 2;
-}
-
 .card-actions-mobile {
   position: absolute;
   top: 8px;
   right: 8px;
   z-index: 6;
-}
-
-.card-status-badges {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  z-index: 6;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 8px;
-  border-radius: 999px;
-  background:
-    linear-gradient(180deg, rgba(8, 15, 28, 0.9), rgba(5, 10, 20, 0.82)),
-    radial-gradient(circle at top left, rgba(96, 165, 250, 0.14), transparent 52%);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(191, 219, 254, 0.12);
-  box-shadow:
-    0 14px 24px rgba(2, 8, 23, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-
-  @include mobile-only {
-    right: 8px;
-    bottom: 40px;
-    gap: 5px;
-    padding: 5px 7px;
-  }
-}
-
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  color: #fff;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
-
-  @include mobile-only {
-    width: 18px;
-    height: 18px;
-  }
-
-  svg {
-    width: 12px;
-    height: 12px;
-
-    @include mobile-only {
-      width: 11px;
-      height: 11px;
-    }
-  }
-
-  &--collect {
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.96), rgba(245, 158, 11, 0.9));
-    box-shadow:
-      0 6px 12px rgba(245, 158, 11, 0.24),
-      inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  }
-
-  &--like {
-    background: linear-gradient(135deg, rgba(251, 113, 133, 0.96), rgba(239, 68, 68, 0.9));
-    box-shadow:
-      0 6px 12px rgba(239, 68, 68, 0.24),
-      inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  }
 }
 
 .overlay-content {

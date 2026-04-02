@@ -1,5 +1,7 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
+import LottieScene from '@/components/common/ui/LottieScene.vue'
+import { formatNumber } from '@/utils/common/format'
 
 const props = defineProps({
   liked: {
@@ -10,6 +12,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  likeCount: {
+    type: Number,
+    default: 0,
+  },
+  collectCount: {
+    type: Number,
+    default: 0,
+  },
   isAuthenticated: {
     type: Boolean,
     default: false,
@@ -17,6 +27,10 @@ const props = defineProps({
   compact: {
     type: Boolean,
     default: false,
+  },
+  showCounts: {
+    type: Boolean,
+    default: true,
   },
   actionMode: {
     type: String,
@@ -28,20 +42,98 @@ const emit = defineEmits(['toggleLike', 'toggleCollect'])
 
 const likeAnimating = ref(false)
 const collectAnimating = ref(false)
+const likeSettling = ref(false)
+const collectSettling = ref(false)
 const showCollectAction = computed(() => ['all', 'collect-only'].includes(props.actionMode))
 const showLikeAction = computed(() => ['all', 'like-only'].includes(props.actionMode))
+
+const likeAnimationSrc = `${import.meta.env.BASE_URL}lottie/like.lottie`
+const collectAnimationSrc = `${import.meta.env.BASE_URL}lottie/star.lottie`
+
+let likeAnimationTimer = null
+let collectAnimationTimer = null
+let likeRevealTimer = null
+let collectRevealTimer = null
+
+const LIKE_ANIMATION_DURATION = 1080
+const COLLECT_ANIMATION_DURATION = 1520
+const LIKE_REVEAL_DELAY = 680
+const COLLECT_REVEAL_DELAY = 980
+
+function clearLikeAnimationTimer() {
+  if (likeAnimationTimer) {
+    clearTimeout(likeAnimationTimer)
+    likeAnimationTimer = null
+  }
+}
+
+function clearCollectAnimationTimer() {
+  if (collectAnimationTimer) {
+    clearTimeout(collectAnimationTimer)
+    collectAnimationTimer = null
+  }
+}
+
+function clearLikeRevealTimer() {
+  if (likeRevealTimer) {
+    clearTimeout(likeRevealTimer)
+    likeRevealTimer = null
+  }
+}
+
+function clearCollectRevealTimer() {
+  if (collectRevealTimer) {
+    clearTimeout(collectRevealTimer)
+    collectRevealTimer = null
+  }
+}
+
+function triggerLikeAnimation() {
+  clearLikeAnimationTimer()
+  clearLikeRevealTimer()
+  likeAnimating.value = true
+  likeSettling.value = false
+  likeRevealTimer = setTimeout(() => {
+    likeSettling.value = true
+    likeRevealTimer = null
+  }, LIKE_REVEAL_DELAY)
+  likeAnimationTimer = setTimeout(() => {
+    likeAnimating.value = false
+    likeSettling.value = false
+    likeAnimationTimer = null
+  }, LIKE_ANIMATION_DURATION)
+}
+
+function triggerCollectAnimation() {
+  clearCollectAnimationTimer()
+  clearCollectRevealTimer()
+  collectAnimating.value = true
+  collectSettling.value = false
+  collectRevealTimer = setTimeout(() => {
+    collectSettling.value = true
+    collectRevealTimer = null
+  }, COLLECT_REVEAL_DELAY)
+  collectAnimationTimer = setTimeout(() => {
+    collectAnimating.value = false
+    collectSettling.value = false
+    collectAnimationTimer = null
+  }, COLLECT_ANIMATION_DURATION)
+}
 
 function handleLike(e) {
   e.stopPropagation()
   if (likeAnimating.value)
     return
 
-  likeAnimating.value = true
-  emit('toggleLike')
+  if (!props.isAuthenticated) {
+    emit('toggleLike')
+    return
+  }
 
-  setTimeout(() => {
-    likeAnimating.value = false
-  }, 500)
+  if (!props.liked) {
+    triggerLikeAnimation()
+  }
+  emit('toggleLike')
 }
 
 function handleCollect(e) {
@@ -49,13 +141,23 @@ function handleCollect(e) {
   if (collectAnimating.value)
     return
 
-  collectAnimating.value = true
-  emit('toggleCollect')
+  if (!props.isAuthenticated) {
+    emit('toggleCollect')
+    return
+  }
 
-  setTimeout(() => {
-    collectAnimating.value = false
-  }, 500)
+  if (!props.collected) {
+    triggerCollectAnimation()
+  }
+  emit('toggleCollect')
 }
+
+onBeforeUnmount(() => {
+  clearLikeAnimationTimer()
+  clearCollectAnimationTimer()
+  clearLikeRevealTimer()
+  clearCollectRevealTimer()
+})
 </script>
 
 <template>
@@ -69,8 +171,8 @@ function handleCollect(e) {
       class="action-btn action-btn--collect"
       :class="{
         'is-active': collected,
-        'is-animating': collectAnimating,
         'is-unauth': !isAuthenticated,
+        'has-count': showCounts && collectCount > 0,
       }"
       type="button"
       :aria-pressed="collected"
@@ -78,9 +180,37 @@ function handleCollect(e) {
       :title="collected ? '取消收藏' : '收藏'"
       @click="handleCollect"
     >
-      <svg viewBox="0 0 24 24" :fill="collected ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-      </svg>
+      <span class="action-btn__content">
+        <span
+          class="action-btn__icon"
+          :class="{
+            'is-hidden': collectAnimating && !collectSettling,
+            'is-settling': collectAnimating && collectSettling,
+          }"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.9"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polygon points="12 2.75 15.02 8.87 21.77 9.85 16.89 14.61 18.04 21.33 12 18.16 5.96 21.33 7.11 14.61 2.23 9.85 8.98 8.87 12 2.75" />
+          </svg>
+        </span>
+        <span v-if="!compact" class="action-btn__label">{{ collected ? '已收藏' : '收藏' }}</span>
+      </span>
+      <span v-if="showCounts && collectCount > 0 && !collectAnimating" class="action-btn__count">{{ formatNumber(collectCount) }}</span>
+      <span v-if="collectAnimating" class="action-btn__lottie action-btn__lottie--collect">
+        <LottieScene
+          :src="collectAnimationSrc"
+          :loop="false"
+          :pause-when-hidden="false"
+          :speed="0.92"
+          fit="contain"
+        />
+      </span>
     </button>
 
     <button
@@ -88,8 +218,8 @@ function handleCollect(e) {
       class="action-btn action-btn--like"
       :class="{
         'is-active': liked,
-        'is-animating': likeAnimating,
         'is-unauth': !isAuthenticated,
+        'has-count': showCounts && likeCount > 0,
       }"
       type="button"
       :aria-pressed="liked"
@@ -97,9 +227,37 @@ function handleCollect(e) {
       :title="liked ? '取消喜欢' : '喜欢'"
       @click="handleLike"
     >
-      <svg viewBox="0 0 24 24" :fill="liked ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
-        <path d="m12 21-1.45-1.32C5.4 15.03 2 11.95 2 8.5 2 5.42 4.42 3 7.5 3A5.3 5.3 0 0 1 12 5.09 5.3 5.3 0 0 1 16.5 3C19.58 3 22 5.42 22 8.5c0 3.45-3.4 6.53-8.55 11.18z" />
-      </svg>
+      <span class="action-btn__content">
+        <span
+          class="action-btn__icon"
+          :class="{
+            'is-hidden': likeAnimating && !likeSettling,
+            'is-settling': likeAnimating && likeSettling,
+          }"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.9"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="m12 20.4-1.29-1.17C5.73 14.72 2.5 11.79 2.5 8.5a5 5 0 0 1 5-5c1.74 0 3.41.82 4.5 2.12a5.95 5.95 0 0 1 4.5-2.12 5 5 0 0 1 5 5c0 3.29-3.23 6.22-8.21 10.73L12 20.4z" />
+          </svg>
+        </span>
+        <span v-if="!compact" class="action-btn__label">{{ liked ? '已喜欢' : '喜欢' }}</span>
+      </span>
+      <span v-if="showCounts && likeCount > 0 && !likeAnimating" class="action-btn__count">{{ formatNumber(likeCount) }}</span>
+      <span v-if="likeAnimating" class="action-btn__lottie action-btn__lottie--like">
+        <LottieScene
+          :src="likeAnimationSrc"
+          :loop="false"
+          :pause-when-hidden="false"
+          :speed="0.94"
+          fit="contain"
+        />
+      </span>
     </button>
   </div>
 </template>
@@ -108,27 +266,80 @@ function handleCollect(e) {
 .card-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .action-btn {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border: none;
-  border-radius: 50%;
+  justify-content: space-between;
+  position: relative;
+  min-width: 118px;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 16px;
   cursor: pointer;
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: rgba(255, 255, 255, 0.88);
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(241, 245, 249, 0.88));
+  color: #475569;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.82),
+    0 10px 22px rgba(148, 163, 184, 0.12);
   transition:
     transform 180ms ease,
     background 200ms ease,
+    border-color 200ms ease,
     color 200ms ease,
     box-shadow 200ms ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.44), transparent 60%);
+    pointer-events: none;
+  }
+
+  .action-btn__content {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .action-btn__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    transition:
+      opacity 220ms ease,
+      transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 220ms ease;
+  }
+
+  .action-btn__icon.is-hidden {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+
+  .action-btn__icon.is-settling {
+    opacity: 0.92;
+    transform: scale(1.04);
+    filter: saturate(1.08);
+  }
+
+  .action-btn__label {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
 
   svg {
     width: 16px;
@@ -136,153 +347,205 @@ function handleCollect(e) {
     transition: transform 200ms ease;
   }
 
+  .action-btn__lottie {
+    position: absolute;
+    inset: -14px;
+    z-index: 2;
+    pointer-events: none;
+    transform: scale(1.34);
+    transform-origin: center;
+    filter: drop-shadow(0 10px 20px rgba(15, 23, 42, 0.18));
+  }
+
+  .action-btn__count {
+    position: relative;
+    z-index: 1;
+    min-width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    letter-spacing: -0.01em;
+  }
+
   &:hover {
-    transform: scale(1.12);
-    background: rgba(0, 0, 0, 0.5);
+    transform: translateY(-1px);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.92));
+    border-color: rgba(96, 165, 250, 0.24);
+    color: #1e293b;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.86),
+      0 14px 28px rgba(148, 163, 184, 0.16);
   }
 
   &:active {
-    transform: scale(0.92);
+    transform: scale(0.98);
   }
 
-  // 未登录状态 - 点击时抖动提示
   &.is-unauth:active {
     animation: shake 400ms ease;
   }
 
-  // ---- 喜欢按钮激活态 ----
-  &--like.is-active {
-    color: #ef4444;
-    background: rgba(239, 68, 68, 0.22);
-    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
-
-    &:hover {
-      background: rgba(239, 68, 68, 0.32);
-    }
-  }
-
-  &--like.is-animating {
-    animation: heartbeat 500ms ease;
-
-    svg {
-      animation: heartPulse 500ms ease;
-    }
-  }
-
-  // ---- 收藏按钮激活态 ----
   &--collect.is-active {
-    color: #f59e0b;
-    background: rgba(245, 158, 11, 0.22);
-    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+    color: #d97706;
+    background: linear-gradient(180deg, rgba(255, 251, 235, 0.98), rgba(255, 247, 237, 0.92));
+    border-color: rgba(245, 158, 11, 0.22);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.84),
+      0 14px 28px rgba(245, 158, 11, 0.12);
 
     &:hover {
-      background: rgba(245, 158, 11, 0.32);
+      background: linear-gradient(180deg, rgba(255, 247, 237, 0.98), rgba(255, 237, 213, 0.94));
+      color: #b45309;
+    }
+
+    .action-btn__count {
+      background: rgba(255, 255, 255, 0.82);
+      color: #b45309;
     }
   }
 
-  &--collect.is-animating {
-    animation: starPop 500ms ease;
+  &--like.is-active {
+    color: #e11d48;
+    background: linear-gradient(180deg, rgba(255, 241, 242, 0.98), rgba(255, 228, 230, 0.92));
+    border-color: rgba(244, 63, 94, 0.22);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.84),
+      0 14px 28px rgba(244, 63, 94, 0.12);
 
-    svg {
-      animation: starSpin 500ms ease;
+    &:hover {
+      background: linear-gradient(180deg, rgba(255, 228, 230, 0.98), rgba(255, 205, 215, 0.94));
+      color: #be123c;
+    }
+
+    .action-btn__count {
+      background: rgba(255, 255, 255, 0.82);
+      color: #be123c;
     }
   }
 }
 
 .card-actions--compact .action-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 14px;
-  background: linear-gradient(180deg, rgba(6, 17, 34, 0.82), rgba(10, 25, 47, 0.74));
-  border: 1px solid rgba(191, 219, 254, 0.18);
-  box-shadow:
-    0 12px 20px rgba(2, 8, 23, 0.26),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.96);
+  min-width: 44px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  justify-content: center;
+  overflow: visible;
+  background: transparent;
+  color: rgba(226, 232, 240, 0.7);
+  box-shadow: none;
+
+  &::before {
+    display: none;
+  }
+
+  &.has-count {
+    width: auto;
+    min-width: 44px;
+    padding: 0 10px 0 0;
+  }
 
   svg {
-    width: 16px;
-    height: 16px;
+    width: 24px;
+    height: 24px;
+    fill: transparent;
+    stroke: currentColor;
+    transition:
+      fill 180ms ease,
+      stroke 180ms ease,
+      transform 180ms ease;
+  }
+
+  .action-btn__label {
+    display: none;
+  }
+
+  .action-btn__content {
+    gap: 0;
+  }
+
+  .action-btn__icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .action-btn__count {
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    margin-left: 8px;
+    font-size: 10px;
+    background: rgba(15, 23, 42, 0.72);
+    color: rgba(255, 255, 255, 0.92);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .action-btn__lottie {
+    inset: -28px;
+    transform: scale(1.82);
   }
 
   &:hover {
-    background: linear-gradient(180deg, rgba(10, 24, 45, 0.92), rgba(16, 32, 58, 0.82));
+    background: transparent;
+    color: rgba(248, 250, 252, 0.96);
+    box-shadow: none;
   }
 }
 
-.card-actions--compact .action-btn--like.is-active {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.92), rgba(190, 24, 93, 0.88));
-  color: #fff6f6;
-  box-shadow: 0 14px 26px rgba(239, 68, 68, 0.3);
-}
+.card-actions--compact .action-btn.action-btn--collect.is-active {
+  background: transparent;
+  color: #f4c845;
+  box-shadow: none;
+  filter: drop-shadow(0 0 10px rgba(244, 200, 69, 0.18));
 
-.card-actions--compact .action-btn--collect.is-active {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.96), rgba(217, 119, 6, 0.9));
-  color: #fffaf0;
-  box-shadow: 0 14px 26px rgba(245, 158, 11, 0.32);
-}
+  .action-btn__icon svg {
+    fill: currentColor;
+    stroke: currentColor;
+    transform: scale(1.04);
+  }
 
-// ========================================
-// 微交互动画
-// ========================================
+  &:hover {
+    background: transparent;
+    color: #f4c845;
+  }
 
-@keyframes heartbeat {
-  0% {
-    transform: scale(1);
-  }
-  25% {
-    transform: scale(1.3);
-  }
-  50% {
-    transform: scale(0.95);
-  }
-  75% {
-    transform: scale(1.15);
-  }
-  100% {
-    transform: scale(1);
+  .action-btn__count {
+    background: rgba(244, 200, 69, 0.16);
+    color: #f4c845;
   }
 }
 
-@keyframes heartPulse {
-  0% {
-    transform: scale(1);
-  }
-  30% {
-    transform: scale(1.25);
-  }
-  60% {
-    transform: scale(0.9);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
+.card-actions--compact .action-btn.action-btn--like.is-active {
+  background: transparent;
+  color: #eb474c;
+  box-shadow: none;
+  filter: drop-shadow(0 0 10px rgba(235, 71, 76, 0.18));
 
-@keyframes starPop {
-  0% {
-    transform: scale(1);
+  .action-btn__icon svg {
+    fill: currentColor;
+    stroke: currentColor;
+    transform: scale(1.04);
   }
-  30% {
-    transform: scale(1.25) rotate(12deg);
-  }
-  60% {
-    transform: scale(0.95) rotate(-6deg);
-  }
-  100% {
-    transform: scale(1) rotate(0deg);
-  }
-}
 
-@keyframes starSpin {
-  0% {
-    transform: rotate(0deg) scale(1);
+  &:hover {
+    background: transparent;
+    color: #eb474c;
   }
-  40% {
-    transform: rotate(72deg) scale(1.2);
-  }
-  100% {
-    transform: rotate(0deg) scale(1);
+
+  .action-btn__count {
+    background: rgba(235, 71, 76, 0.16);
+    color: #eb474c;
   }
 }
 

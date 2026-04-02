@@ -2,6 +2,10 @@
 import { formatNumber } from '@/utils/common/format'
 
 defineProps({
+  actionMode: {
+    type: String,
+    default: 'all',
+  },
   aiKeywords: {
     type: Array,
     default: () => [],
@@ -21,6 +25,10 @@ defineProps({
   categoryDisplay: {
     type: String,
     default: '',
+  },
+  collected: {
+    type: Boolean,
+    default: false,
   },
   displayFilename: {
     type: String,
@@ -45,6 +53,22 @@ defineProps({
   isBingWallpaper: {
     type: Boolean,
     default: false,
+  },
+  isAuthenticated: {
+    type: Boolean,
+    default: false,
+  },
+  liked: {
+    type: Boolean,
+    default: false,
+  },
+  likeCount: {
+    type: Number,
+    default: 0,
+  },
+  collectCount: {
+    type: Number,
+    default: 0,
   },
   relativeTime: {
     type: String,
@@ -131,9 +155,11 @@ defineProps({
           {{ formatNumber(downloadCount) }}
         </span>
       </div>
-      <div class="card-meta-secondary">
-        <span class="meta-item meta-time">{{ relativeTime }}</span>
-        <span class="meta-item meta-format">{{ fileFormat }}</span>
+      <div class="card-footer">
+        <div class="card-meta-secondary">
+          <span class="meta-item meta-time">{{ relativeTime }}</span>
+          <span class="meta-item meta-format">{{ fileFormat }}</span>
+        </div>
       </div>
     </template>
   </div>
@@ -312,6 +338,7 @@ defineProps({
 .card-meta-secondary {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: $spacing-sm;
   font-size: $font-size-xs;
   color: var(--color-text-muted);
@@ -319,6 +346,35 @@ defineProps({
   [data-theme='dark'] & {
     color: #94a3b8;
   }
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-top: 2px;
+  min-width: 0;
+}
+
+.card-footer--with-actions,
+.card-footer--bing {
+  justify-content: space-between;
+}
+
+.card-info--list .card-footer {
+  margin-top: auto;
+  padding-top: $spacing-sm;
+}
+
+.card-info-actions {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.card-footer .card-meta-secondary,
+.card-footer .card-bing-copyright {
+  min-width: 0;
+  flex: 1;
 }
 
 .meta-item {
@@ -466,5 +522,13 @@ defineProps({
     text-overflow: ellipsis;
     line-height: 1.3;
   }
+}
+
+.card-footer--bing {
+  margin-top: $spacing-sm;
+}
+
+.card-footer--bing .card-bing-copyright {
+  margin-top: 0;
 }
 </style>

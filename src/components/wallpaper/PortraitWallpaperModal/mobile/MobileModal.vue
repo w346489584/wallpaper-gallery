@@ -1,11 +1,12 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner.vue'
+import WallpaperCardActions from '@/components/wallpaper/card/shared/WallpaperCardActions.vue'
 import { useScrollLock } from '@/composables/useScrollLock'
 import { useWallpaperType } from '@/composables/useWallpaperType'
 import { usePopularityStore } from '@/stores/popularity'
 import { trackWallpaperDownload, trackWallpaperPreview } from '@/utils/common/analytics'
-import { buildProxyImageUrl, buildRawImageUrl, downloadFile, formatDate, formatFileSize, getDisplayFilename, getFileExtension, getResolutionLabel } from '@/utils/common/format'
+import { buildProxyImageUrl, buildRawImageUrl, buildWallpaperDownloadFilename, downloadFile, formatDate, formatFileSize, getDisplayFilename, getFileExtension, getResolutionLabel } from '@/utils/common/format'
 import { recordDownload, recordView } from '@/utils/integrations/supabase'
 import { resolveWallpaperSeries } from '@/utils/wallpaper/identity'
 import { useDeviceMode } from '../composables/useDeviceMode'
@@ -14,9 +15,14 @@ import DeviceMode from '../shared/DeviceMode.vue'
 const props = defineProps({
   wallpaper: { type: Object, default: null },
   isOpen: { type: Boolean, default: false },
+  liked: { type: Boolean, default: false },
+  collected: { type: Boolean, default: false },
+  isAuthenticated: { type: Boolean, default: false },
+  likeCount: { type: Number, default: 0 },
+  collectCount: { type: Number, default: 0 },
 })
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'toggleLike', 'toggleCollect'])
 
 const { currentSeries } = useWallpaperType()
 const effectiveSeries = computed(() => resolveWallpaperSeries(props.wallpaper, currentSeries.value))
@@ -105,7 +111,7 @@ watch(() => props.isOpen, (open) => {
   else if (!open && isVisible.value) {
     closeModal()
   }
-})
+}, { immediate: true })
 
 watch(() => props.wallpaper, () => {
   resetState()
@@ -137,7 +143,7 @@ async function handleDownload() {
     return
   downloading.value = true
   try {
-    await downloadFile(props.wallpaper.url, props.wallpaper.filename)
+    await downloadFile(props.wallpaper.url, buildWallpaperDownloadFilename(props.wallpaper))
     trackWallpaperDownload(props.wallpaper, effectiveSeries.value)
     recordDownload(props.wallpaper, effectiveSeries.value)
   }
@@ -276,6 +282,18 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
                 </svg>
                 {{ downloadCount }}
               </span>
+              <span v-if="collectCount > 0" class="tag tag--collect">
+                <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                </svg>
+                {{ collectCount }}
+              </span>
+              <span v-if="likeCount > 0" class="tag tag--like">
+                <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                  <path d="m12 21-1.45-1.32C5.4 15.03 2 11.95 2 8.5 2 5.42 4.42 3 7.5 3A5.3 5.3 0 0 1 12 5.09 5.3 5.3 0 0 1 16.5 3C19.58 3 22 5.42 22 8.5c0 3.45-3.4 6.53-8.55 11.18z" />
+                </svg>
+                {{ likeCount }}
+              </span>
             </div>
 
             <div class="info-details">
@@ -294,21 +312,22 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
             </div>
 
             <div class="info-actions">
-              <button
-                v-if="canUseDeviceMode"
-                class="action-btn action-btn--secondary"
-                :class="{ 'is-active': deviceMode.isDeviceMode.value }"
-                @click="deviceMode.toggle"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="5" y="2" width="14" height="20" rx="2" />
-                  <path d="M12 18h.01" />
-                </svg>
-                <span>真机预览</span>
-              </button>
+              <WallpaperCardActions
+                v-if="isAuthenticated"
+                compact
+                :show-counts="false"
+                :liked="liked"
+                :collected="collected"
+                :like-count="likeCount"
+                :collect-count="collectCount"
+                :is-authenticated="isAuthenticated"
+                @toggle-like="emit('toggleLike')"
+                @toggle-collect="emit('toggleCollect')"
+              />
 
               <button
                 class="action-btn action-btn--primary"
+                type="button"
                 :disabled="downloading"
                 @click="handleDownload"
               >
@@ -317,6 +336,21 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
                   <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
                 </svg>
                 <span>{{ downloading ? '下载中...' : '下载壁纸' }}</span>
+              </button>
+
+              <button
+                v-if="canUseDeviceMode"
+                class="action-btn action-btn--secondary action-btn--icon"
+                :class="{ 'is-active': deviceMode.isDeviceMode.value }"
+                type="button"
+                aria-label="真机预览"
+                title="真机预览"
+                @click="deviceMode.toggle"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="5" y="2" width="14" height="20" rx="2" />
+                  <path d="M12 18h.01" />
+                </svg>
               </button>
             </div>
           </div>
@@ -328,63 +362,43 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
 
 <style lang="scss" scoped>
 .mobile-modal {
-  --mobile-modal-overlay: linear-gradient(180deg, rgba(241, 245, 249, 0.96), rgba(226, 232, 240, 0.98));
-  --mobile-modal-panel-bg: rgba(255, 255, 255, 0.92);
-  --mobile-modal-panel-border: rgba(148, 163, 184, 0.22);
-  --mobile-modal-panel-shadow: rgba(15, 23, 42, 0.16);
-  --mobile-modal-close-bg: rgba(255, 255, 255, 0.9);
-  --mobile-modal-close-border: rgba(148, 163, 184, 0.22);
-  --mobile-modal-close-color: var(--color-text-primary);
-  --mobile-modal-preview-bg: linear-gradient(180deg, rgba(226, 232, 240, 0.7), rgba(248, 250, 252, 0.9));
-  --mobile-modal-loading-bg: linear-gradient(135deg, rgba(226, 232, 240, 0.72), rgba(241, 245, 249, 0.92));
-  --mobile-modal-info-bg: rgba(255, 255, 255, 0.76);
-  --mobile-modal-info-border: rgba(148, 163, 184, 0.18);
-  --mobile-modal-card-bg: rgba(248, 250, 252, 0.92);
-  --mobile-modal-card-border: rgba(148, 163, 184, 0.18);
-  --mobile-modal-title: var(--color-text-primary);
-  --mobile-modal-text: var(--color-text-primary);
-  --mobile-modal-muted: var(--color-text-secondary);
-  --mobile-modal-muted-soft: rgba(71, 85, 105, 0.82);
-  --mobile-modal-secondary-bg: rgba(226, 232, 240, 0.9);
-  --mobile-modal-secondary-text: rgba(51, 65, 85, 0.92);
-  --mobile-modal-secondary-border: rgba(148, 163, 184, 0.18);
+  --mobile-modal-overlay: linear-gradient(
+    135deg,
+    rgba(26, 26, 46, 0.98),
+    rgba(22, 33, 62, 0.98),
+    rgba(15, 52, 96, 0.98)
+  );
+  --mobile-modal-panel-bg: rgba(255, 255, 255, 0.05);
+  --mobile-modal-panel-border: rgba(255, 255, 255, 0.1);
+  --mobile-modal-panel-shadow: rgba(0, 0, 0, 0.4);
+  --mobile-modal-close-bg: rgba(0, 0, 0, 0.4);
+  --mobile-modal-close-border: rgba(255, 255, 255, 0.1);
+  --mobile-modal-close-color: rgba(255, 255, 255, 0.9);
+  --mobile-modal-preview-bg: rgba(0, 0, 0, 0.2);
+  --mobile-modal-loading-bg: linear-gradient(135deg, rgba(26, 26, 46, 0.5), rgba(22, 33, 62, 0.5));
+  --mobile-modal-info-bg: rgba(255, 255, 255, 0.03);
+  --mobile-modal-info-border: rgba(255, 255, 255, 0.08);
+  --mobile-modal-card-bg: rgba(255, 255, 255, 0.05);
+  --mobile-modal-card-border: rgba(255, 255, 255, 0.08);
+  --mobile-modal-title: #fff;
+  --mobile-modal-text: #fff;
+  --mobile-modal-muted: rgba(255, 255, 255, 0.5);
+  --mobile-modal-muted-soft: rgba(255, 255, 255, 0.45);
+  --mobile-modal-secondary-bg: rgba(255, 255, 255, 0.06);
+  --mobile-modal-secondary-text: rgba(226, 232, 240, 0.82);
+  --mobile-modal-secondary-border: rgba(148, 163, 184, 0.14);
 
   position: fixed;
   inset: 0;
   z-index: 1000;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   background: var(--mobile-modal-overlay);
   padding: 16px;
-
-  [data-theme='dark'] & {
-    --mobile-modal-overlay: linear-gradient(
-      135deg,
-      rgba(26, 26, 46, 0.98),
-      rgba(22, 33, 62, 0.98),
-      rgba(15, 52, 96, 0.98)
-    );
-    --mobile-modal-panel-bg: rgba(255, 255, 255, 0.05);
-    --mobile-modal-panel-border: rgba(255, 255, 255, 0.1);
-    --mobile-modal-panel-shadow: rgba(0, 0, 0, 0.4);
-    --mobile-modal-close-bg: rgba(0, 0, 0, 0.4);
-    --mobile-modal-close-border: rgba(255, 255, 255, 0.1);
-    --mobile-modal-close-color: rgba(255, 255, 255, 0.9);
-    --mobile-modal-preview-bg: rgba(0, 0, 0, 0.2);
-    --mobile-modal-loading-bg: linear-gradient(135deg, rgba(26, 26, 46, 0.5), rgba(22, 33, 62, 0.5));
-    --mobile-modal-info-bg: rgba(255, 255, 255, 0.03);
-    --mobile-modal-info-border: rgba(255, 255, 255, 0.08);
-    --mobile-modal-card-bg: rgba(255, 255, 255, 0.05);
-    --mobile-modal-card-border: rgba(255, 255, 255, 0.08);
-    --mobile-modal-title: #fff;
-    --mobile-modal-text: #fff;
-    --mobile-modal-muted: rgba(255, 255, 255, 0.5);
-    --mobile-modal-muted-soft: rgba(255, 255, 255, 0.45);
-    --mobile-modal-secondary-bg: rgba(255, 255, 255, 0.06);
-    --mobile-modal-secondary-text: rgba(226, 232, 240, 0.82);
-    --mobile-modal-secondary-border: rgba(148, 163, 184, 0.14);
-  }
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 
   &.is-device-mode {
     padding: 0;
@@ -397,8 +411,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
     flex-direction: column;
     width: 100%;
     max-width: 400px;
-    max-height: calc(100dvh - 32px);
-    min-height: 0;
+    margin: 0 auto;
     background: var(--mobile-modal-panel-bg);
     border: 1px solid var(--mobile-modal-panel-border);
     border-radius: 24px;
@@ -493,9 +506,6 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
     gap: 16px;
     padding: 20px;
     padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
     background: var(--mobile-modal-info-bg);
     border-top: 1px solid var(--mobile-modal-info-border);
   }
@@ -571,16 +581,16 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
   }
 
   &--secondary {
-    background: var(--mobile-modal-secondary-bg);
-    color: var(--mobile-modal-secondary-text);
-    border: 1px solid var(--mobile-modal-secondary-border);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(226, 232, 240, 0.82);
+    border: 1px solid rgba(148, 163, 184, 0.14);
   }
 
   &--ai {
-    background: var(--accent-gradient-soft);
-    color: var(--color-accent);
-    border: 1px solid var(--accent-border);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    background: linear-gradient(180deg, rgba(34, 47, 76, 0.94), rgba(23, 33, 56, 0.9));
+    color: #dbeafe;
+    border: 1px solid rgba(96, 165, 250, 0.2);
+    box-shadow: inset 0 1px 0 rgba(191, 219, 254, 0.06);
     font-weight: 700;
     position: relative;
 
@@ -613,6 +623,34 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
     background: rgba(16, 185, 129, 0.2);
     color: #34d399;
     border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+
+  &--collect {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  &--like {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(244, 63, 94, 0.2);
+    color: #fb7185;
+    border: 1px solid rgba(244, 63, 94, 0.3);
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
   }
 }
 
@@ -649,16 +687,55 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
 
 .info-actions {
   display: flex;
+  align-items: center;
   gap: 12px;
+  min-width: 0;
+
+  :deep(.card-actions) {
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  :deep(.card-actions--compact .action-btn) {
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+    padding: 0;
+    border-radius: 14px;
+    overflow: visible;
+  }
+
+  :deep(.card-actions--compact .action-btn.has-count) {
+    width: 42px;
+    min-width: 42px;
+    padding: 0;
+  }
+
+  :deep(.card-actions--compact .action-btn__count) {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    margin-left: 0;
+    font-size: 10px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+  }
+
+  :deep(.card-actions--compact .action-btn__lottie) {
+    inset: -24px;
+    transform: scale(1.68);
+  }
 }
 
 .action-btn {
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 14px 16px;
+  min-height: 44px;
   border-radius: 14px;
   font-size: 14px;
   font-weight: 600;
@@ -674,10 +751,19 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
   }
 
   &--primary {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0 16px;
     background: var(--accent-gradient);
     color: white;
     border: none;
     box-shadow: 0 6px 20px var(--accent-shadow);
+
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
     &:disabled {
       opacity: 0.6;
@@ -685,6 +771,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
   }
 
   &--secondary {
+    flex: 0 0 auto;
     background: var(--mobile-modal-secondary-bg);
     color: var(--mobile-modal-secondary-text);
     border: 1px solid var(--mobile-modal-secondary-border);
@@ -694,6 +781,15 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
       color: white;
       border-color: transparent;
     }
+  }
+
+  &--icon {
+    width: 42px;
+    min-width: 42px;
+    min-height: 42px;
+    padding: 0;
+    border-radius: 14px;
+    flex-shrink: 0;
   }
 }
 
@@ -735,7 +831,6 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
     padding: 12px;
 
     &__content {
-      max-height: calc(100dvh - 24px);
       border-radius: 20px;
     }
 
@@ -783,7 +878,6 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
   }
 
   .action-btn {
-    padding: 12px 14px;
     font-size: 13px;
     border-radius: 12px;
 
@@ -792,6 +886,10 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
       height: 16px;
     }
   }
+
+  .action-btn--primary {
+    padding: 0 14px;
+  }
 }
 
 @media (max-height: 570px) {
@@ -799,7 +897,6 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
     padding: 8px;
 
     &__content {
-      max-height: calc(100dvh - 16px);
       border-radius: 16px;
     }
 
@@ -837,7 +934,6 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
   }
 
   .action-btn {
-    padding: 10px 12px;
     font-size: 12px;
     border-radius: 10px;
 
@@ -845,6 +941,10 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
       width: 14px;
       height: 14px;
     }
+  }
+
+  .action-btn--primary {
+    padding: 0 12px;
   }
 }
 
@@ -868,11 +968,10 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
   }
 
   .action-btn {
-    padding: 12px 10px;
     font-size: 12px;
     gap: 6px;
 
-    span {
+    &--primary span {
       display: none;
     }
 
@@ -880,6 +979,12 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown))
       width: 20px;
       height: 20px;
     }
+  }
+
+  .action-btn--icon {
+    width: 40px;
+    min-width: 40px;
+    min-height: 40px;
   }
 }
 </style>

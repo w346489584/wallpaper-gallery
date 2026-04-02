@@ -111,11 +111,13 @@ defineExpose({
 .preview-size {
   font-size: 12px;
   font-weight: 700;
-  color: var(--color-accent);
+  color: var(--accent-contrast-soft);
   font-family: 'SF Mono', Monaco, monospace;
   padding: 3px 8px;
-  background: var(--accent-surface);
+  background: var(--crop-chip-surface);
+  border: 1px solid var(--crop-chip-border);
   border-radius: 5px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .preview-fullscreen-btn {
@@ -125,10 +127,11 @@ defineExpose({
   padding: 6px 12px;
   font-size: 11px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--crop-text-soft);
+  background: var(--crop-pill-surface);
+  border: 1px solid var(--crop-pill-border);
   border-radius: 6px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
   svg {
@@ -138,12 +141,14 @@ defineExpose({
 
   &:hover:not(:disabled) {
     color: #fff;
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.15);
+    background: var(--crop-pill-surface-strong);
+    border-color: var(--crop-pill-border-strong);
   }
 
   &:disabled {
-    opacity: 0.35;
+    color: rgba(255, 255, 255, 0.3);
+    background: rgba(9, 16, 32, 0.64);
+    border-color: rgba(255, 255, 255, 0.04);
     cursor: not-allowed;
   }
 }

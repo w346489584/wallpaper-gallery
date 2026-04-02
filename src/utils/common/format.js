@@ -3,6 +3,7 @@
 // ========================================
 
 import { CDN_VERSION, IMAGE_PROXY, RESOLUTION_THRESHOLDS, SERIES_CONFIG } from '@/utils/config/constants'
+import { resolveWallpaperSeries } from '@/utils/wallpaper/identity'
 
 // URL 构建器（运行时动态拼接，防止静态分析提取完整 URL）
 const _urlParts = {
@@ -11,6 +12,16 @@ const _urlParts = {
   g: '/gh/IT-NuanxinPro',
   r: `/nuanXinProPic@${CDN_VERSION}`,
 }
+
+const IMAGE_EXTENSION_PATTERN = /\.(?:jpg|jpeg|png|gif|bmp|webp|svg|tiff|tif|ico|heic|heif)$/i
+const GENERIC_WALLPAPER_NAME_PATTERNS = [
+  /^微信图片[_-]?\d+(?:[_-]\d+)*$/,
+  /^mmexport\d+$/i,
+  /^img[_-]?\d+$/i,
+  /^image[_-]?\d+$/i,
+  /^screenshot[_-]?\d+$/i,
+  /^\d+$/,
+]
 
 /**
  * 动态构建图片 URL（支持 cdnTag 缓存优化）
@@ -210,6 +221,89 @@ export function getDisplayFilename(filename) {
   return name
 }
 
+function stripImageExtension(value) {
+  return String(value || '').replace(IMAGE_EXTENSION_PATTERN, '')
+}
+
+function extractFilenameExtension(value) {
+  const match = String(value || '').match(/\.([^.]+)$/)
+  return match?.[1]?.toLowerCase() || ''
+}
+
+function normalizeWallpaperExtension(value) {
+  const normalized = String(value || '').replace(/^\./, '').trim().toLowerCase()
+  if (!normalized)
+    return ''
+  if (normalized === 'jpeg')
+    return 'jpg'
+  return normalized
+}
+
+function isMeaningfulWallpaperFilename(value) {
+  const normalized = stripImageExtension(value).trim()
+  if (!normalized)
+    return false
+  return !GENERIC_WALLPAPER_NAME_PATTERNS.some(pattern => pattern.test(normalized))
+}
+
+function sanitizeDownloadFilename(value) {
+  const normalized = String(value || '')
+    .normalize('NFKC')
+    .replace(/[<>:"/\\|?*]/g, '-')
+    .replace(/\s+/g, ' ')
+    .replace(/-+/g, '-')
+    .replace(/\.+$/g, '')
+    .trim()
+
+  return normalized || 'wallpaper'
+}
+
+export function getWallpaperDisplayName(wallpaper) {
+  if (!wallpaper)
+    return ''
+
+  const titledName = [wallpaper.displayTitle, wallpaper.title]
+    .map(value => stripImageExtension(value).trim())
+    .find(Boolean)
+
+  if (titledName)
+    return titledName
+
+  const originalName = stripImageExtension(wallpaper.filename).trim()
+  if (isMeaningfulWallpaperFilename(originalName))
+    return originalName
+
+  const keywords = Array.isArray(wallpaper.keywords)
+    ? wallpaper.keywords.map(keyword => String(keyword || '').trim()).filter(Boolean).slice(0, 3)
+    : []
+
+  if (keywords.length > 0)
+    return keywords.join('-')
+
+  const categoryParts = [wallpaper.category]
+  if (wallpaper.subcategory && wallpaper.subcategory !== '通用' && wallpaper.subcategory !== wallpaper.category) {
+    categoryParts.push(wallpaper.subcategory)
+  }
+
+  if (categoryParts.length > 0)
+    return categoryParts.join('-')
+
+  return originalName || stripImageExtension(wallpaper.id).trim() || 'wallpaper'
+}
+
+export function buildWallpaperDownloadFilename(wallpaper) {
+  const baseName = sanitizeDownloadFilename(getWallpaperDisplayName(wallpaper))
+  const extension = normalizeWallpaperExtension(
+    extractFilenameExtension(wallpaper?.filename) || wallpaper?.format,
+  ) || 'jpg'
+
+  if (wallpaper?.isBing && wallpaper?.date) {
+    return `${sanitizeDownloadFilename(`${baseName}-${wallpaper.date}`)}.${extension}`
+  }
+
+  return `${baseName}.${extension}`
+}
+
 /**
  * 下载文件
  * @param {string} url - 文件 URL
@@ -294,6 +388,35 @@ export function buildProxyImageUrl(imageUrl, options = {}) {
   const format = options.format || IMAGE_PROXY.FORMAT
 
   return `${IMAGE_PROXY.BASE_URL}?url=${encodeURIComponent(targetUrl)}&w=${width}&q=${quality}&output=${format}`
+}
+
+export function buildWallpaperImageFallbackUrls(wallpaper, options = {}) {
+  if (!wallpaper)
+    return []
+
+  const series = options.series || resolveWallpaperSeries(wallpaper)
+  const extension = normalizeWallpaperExtension(
+    extractFilenameExtension(wallpaper?.filename) || wallpaper?.format,
+  )
+  const preferOriginal = options.preferOriginal ?? (series === 'avatar' && extension === 'webp')
+  const primaryUrl = preferOriginal
+    ? (wallpaper.url || wallpaper.thumbnailUrl || wallpaper.previewUrl)
+    : (wallpaper.previewUrl || wallpaper.thumbnailUrl || wallpaper.url)
+  const originalUrl = wallpaper.url || primaryUrl
+  const urls = [
+    primaryUrl,
+    buildRawImageUrl(primaryUrl),
+  ]
+
+  if (originalUrl && originalUrl !== primaryUrl) {
+    urls.push(originalUrl, buildRawImageUrl(originalUrl))
+  }
+
+  if (!options.skipProxy) {
+    urls.push(buildProxyImageUrl(originalUrl || primaryUrl, options.proxyOptions))
+  }
+
+  return [...new Set(urls.filter(Boolean))]
 }
 
 // ========================================

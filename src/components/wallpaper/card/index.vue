@@ -2,7 +2,7 @@
 import { gsap } from 'gsap'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useDevice } from '@/composables/useDevice'
-import { buildProxyImageUrl, buildRawImageUrl, formatBingDate, formatFileSize, formatRelativeTime, getDisplayFilename, highlightText } from '@/utils/common/format'
+import { buildWallpaperImageFallbackUrls, formatBingDate, formatFileSize, formatRelativeTime, getDisplayFilename, highlightText } from '@/utils/common/format'
 import WallpaperCardInfo from './shared/WallpaperCardInfo.vue'
 import WallpaperCardMedia from './shared/WallpaperCardMedia.vue'
 
@@ -39,52 +39,34 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
-  liked: {
-    type: Boolean,
-    default: false,
-  },
-  collected: {
-    type: Boolean,
-    default: false,
-  },
-  actionMode: {
-    type: String,
-    default: 'all',
-  },
-  isAuthenticated: {
-    type: Boolean,
-    default: false,
-  },
 })
 
-const emit = defineEmits(['click', 'imageLoad', 'toggleLike', 'toggleCollect'])
+const emit = defineEmits(['click', 'imageLoad'])
 const { isMobile } = useDevice()
 
 const cardRef = ref(null)
 const imageRef = ref(null)
 const imageLoaded = ref(false)
 const imageError = ref(false)
-const fallbackStage = ref('none')
+const imageCandidateIndex = ref(0)
 
 let cacheCheckTimer = null
 let gsapTargets = []
 
 const primaryImageUrl = computed(() => props.wallpaper.previewUrl || props.wallpaper.thumbnailUrl || props.wallpaper.url)
+const candidateImageUrls = computed(() => buildWallpaperImageFallbackUrls({
+  ...props.wallpaper,
+  thumbnailUrl: props.wallpaper.thumbnailUrl,
+  previewUrl: props.wallpaper.previewUrl,
+  url: props.wallpaper.url,
+}))
 
 const thumbnailUrl = computed(() => {
-  if (fallbackStage.value === 'raw') {
-    return buildRawImageUrl(primaryImageUrl.value)
-  }
-
-  if (fallbackStage.value === 'proxy') {
-    return buildProxyImageUrl(primaryImageUrl.value)
-  }
-
-  return primaryImageUrl.value
+  return candidateImageUrls.value[imageCandidateIndex.value] || primaryImageUrl.value
 })
 
 watch(() => props.wallpaper?.id, () => {
-  fallbackStage.value = 'none'
+  imageCandidateIndex.value = 0
   imageLoaded.value = false
   imageError.value = false
 })
@@ -180,13 +162,10 @@ function handleImageLoad() {
 }
 
 function handleImageError() {
-  if (fallbackStage.value === 'none') {
-    fallbackStage.value = 'raw'
+  if (imageCandidateIndex.value < candidateImageUrls.value.length - 1) {
+    imageCandidateIndex.value += 1
     imageLoaded.value = false
-  }
-  else if (fallbackStage.value === 'raw') {
-    fallbackStage.value = 'proxy'
-    imageLoaded.value = false
+    imageError.value = false
   }
   else {
     imageError.value = true
@@ -198,13 +177,17 @@ function handleClick() {
   emit('click', props.wallpaper)
 }
 
-function handleMouseEnter(e) {
+function handleMouseEnter() {
   if (isMobile.value)
     return
 
-  const card = e.currentTarget
-  const overlay = card.querySelector('.card-overlay')
-  const img = card.querySelector('.card-image img')
+  const card = cardRef.value
+  if (!card)
+    return
+
+  const media = card.querySelector('.card-image')
+  const overlay = media?.querySelector('.card-overlay')
+  const img = media?.querySelector('img')
 
   gsapTargets = [card, overlay, img].filter(Boolean)
 
@@ -228,13 +211,17 @@ function handleMouseEnter(e) {
   }
 }
 
-function handleMouseLeave(e) {
+function handleMouseLeave() {
   if (isMobile.value)
     return
 
-  const card = e.currentTarget
-  const overlay = card.querySelector('.card-overlay')
-  const img = card.querySelector('.card-image img')
+  const card = cardRef.value
+  if (!card)
+    return
+
+  const media = card.querySelector('.card-image')
+  const overlay = media?.querySelector('.card-overlay')
+  const img = media?.querySelector('img')
 
   gsap.to(card, {
     y: 0,
@@ -266,31 +253,25 @@ function handleMouseLeave(e) {
     :class="`view-${viewMode}`"
     :data-flip-id="wallpaper.id"
     @click="handleClick"
-    @mouseenter="handleMouseEnter"
-    @mouseleave="handleMouseLeave"
   >
     <WallpaperCardMedia
       :bing-date="bingDate"
       :category-display="categoryDisplay"
-      :collected="collected"
-      :action-mode="actionMode"
       :image-alt="imageAlt"
       :image-error="imageError"
       :image-loaded="imageLoaded"
       :image-ref="imageRef"
       :index="index"
-      :is-authenticated="isAuthenticated"
       :is-bing-wallpaper="isBingWallpaper"
       :is-mobile="isMobile"
-      :liked="liked"
       :popular-rank="popularRank"
       :style="viewMode === 'list' ? listImageStyle : cardImageStyle"
       :thumbnail-url="thumbnailUrl"
       :view-mode="viewMode"
       @load="handleImageLoad"
       @error="handleImageError"
-      @toggle-like="emit('toggleLike')"
-      @toggle-collect="emit('toggleCollect')"
+      @hover-enter="handleMouseEnter"
+      @hover-leave="handleMouseLeave"
     />
 
     <WallpaperCardInfo
