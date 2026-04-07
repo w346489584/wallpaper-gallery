@@ -22,45 +22,59 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.MIRROR_SYNC_TOKEN }}
 
       - name: Configure git identity
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Preserve mirror workflow
-        run: |
-          mkdir -p /tmp/mirror-workflow
-          cp .github/workflows/mirror-sync.yml /tmp/mirror-workflow/mirror-sync.yml
-
       - name: Configure upstream remote
         run: |
           git remote remove upstream 2>/dev/null || true
           git remote add upstream https://github.com/IT-NuanxinPro/wallpaper-gallery.git
-          git remote -v
 
       - name: Fetch upstream
-        run: |
-          git fetch upstream main --tags --force
+        run: git fetch upstream main --tags --force
 
-      - name: Mirror upstream/main and keep only mirror workflow
+      - name: Sync upstream changes (excluding .github/workflows)
         run: |
-          git checkout main
-          git reset --hard upstream/main
-          rm -rf .github/workflows
-          mkdir -p .github/workflows
-          cp /tmp/mirror-workflow/mirror-sync.yml .github/workflows/mirror-sync.yml
+          # 获取与上游有差异的文件（排除 workflows 目录）
+          CHANGED=$(git diff --name-only HEAD upstream/main -- ':(exclude).github/workflows' ':(exclude).github/workflows/**' || true)
+
+          if [ -z "$CHANGED" ]; then
+            echo "Already up to date."
+            exit 0
+          fi
+
+          echo "Files to sync:"
+          echo "$CHANGED"
+
+          for f in $CHANGED; do
+            if git cat-file -e "upstream/main:$f" 2>/dev/null; then
+              # 上游存在该文件：检出覆盖
+              mkdir -p "$(dirname "$f")"
+              git checkout upstream/main -- "$f"
+            else
+              # 上游已删除该文件：本地也删除
+              git rm -f "$f"
+            fi
+          done
+
+      - name: Commit and push
+        run: |
           git add -A
           if git diff --cached --quiet; then
             echo "No changes to commit."
-            exit 0
+          else
+            git commit -m "chore: mirror upstream $(date -u +%Y-%m-%d)"
+            git push origin main
           fi
-          git commit -m "chore: mirror upstream"
-          git push origin main
+
+      - name: Sync tags
+        run: git push origin --tags 2>/dev/null || true
 
       - name: Summary
         run: |
-          echo "Mirrored upstream/main to origin/main successfully." >> "$GITHUB_STEP_SUMMARY"
+          echo "Mirror sync completed." >> "$GITHUB_STEP_SUMMARY"
           echo "Current HEAD:" >> "$GITHUB_STEP_SUMMARY"
           git log -1 --oneline >> "$GITHUB_STEP_SUMMARY"
