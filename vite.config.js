@@ -12,7 +12,7 @@ import { defineConfig } from 'vite'
 import compression from 'vite-plugin-compression'
 import { cdnPlugin } from './build/vite-plugin-cdn.js'
 import { obfuscatePlugin } from './build/vite-plugin-obfuscate.js'
-import { versionPlugin } from './build/vite-plugin-version.js'
+import { formatBuildTime, versionPlugin } from './build/vite-plugin-version.js'
 
 // 是否生产环境
 const isProduction = process.env.NODE_ENV === 'production'
@@ -21,7 +21,7 @@ const isProduction = process.env.NODE_ENV === 'production'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf-8'))
 const APP_VERSION = pkg.version
-const BUILD_TIME = new Date().toISOString()
+const BUILD_TIME = formatBuildTime()
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -36,11 +36,11 @@ export default defineConfig({
     cdnPlugin(),
     // 自动导入
     AutoImport({
-      resolvers: [ElementPlusResolver(), VantResolver()],
+      resolvers: [ElementPlusResolver({ importStyle: 'css' }), VantResolver()],
     }),
     // 组件自动注册
     Components({
-      resolvers: [ElementPlusResolver(), VantResolver()],
+      resolvers: [ElementPlusResolver({ importStyle: 'css' }), VantResolver()],
     }),
     // Brotli 压缩（压缩率更高，GitHub Pages 支持）
     compression({
@@ -52,9 +52,9 @@ export default defineConfig({
     // 生产环境：对敏感文件进行混淆
     isProduction && obfuscatePlugin({
       include: [
-        'src/utils/codec.js',
-        'src/utils/constants.js',
-        'src/utils/format.js',
+        'src/utils/common/codec.js',
+        'src/utils/config/constants.js',
+        'src/utils/common/format.js',
       ],
     }),
     // 生产环境：使用 externalGlobals 将外部依赖转换为全局变量
@@ -93,7 +93,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000,
+    port: 5173,
     host: '0.0.0.0',
   },
   esbuild: {
@@ -116,9 +116,8 @@ export default defineConfig({
         },
         manualChunks: {
           // 保留这些库的分包配置（不使用 CDN）
-          'element-plus': ['element-plus'],
-          'vant': ['vant'],
-          'gsap': ['gsap'],
+          vant: ['vant'],
+          gsap: ['gsap'],
         },
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',

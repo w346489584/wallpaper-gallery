@@ -3,22 +3,24 @@
  * 竖屏壁纸弹窗主组件
  * 使用 Vue Transition + CSS 动画，遵循 Vue 最佳实践
  */
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, toRef, watch } from 'vue'
 import { useDevice } from '@/composables/useDevice'
+import { useInteraction } from '@/composables/useInteraction'
 import { useWallpaperType } from '@/composables/useWallpaperType'
 import { usePopularityStore } from '@/stores/popularity'
-import { trackWallpaperDownload, trackWallpaperPreview } from '@/utils/analytics'
-import { downloadFile } from '@/utils/format'
-import { recordDownload, recordView } from '@/utils/supabase'
+import { trackWallpaperDownload, trackWallpaperPreview } from '@/utils/common/analytics'
+import { buildProxyImageUrl, buildRawImageUrl, buildWallpaperDownloadFilename, downloadFile } from '@/utils/common/format'
+import { recordDownload, recordView } from '@/utils/integrations/supabase'
+import { resolveWallpaperSeries } from '@/utils/wallpaper/identity'
 
-import AvatarDesktopModal from './AvatarDesktopModal.vue'
-import AvatarMobileModal from './AvatarMobileModal.vue'
 import { useDeviceMode } from './composables/useDeviceMode'
-import DesktopModal from './DesktopModal.vue'
-import DeviceMode from './DeviceMode.vue'
-import MobileModal from './MobileModal.vue'
-import ModalContent from './ModalContent.vue'
-import ModalInfo from './ModalInfo.vue'
+import AvatarDesktopModal from './desktop/AvatarDesktopModal.vue'
+import PortraitDesktopModal from './desktop/PortraitDesktopModal.vue'
+import AvatarMobileModal from './mobile/AvatarMobileModal.vue'
+import MobileModal from './mobile/MobileModal.vue'
+import DeviceMode from './shared/DeviceMode.vue'
+import ModalContent from './shared/ModalContent.vue'
+import ModalInfo from './shared/ModalInfo.vue'
 
 const props = defineProps({
   wallpaper: {
@@ -31,25 +33,27 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'prev', 'next'])
 
 // Composables
 const { currentSeries } = useWallpaperType()
+const effectiveSeries = computed(() => resolveWallpaperSeries(props.wallpaper, currentSeries.value))
+const { collected, isAuthenticated, liked, toggleCollect, toggleLike } = useInteraction(toRef(props, 'wallpaper'), effectiveSeries)
 const { isMobile, isDesktop } = useDevice()
 const deviceMode = useDeviceMode()
 const popularityStore = usePopularityStore()
 
 // PC端使用独立的桌面弹窗
-const useDesktopModal = computed(() => isDesktop.value && currentSeries.value === 'mobile')
+const useDesktopModal = computed(() => isDesktop.value && effectiveSeries.value === 'mobile')
 
 // PC端头像使用独立的头像桌面弹窗
-const useAvatarDesktopModal = computed(() => isDesktop.value && currentSeries.value === 'avatar')
+const useAvatarDesktopModal = computed(() => isDesktop.value && effectiveSeries.value === 'avatar')
 
 // 移动端手机壁纸使用独立的移动端弹窗
-const useMobileModal = computed(() => isMobile.value && currentSeries.value === 'mobile')
+const useMobileModal = computed(() => isMobile.value && effectiveSeries.value === 'mobile')
 
 // 移动端头像使用独立的头像弹窗
-const useAvatarMobileModal = computed(() => isMobile.value && currentSeries.value === 'avatar')
+const useAvatarMobileModal = computed(() => isMobile.value && effectiveSeries.value === 'avatar')
 
 // 模板引用
 const contentRef = ref(null)
@@ -59,6 +63,7 @@ const imageDimensions = ref({ width: 0, height: 0 })
 const imageLoaded = ref(false)
 const downloading = ref(false)
 const savedScrollY = ref(0)
+const fallbackStage = ref('none')
 
 // 统计数据（从 popularityStore 获取，支持乐观更新）
 const downloadCount = computed(() => {
@@ -73,12 +78,36 @@ const viewCount = computed(() => {
   return popularityStore.getViewCount(props.wallpaper.filename)
 })
 
+const likeCount = computed(() => {
+  if (!props.wallpaper)
+    return 0
+  return popularityStore.getLikeCount(props.wallpaper.filename)
+})
+
+const collectCount = computed(() => {
+  if (!props.wallpaper)
+    return 0
+  return popularityStore.getCollectCount(props.wallpaper.filename)
+})
+
 // 弹窗显示状态（用于 Transition 控制）
 const isVisible = ref(false)
 
+const displayImageUrl = computed(() => {
+  if (!props.wallpaper?.url)
+    return ''
+
+  if (fallbackStage.value === 'raw')
+    return buildRawImageUrl(props.wallpaper.url)
+  if (fallbackStage.value === 'proxy')
+    return buildProxyImageUrl(props.wallpaper.url)
+
+  return props.wallpaper.url
+})
+
 // 派生状态
-const canUseDeviceMode = computed(() => currentSeries.value === 'mobile')
-const isAvatarSeries = computed(() => currentSeries.value === 'avatar')
+const canUseDeviceMode = computed(() => effectiveSeries.value === 'mobile')
+const isAvatarSeries = computed(() => effectiveSeries.value === 'avatar')
 
 // 监听 isOpen 变化
 watch(() => props.isOpen, async (isOpen) => {
@@ -97,6 +126,7 @@ watch(() => props.isOpen, async (isOpen) => {
 
 // 监听壁纸变化
 watch(() => props.wallpaper, () => {
+  fallbackStage.value = 'none'
   resetState()
   // 统计数据现在是 computed，从 popularityStore 自动获取
 })
@@ -105,7 +135,7 @@ watch(() => props.wallpaper, () => {
 function handleOpen() {
   // 追踪和统计
   trackWallpaperPreview(props.wallpaper)
-  recordView(props.wallpaper, currentSeries.value)
+  recordView(props.wallpaper, effectiveSeries.value)
 
   // 锁定背景滚动
   savedScrollY.value = window.scrollY || window.pageYOffset
@@ -169,9 +199,9 @@ async function handleDownload() {
 
   downloading.value = true
   try {
-    await downloadFile(props.wallpaper.url, props.wallpaper.filename)
-    trackWallpaperDownload(props.wallpaper, currentSeries.value)
-    recordDownload(props.wallpaper, currentSeries.value)
+    await downloadFile(props.wallpaper.url, buildWallpaperDownloadFilename(props.wallpaper))
+    trackWallpaperDownload(props.wallpaper, effectiveSeries.value)
+    recordDownload(props.wallpaper, effectiveSeries.value)
   }
   finally {
     downloading.value = false
@@ -186,6 +216,18 @@ function handleImageLoad(dimensions) {
 
 // 图片加载失败
 function handleImageError() {
+  if (fallbackStage.value === 'none') {
+    fallbackStage.value = 'raw'
+    imageLoaded.value = false
+    return
+  }
+
+  if (fallbackStage.value === 'raw') {
+    fallbackStage.value = 'proxy'
+    imageLoaded.value = false
+    return
+  }
+
   imageLoaded.value = true
 }
 
@@ -237,11 +279,18 @@ onUnmounted(() => {
 
 <template>
   <!-- PC端手机壁纸使用独立的桌面弹窗 -->
-  <DesktopModal
+  <PortraitDesktopModal
     v-if="useDesktopModal"
     :wallpaper="wallpaper"
     :is-open="isOpen"
+    :liked="liked"
+    :collected="collected"
+    :is-authenticated="isAuthenticated"
+    :like-count="likeCount"
+    :collect-count="collectCount"
     @close="emit('close')"
+    @toggle-like="toggleLike"
+    @toggle-collect="toggleCollect"
   />
 
   <!-- PC端头像使用独立的头像桌面弹窗 -->
@@ -249,7 +298,14 @@ onUnmounted(() => {
     v-else-if="useAvatarDesktopModal"
     :wallpaper="wallpaper"
     :is-open="isOpen"
+    :liked="liked"
+    :collected="collected"
+    :is-authenticated="isAuthenticated"
+    :like-count="likeCount"
+    :collect-count="collectCount"
     @close="emit('close')"
+    @toggle-like="toggleLike"
+    @toggle-collect="toggleCollect"
   />
 
   <!-- 移动端手机壁纸使用独立的移动端弹窗 -->
@@ -257,7 +313,14 @@ onUnmounted(() => {
     v-else-if="useMobileModal"
     :wallpaper="wallpaper"
     :is-open="isOpen"
+    :liked="liked"
+    :collected="collected"
+    :is-authenticated="isAuthenticated"
+    :like-count="likeCount"
+    :collect-count="collectCount"
     @close="emit('close')"
+    @toggle-like="toggleLike"
+    @toggle-collect="toggleCollect"
   />
 
   <!-- 移动端头像使用独立的头像弹窗 -->
@@ -265,7 +328,14 @@ onUnmounted(() => {
     v-else-if="useAvatarMobileModal"
     :wallpaper="wallpaper"
     :is-open="isOpen"
+    :liked="liked"
+    :collected="collected"
+    :is-authenticated="isAuthenticated"
+    :like-count="likeCount"
+    :collect-count="collectCount"
     @close="emit('close')"
+    @toggle-like="toggleLike"
+    @toggle-collect="toggleCollect"
   />
 
   <!-- 其他系列使用原有弹窗 -->
@@ -304,7 +374,7 @@ onUnmounted(() => {
             <ModalContent
               v-show="!deviceMode.isDeviceMode.value"
               ref="contentRef"
-              :src="wallpaper.url"
+              :src="displayImageUrl"
               :alt="wallpaper.filename"
               :is-avatar="isAvatarSeries"
               @load="handleImageLoad"
@@ -329,12 +399,19 @@ onUnmounted(() => {
             :dimensions="imageDimensions"
             :view-count="viewCount"
             :download-count="downloadCount"
+            :like-count="likeCount"
+            :collect-count="collectCount"
+            :liked="liked"
+            :collected="collected"
+            :is-authenticated="isAuthenticated"
             :is-loading="!imageLoaded"
             :is-downloading="downloading"
             :can-use-device-mode="canUseDeviceMode"
             :is-device-mode="deviceMode.isDeviceMode.value"
             @download="handleDownload"
             @toggle-device-mode="toggleDeviceMode"
+            @toggle-like="toggleLike"
+            @toggle-collect="toggleCollect"
           />
         </div>
       </div>

@@ -1,11 +1,13 @@
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
+import { useTheme } from '@/composables/useTheme'
+import { useAuthStore } from '@/stores/auth'
 import App from './App.vue'
 
 import router from './router'
 
 // 自定义 flexible 适配方案（PC 端保持设计稿尺寸，移动端等比缩放）
-import '@/utils/flexible'
+import '@/utils/platform/flexible'
 
 // ========================================
 // 旧版 Hash 路由兼容处理
@@ -47,9 +49,15 @@ function loadUmamiAnalytics() {
 // 加载 Umami Analytics（尽早加载）
 loadUmamiAnalytics()
 
+const { initTheme } = useTheme()
+initTheme()
+
 const app = createApp(App)
 const pinia = createPinia()
 
 app.use(pinia)
+useAuthStore(pinia).initialize().catch((error) => {
+  console.warn('[main] 初始化认证状态失败:', error)
+})
 app.use(router)
 app.mount('#app')

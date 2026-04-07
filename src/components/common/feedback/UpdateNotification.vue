@@ -31,17 +31,6 @@ const versionDisplay = computed(() => {
 
         <!-- 内容区域 -->
         <div class="card-content">
-          <!-- 图标 -->
-          <!-- <div class="update-icon">
-            <div class="icon-circle">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2L12 12M12 12L8 8M12 12L16 8" stroke-linecap="round" stroke-linejoin="round" />
-                <path d="M4 14V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V14" stroke-linecap="round" />
-              </svg>
-            </div>
-            <div class="icon-pulse" />
-          </div> -->
-
           <!-- 文字信息 -->
           <div class="update-info">
             <p class="update-title">
@@ -117,18 +106,18 @@ const versionDisplay = computed(() => {
     inset: 0;
     background: linear-gradient(
       135deg,
-      rgba(99, 102, 241, 0.95) 0%,
-      rgba(139, 92, 246, 0.95) 50%,
-      rgba(168, 85, 247, 0.95) 100%
+      rgba(37, 99, 235, 0.95) 0%,
+      rgba(14, 165, 233, 0.95) 52%,
+      rgba(56, 189, 248, 0.95) 100%
     );
 
     // 深色模式适配
     [data-theme='dark'] & {
       background: linear-gradient(
         135deg,
-        rgba(79, 70, 229, 0.95) 0%,
-        rgba(109, 40, 217, 0.95) 50%,
-        rgba(139, 92, 246, 0.95) 100%
+        rgba(29, 78, 216, 0.95) 0%,
+        rgba(14, 116, 144, 0.95) 52%,
+        rgba(2, 132, 199, 0.95) 100%
       );
     }
   }
@@ -321,15 +310,18 @@ const versionDisplay = computed(() => {
   align-items: center;
   gap: 6px;
   padding: 10px 16px;
-  background: white;
+  background: rgba(255, 255, 255, 0.94);
   border: none;
   border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
-  color: #6366f1;
+  color: #1d4ed8;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 12px 24px rgba(15, 23, 42, 0.12);
 
   @media (max-width: 768px) {
     padding: 8px 12px;
@@ -349,8 +341,12 @@ const versionDisplay = computed(() => {
   }
 
   &:hover {
+    background: var(--accent-gradient-soft-strong);
+    color: #1e3a8a;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.76),
+      0 16px 28px rgba(15, 23, 42, 0.18);
   }
 
   &:active {

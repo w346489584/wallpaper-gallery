@@ -1,6 +1,4 @@
-// ========================================
-// 热门数据管理 Store（简化版）
-// ========================================
+// 热门数据管理 Store
 // 使用静态 JSON 加载数据，不再使用乐观更新
 
 import { defineStore } from 'pinia'
@@ -11,21 +9,18 @@ import {
 } from '@/services/statsService'
 
 export const usePopularityStore = defineStore('popularity', () => {
-  // ========================================
-  // State
-  // ========================================
-
-  // 统计数据 Map<imageId, {views, downloads}>
+  // 统计数据 Map<imageId, {views, downloads, likes, collects}>
   const statsMap = ref(new Map())
+
+  // 点赞/收藏的乐观更新覆盖层 Map<imageId, {likes: delta, collects: delta}>
+  const likeCollectOverrides = ref(new Map())
 
   // 加载状态
   const loading = ref(false)
 
   // 当前加载的系列
   const currentSeries = ref('')
-
-  // 是否已加载
-  const loaded = ref(false)
+  let requestVersion = 0
 
   // ========================================
   // Getters
@@ -67,10 +62,6 @@ export const usePopularityStore = defineStore('popularity', () => {
   const weeklyMap = computed(() => popularityMap.value)
   const monthlyMap = computed(() => popularityMap.value)
 
-  // 兼容旧 API
-  const weeklyData = computed(() => allTimeData.value)
-  const monthlyData = computed(() => allTimeData.value)
-
   // 是否有热门数据
   const hasData = computed(() => statsMap.value.size > 0)
 
@@ -102,10 +93,41 @@ export const usePopularityStore = defineStore('popularity', () => {
   }
 
   /**
-   * 获取指定文件的热门分数
+   * 获取指定文件的点赞数（静态基准 + 乐观增量）
    */
-  function getPopularityScore(filename, _timeRange = 'all') {
-    return popularityMap.value.get(filename)?.score || 0
+  function getLikeCount(filename) {
+    const base = statsMap.value.get(filename)?.likes || 0
+    const delta = likeCollectOverrides.value.get(filename)?.likes || 0
+    return Math.max(0, base + delta)
+  }
+
+  /**
+   * 获取指定文件的收藏数（静态基准 + 乐观增量）
+   */
+  function getCollectCount(filename) {
+    const base = statsMap.value.get(filename)?.collects || 0
+    const delta = likeCollectOverrides.value.get(filename)?.collects || 0
+    return Math.max(0, base + delta)
+  }
+
+  /**
+   * 乐观更新点赞计数 (+1/-1)
+   */
+  function adjustLikeCount(filename, delta) {
+    const current = likeCollectOverrides.value.get(filename) || { likes: 0, collects: 0 }
+    const newMap = new Map(likeCollectOverrides.value)
+    newMap.set(filename, { ...current, likes: current.likes + delta })
+    likeCollectOverrides.value = newMap
+  }
+
+  /**
+   * 乐观更新收藏计数 (+1/-1)
+   */
+  function adjustCollectCount(filename, delta) {
+    const current = likeCollectOverrides.value.get(filename) || { likes: 0, collects: 0 }
+    const newMap = new Map(likeCollectOverrides.value)
+    newMap.set(filename, { ...current, collects: current.collects + delta })
+    likeCollectOverrides.value = newMap
   }
 
   /**
@@ -119,6 +141,7 @@ export const usePopularityStore = defineStore('popularity', () => {
       return
     }
 
+    const currentRequestVersion = ++requestVersion
     loading.value = true
     currentSeries.value = series
 
@@ -134,19 +157,31 @@ export const usePopularityStore = defineStore('popularity', () => {
         data = await loadStatsFromSupabase(series, 500)
       }
 
+      if (currentRequestVersion !== requestVersion) {
+        return
+      }
+
       statsMap.value = data
-      loaded.value = true
+
+      // 重置乐观更新覆盖层
+      likeCollectOverrides.value = new Map()
 
       if (import.meta.env.DEV) {
         console.log(`[PopularityStore] 加载完成: ${series}, ${data.size} 条数据`)
       }
     }
     catch (err) {
+      if (currentRequestVersion !== requestVersion) {
+        return
+      }
+
       console.error('[PopularityStore] 加载热门数据失败:', err)
       statsMap.value = new Map()
     }
     finally {
-      loading.value = false
+      if (currentRequestVersion === requestVersion) {
+        loading.value = false
+      }
     }
   }
 
@@ -154,9 +189,10 @@ export const usePopularityStore = defineStore('popularity', () => {
    * 清除热门数据
    */
   function clearData() {
+    requestVersion++
     statsMap.value = new Map()
+    likeCollectOverrides.value = new Map()
     currentSeries.value = ''
-    loaded.value = false
   }
 
   return {
@@ -164,11 +200,8 @@ export const usePopularityStore = defineStore('popularity', () => {
     statsMap,
     loading,
     currentSeries,
-    loaded,
-    // Getters (兼容旧 API)
+    // Getters
     allTimeData,
-    weeklyData,
-    monthlyData,
     popularityMap,
     weeklyMap,
     monthlyMap,
@@ -178,7 +211,10 @@ export const usePopularityStore = defineStore('popularity', () => {
     getPopularRank,
     getDownloadCount,
     getViewCount,
-    getPopularityScore,
+    getLikeCount,
+    getCollectCount,
+    adjustLikeCount,
+    adjustCollectCount,
     clearData,
   }
 })

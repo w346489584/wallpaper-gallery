@@ -1,51 +1,46 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import AvatarMakerBanner from '@/components/avatar/AvatarMakerBanner.vue'
 import AvatarMakerModal from '@/components/avatar/AvatarMakerModal/index.vue'
 import DiyAvatarBanner from '@/components/avatar/DiyAvatarBanner.vue'
 import AnnouncementBanner from '@/components/common/feedback/AnnouncementBanner.vue'
-import FilterPanel from '@/components/common/form/FilterPanel.vue'
 import BackToTop from '@/components/common/navigation/BackToTop.vue'
-import PortraitWallpaperModal from '@/components/wallpaper/PortraitWallpaperModal/index.vue'
+import HomeModalHost from '@/components/home/HomeModalHost.vue'
+import HotTagsPanel from '@/components/home/HotTagsPanel.vue'
+import MobileSeriesNotice from '@/components/home/MobileSeriesNotice.vue'
+import FilterPanel from '@/components/wallpaper/filter/index.vue'
 import WallpaperGrid from '@/components/wallpaper/WallpaperGrid/index.vue'
-import WallpaperModal from '@/components/wallpaper/WallpaperModal/index.vue'
-
-import { isMobileDevice } from '@/composables/useDevice'
-// Composables
-import { useModal } from '@/composables/useModal'
-// Pinia Stores
+import { useHomeDataLoader } from '@/composables/home/useHomeDataLoader'
+import { useHomeSeriesSync } from '@/composables/home/useHomeSeriesSync'
+import { useWallpaperNavigator } from '@/composables/home/useWallpaperNavigator'
+import { useDevice } from '@/composables/useDevice'
+import { useAuthStore } from '@/stores/auth'
 import { useFilterStore } from '@/stores/filter'
+import { useHotTagsStore } from '@/stores/hotTags'
+import { useInteractionStore } from '@/stores/interaction'
 import { usePopularityStore } from '@/stores/popularity'
 import { useSeriesStore } from '@/stores/series'
 import { useWallpaperStore } from '@/stores/wallpaper'
-// Constants
-import { SERIES_CONFIG } from '@/utils/constants'
+import { SERIES_CONFIG } from '@/utils/config/constants'
+import { getDefaultCategoryFilter } from '@/utils/filter/defaults'
 
 const route = useRoute()
 
-// ========================================
-// Stores
-// ========================================
 const seriesStore = useSeriesStore()
 const wallpaperStore = useWallpaperStore()
 const popularityStore = usePopularityStore()
+const hotTagsStore = useHotTagsStore()
 const filterStore = useFilterStore()
+const { isMobile } = useDevice()
+const interactionStore = useInteractionStore()
+const authStore = useAuthStore()
 
-// ========================================
-// 初始化标记（防止重复加载）
-// ========================================
-const isInitialized = ref(false)
-const isLoading = ref(false)
-
-// ========================================
-// Computed
-// ========================================
-
-// 当前系列
 const currentSeries = computed(() => seriesStore.currentSeries)
-const isMobile = computed(() => isMobileDevice())
 const showMobileSeriesNotice = computed(() => isMobile.value && ['desktop', 'bing'].includes(currentSeries.value))
+const isSeriesContentReady = computed(() => wallpaperStore.currentRenderedSeries === currentSeries.value)
+const visibleWallpapers = computed(() => isSeriesContentReady.value ? wallpaperStore.wallpapers : [])
+const seriesCategoryDefinitions = computed(() => wallpaperStore.getSeriesCategories(currentSeries.value))
 
 const mobileNoticeContent = computed(() => {
   if (currentSeries.value === 'bing') {
@@ -63,111 +58,273 @@ const mobileNoticeContent = computed(() => {
   }
 })
 
-// 是否使用竖屏弹窗
 const usePortraitModal = computed(() => ['mobile', 'avatar'].includes(currentSeries.value))
-
-// 是否隐藏格式筛选（Bing 系列格式固定为 JPG）
 const hideFormatFilter = computed(() => SERIES_CONFIG[currentSeries.value]?.hideFormatFilter === true)
+const categoryOptions = computed(() => filterStore.createCategoryOptions(visibleWallpapers.value))
+const subcategoryOptions = computed(() => filterStore.createSubcategoryOptions(categoryOptions.value))
+const filteredWallpapers = computed(() => filterStore.getFilteredAndSorted(visibleWallpapers.value))
+const hotTagLookup = computed(() => {
+  const categorySet = new Set()
+  const subcategorySet = new Set()
 
-// 整体加载状态
-const loading = computed(() => isLoading.value || wallpaperStore.loading || popularityStore.loading)
+  seriesCategoryDefinitions.value.forEach((category) => {
+    if (category?.id || category?.name) {
+      categorySet.add(category.id || category.name)
+      categorySet.add(category.name || category.id)
+    }
 
-// 错误状态
-const error = computed(() => wallpaperStore.error)
+    if (Array.isArray(category?.subcategories)) {
+      category.subcategories.forEach((subcategory) => {
+        subcategorySet.add(subcategory.name)
+      })
+    }
+  })
 
-// 分类选项
-const categoryOptions = computed(() =>
-  filterStore.createCategoryOptions(wallpaperStore.wallpapers),
+  return { categorySet, subcategorySet }
+})
+const hotCategoryTags = computed(() =>
+  hotTagsStore.tags
+    .filter(tag => hotTagLookup.value.categorySet.has(tag.tag) || hotTagLookup.value.subcategorySet.has(tag.tag))
+    .slice(0, 6)
+    .map(tag => ({
+      ...tag,
+      interactionType: 'category',
+    })),
 )
-
-// 二级分类选项
-const subcategoryOptions = computed(() =>
-  filterStore.createSubcategoryOptions(categoryOptions.value),
+const hotKeywordTags = computed(() =>
+  hotTagsStore.tags
+    .filter(tag => !hotTagLookup.value.categorySet.has(tag.tag) && !hotTagLookup.value.subcategorySet.has(tag.tag))
+    .slice(0, 8)
+    .map(tag => ({
+      ...tag,
+      interactionType: 'keyword',
+    })),
 )
-
-// 筛选和排序后的壁纸列表
-const filteredWallpapers = computed(() =>
-  filterStore.getFilteredAndSorted(wallpaperStore.wallpapers),
-)
-
-// 结果数量
+const activeHotTag = ref('')
+const isHotTagsVisible = ref(false)
 const resultCount = computed(() => filteredWallpapers.value.length)
-
-// 是否有激活的筛选条件
 const hasActiveFilters = computed(() => filterStore.hasActiveFilters(currentSeries.value))
+const showInteractionSummary = computed(() => authStore.isConfigured && authStore.isAuthenticated)
 
-// ========================================
-// Modal Management
-// ========================================
-const { isOpen, currentData, open, close, updateData } = useModal()
+let hotTagsRevealTimer = null
 
-const currentWallpaper = computed(() => currentData.value)
+const routeSyncReady = ref(false)
+const { syncSeriesFromRoute } = useHomeSeriesSync(route, seriesStore, routeSyncReady)
+syncSeriesFromRoute()
 
-function handleSelectWallpaper(wallpaper) {
-  open(wallpaper)
-}
+const { error, handleReload, loading } = useHomeDataLoader({
+  currentSeries,
+  showMobileSeriesNotice,
+  filterStore,
+  hotTagsStore,
+  popularityStore,
+  seriesStore,
+  syncSeriesFromRoute,
+  wallpaperStore,
+})
 
-function handlePrevWallpaper() {
-  if (!currentWallpaper.value)
-    return
-  const prev = wallpaperStore.getPrevWallpaper(currentWallpaper.value.id)
-  if (prev) {
-    updateData(prev)
+const isHotTagsDataStable = computed(() =>
+  hotTagsStore.currentSeries === currentSeries.value
+  && wallpaperStore.currentRenderedSeries === currentSeries.value
+  && !hotTagsStore.loading
+  && !wallpaperStore.loading
+  && !wallpaperStore.isBackgroundLoading
+  && !loading.value,
+)
+
+routeSyncReady.value = true
+
+// 用户登录后，预取当前系列的交互数据（喜欢/收藏）
+watch(
+  [currentSeries, () => authStore.isAuthenticated],
+  async ([series, isAuth]) => {
+    if (isAuth && series) {
+      await Promise.allSettled([
+        interactionStore.prefetchForSeries(series),
+        interactionStore.loadStats(),
+      ])
+    }
+  },
+  { immediate: true },
+)
+
+watch(
+  [currentSeries, isHotTagsDataStable],
+  ([, stable]) => {
+    if (hotTagsRevealTimer) {
+      clearTimeout(hotTagsRevealTimer)
+      hotTagsRevealTimer = null
+    }
+
+    if (!stable) {
+      isHotTagsVisible.value = false
+      activeHotTag.value = ''
+      return
+    }
+
+    hotTagsRevealTimer = window.setTimeout(() => {
+      isHotTagsVisible.value = true
+      hotTagsRevealTimer = null
+    }, 320)
+  },
+  { immediate: true },
+)
+
+onBeforeUnmount(() => {
+  if (hotTagsRevealTimer) {
+    clearTimeout(hotTagsRevealTimer)
+    hotTagsRevealTimer = null
   }
-}
+})
 
-function handleNextWallpaper() {
-  if (!currentWallpaper.value)
-    return
-  const next = wallpaperStore.getNextWallpaper(currentWallpaper.value.id)
-  if (next) {
-    updateData(next)
-  }
-}
-
-// ========================================
-// Data Loading
-// ========================================
-
-/**
- * 加载系列数据（防止重复加载）
- */
-async function loadSeriesData(series) {
-  if (!series || isLoading.value || showMobileSeriesNotice.value)
-    return
-
-  isLoading.value = true
-
-  try {
-    // 设置默认排序方式
-    filterStore.setDefaultSortBySeries(series)
-
-    // 并行加载壁纸数据和热门数据
-    await Promise.all([
-      wallpaperStore.initSeries(series),
-      popularityStore.fetchPopularityData(series),
-    ])
-  }
-  finally {
-    isLoading.value = false
-  }
-}
-
-// ========================================
-// Filter Actions
-// ========================================
+const {
+  close,
+  currentWallpaper,
+  handleNextWallpaper,
+  handlePrevWallpaper,
+  handleSelectWallpaper,
+  isOpen,
+} = useWallpaperNavigator(wallpaperStore)
 
 function handleReset() {
   filterStore.resetFilters(filterStore.sortBy, currentSeries.value)
+  activeHotTag.value = ''
 }
 
-function handleReload() {
-  wallpaperStore.initSeries(currentSeries.value, true)
+function handleClearSearch() {
+  filterStore.clearSearch()
+  filterStore.clearExactSearch()
+  if (currentSeries.value === 'bing') {
+    filterStore.categoryFilter = getDefaultCategoryFilter(currentSeries.value)
+    filterStore.subcategoryFilter = 'all'
+  }
+  activeHotTag.value = ''
 }
 
-// ========================================
-// Avatar Maker Modal
-// ========================================
+function resetNonSearchFilters() {
+  filterStore.formatFilter = 'all'
+  filterStore.resolutionFilter = 'all'
+}
+
+function applyTagAsCategory(tag) {
+  const matchedCategory = categoryOptions.value.find(option =>
+    option.value !== 'all' && (option.value === tag || option.label === tag),
+  )
+
+  if (matchedCategory) {
+    filterStore.clearSearch()
+    filterStore.clearExactSearch()
+    resetNonSearchFilters()
+    filterStore.categoryFilter = matchedCategory.value
+    filterStore.subcategoryFilter = 'all'
+    return true
+  }
+
+  const matchedParentCategory = categoryOptions.value.find(option =>
+    option.value !== 'all'
+    && Array.isArray(option.subcategories)
+    && option.subcategories.some(subcategory => subcategory.name === tag),
+  )
+
+  if (matchedParentCategory) {
+    filterStore.clearSearch()
+    filterStore.clearExactSearch()
+    resetNonSearchFilters()
+    filterStore.categoryFilter = matchedParentCategory.value
+    filterStore.subcategoryFilter = tag
+    return true
+  }
+
+  return false
+}
+
+function normalizeBingMonthTag(tag) {
+  const matched = tag.match(/^(\d{4})\s+(\d{2})$/)
+  if (!matched) {
+    return ''
+  }
+
+  return `${matched[1]}-${matched[2]}`
+}
+
+function extractBingTagYears(tagItem) {
+  const years = new Set()
+  const monthCategory = normalizeBingMonthTag(tagItem?.tag || '')
+
+  if (monthCategory) {
+    years.add(Number.parseInt(monthCategory.slice(0, 4), 10))
+  }
+
+  if (Array.isArray(tagItem?.topWallpapers)) {
+    tagItem.topWallpapers.forEach((filename) => {
+      const matched = String(filename).match(/bing-(\d{4})-\d{2}-\d{2}\.jpg/i)
+      if (matched) {
+        years.add(Number.parseInt(matched[1], 10))
+      }
+    })
+  }
+
+  return [...years].filter(Number.isInteger)
+}
+
+function isBingMonthTag(tag) {
+  return Boolean(normalizeBingMonthTag(tag))
+}
+
+async function ensureBingHotTagData(tagItem) {
+  if (currentSeries.value !== 'bing') {
+    return ''
+  }
+
+  const monthCategory = normalizeBingMonthTag(tagItem?.tag || '')
+  const years = extractBingTagYears(tagItem)
+
+  if (years.length > 0) {
+    await Promise.all(years.map(year => wallpaperStore.loadBingYear(year)))
+  }
+
+  return monthCategory
+}
+
+async function handleHotTagSelect(tagItem) {
+  const tag = tagItem?.tag || ''
+  if (!tag) {
+    return
+  }
+
+  const bingMonthCategory = await ensureBingHotTagData(tagItem)
+  const normalizedTag = bingMonthCategory || tag
+
+  if (applyTagAsCategory(normalizedTag)) {
+    activeHotTag.value = tag
+    return
+  }
+
+  if (
+    currentSeries.value === 'bing'
+    && !isBingMonthTag(tag)
+    && Array.isArray(tagItem?.topWallpapers)
+    && tagItem.topWallpapers.length === 1
+  ) {
+    const exactFilename = tagItem.topWallpapers[0]
+    filterStore.clearSearch()
+    filterStore.clearExactSearch()
+    resetNonSearchFilters()
+    filterStore.categoryFilter = 'all'
+    filterStore.subcategoryFilter = 'all'
+    filterStore.setExactSearch(tag, exactFilename)
+    activeHotTag.value = tag
+    return
+  }
+
+  filterStore.clearExactSearch()
+  resetNonSearchFilters()
+  filterStore.categoryFilter = getDefaultCategoryFilter(currentSeries.value)
+  filterStore.subcategoryFilter = 'all'
+  filterStore.searchQuery = tag
+  activeHotTag.value = tag
+}
+
 const isAvatarMakerOpen = ref(false)
 
 function handleAvatarMakerClick() {
@@ -177,105 +334,34 @@ function handleAvatarMakerClick() {
 function handleAvatarMakerClose() {
   isAvatarMakerOpen.value = false
 }
-
-// ========================================
-// Lifecycle & Watchers
-// ========================================
-
-// 监听路由变化，切换系列（仅在初始化后生效）
-watch(() => route.meta?.series, (newSeries, oldSeries) => {
-  if (!isInitialized.value)
-    return
-  if (newSeries && newSeries !== oldSeries) {
-    seriesStore.initFromRoute(newSeries)
-  }
-})
-
-// 监听系列变化，重新加载数据（仅在初始化后生效）
-watch(currentSeries, async (newSeries, oldSeries) => {
-  if (!isInitialized.value)
-    return
-  if (newSeries && newSeries !== oldSeries) {
-    await loadSeriesData(newSeries)
-  }
-})
-
-// 监听 Bing 系列的月份筛选变化，按需加载对应年份数据
-watch(() => filterStore.categoryFilter, async (newValue) => {
-  if (!isInitialized.value || currentSeries.value !== 'bing' || showMobileSeriesNotice.value)
-    return
-
-  // 检查是否是年月格式（YYYY-MM）
-  if (newValue && /^\d{4}-\d{2}$/.test(newValue)) {
-    const year = Number.parseInt(newValue.split('-')[0])
-    // 按需加载该年份的数据
-    await wallpaperStore.loadBingYear(year)
-  }
-})
-
-// 初始化（只执行一次）
-onMounted(async () => {
-  const routeSeries = route.meta?.series
-  if (routeSeries) {
-    seriesStore.currentSeries = routeSeries
-  }
-  else if (!seriesStore.currentSeries) {
-    seriesStore.initSeries()
-  }
-
-  // 加载数据
-  await loadSeriesData(seriesStore.currentSeries)
-
-  // 标记初始化完成
-  isInitialized.value = true
-})
 </script>
 
 <template>
   <div class="home-page">
     <div class="container">
-      <!-- Announcement Banner -->
       <AnnouncementBanner />
 
-      <div v-if="showMobileSeriesNotice" class="series-notice-card">
-        <div class="series-notice-card__badge">
-          {{ mobileNoticeContent.eyebrow }}
-        </div>
-
-        <div class="series-notice-card__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <rect x="4" y="3" width="16" height="18" rx="3" />
-            <path d="M9 7h6" />
-            <path d="M12 17h.01" />
-          </svg>
-        </div>
-
-        <h1 class="series-notice-card__title">
-          {{ mobileNoticeContent.title }}
-        </h1>
-
-        <p class="series-notice-card__description">
-          {{ mobileNoticeContent.description }}
-        </p>
-
-        <div class="series-notice-card__actions">
-          <RouterLink class="series-notice-card__button series-notice-card__button--primary" to="/mobile">
-            去手机壁纸
-          </RouterLink>
-          <RouterLink class="series-notice-card__button series-notice-card__button--secondary" to="/avatar">
-            去头像专区
-          </RouterLink>
-        </div>
-      </div>
+      <MobileSeriesNotice
+        v-if="showMobileSeriesNotice"
+        :content="mobileNoticeContent"
+      />
 
       <template v-else>
-        <!-- DIY 头像工具入口 - 仅头像系列且 PC 端显示 -->
-        <div v-if="currentSeries === 'avatar'" class="avatar-banners">
+        <div v-if="currentSeries === 'avatar' && !isMobile" class="avatar-banners">
           <DiyAvatarBanner />
-          <AvatarMakerBanner v-if="!isMobile" @click="handleAvatarMakerClick" />
+          <AvatarMakerBanner @click="handleAvatarMakerClick" />
         </div>
 
-        <!-- Filter Panel -->
+        <HotTagsPanel
+          :is-mobile="isMobile"
+          :category-tags="isHotTagsVisible ? hotCategoryTags : []"
+          :keyword-tags="isHotTagsVisible ? hotKeywordTags : []"
+          :loading="!isHotTagsVisible"
+          :active-tag="activeHotTag"
+          :current-series="currentSeries"
+          @select="handleHotTagSelect"
+        />
+
         <FilterPanel
           v-model:sort-by="filterStore.sortBy"
           v-model:format-filter="filterStore.formatFilter"
@@ -283,16 +369,20 @@ onMounted(async () => {
           v-model:category-filter="filterStore.categoryFilter"
           v-model:subcategory-filter="filterStore.subcategoryFilter"
           :category-options="categoryOptions"
+          :search-query="filterStore.searchQuery"
           :subcategory-options="subcategoryOptions"
           :result-count="resultCount"
           :total-count="wallpaperStore.displayTotal"
           :loading="loading"
           :hide-format-filter="hideFormatFilter"
           :current-series="currentSeries"
+          :show-interaction-summary="showInteractionSummary"
+          :interaction-stats="interactionStore.stats"
+          :interaction-stats-loaded="interactionStore.statsLoaded"
+          @clear-search="handleClearSearch"
           @reset="handleReset"
         />
 
-        <!-- Error State -->
         <div v-if="error" class="error-state">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10" />
@@ -305,7 +395,6 @@ onMounted(async () => {
           </button>
         </div>
 
-        <!-- Wallpaper Grid -->
         <WallpaperGrid
           v-else
           :wallpapers="filteredWallpapers"
@@ -320,31 +409,18 @@ onMounted(async () => {
       </template>
     </div>
 
-    <!-- Modal - 根据系列类型选择弹窗 -->
-    <!-- 横屏弹窗：电脑壁纸 -->
-    <WallpaperModal
-      v-if="!usePortraitModal && !showMobileSeriesNotice"
+    <HomeModalHost
       :wallpaper="currentWallpaper"
       :is-open="isOpen"
+      :use-portrait-modal="usePortraitModal"
+      :show-mobile-series-notice="showMobileSeriesNotice"
       @close="close"
       @prev="handlePrevWallpaper"
       @next="handleNextWallpaper"
     />
 
-    <!-- 竖屏弹窗：手机壁纸、头像 -->
-    <PortraitWallpaperModal
-      v-else-if="!showMobileSeriesNotice"
-      :wallpaper="currentWallpaper"
-      :is-open="isOpen"
-      @close="close"
-      @prev="handlePrevWallpaper"
-      @next="handleNextWallpaper"
-    />
-
-    <!-- Back to Top -->
     <BackToTop />
 
-    <!-- Avatar Maker Modal - 头像自制弹窗 -->
     <AvatarMakerModal
       :is-open="isAvatarMakerOpen"
       @close="handleAvatarMakerClose"
@@ -356,133 +432,8 @@ onMounted(async () => {
 .home-page {
   padding: $spacing-md 0 $spacing-2xl;
 
-  // 移动端：为 fixed 的筛选栏预留空间
   @include mobile-only {
-    padding-top: calc($spacing-md + 52px); // 52px 为筛选栏高度
-  }
-}
-
-.series-notice-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: $spacing-2xl;
-  margin-top: $spacing-lg;
-  border-radius: $radius-xl;
-  background: linear-gradient(180deg, rgba(99, 102, 241, 0.08), rgba(99, 102, 241, 0.02)), var(--color-bg-secondary);
-  border: 1px solid rgba(99, 102, 241, 0.14);
-  box-shadow: var(--shadow-md);
-
-  @include mobile-only {
-    padding: $spacing-xl $spacing-lg;
-    margin-top: $spacing-md;
-  }
-
-  &__badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: $spacing-xs $spacing-md;
-    margin-bottom: $spacing-md;
-    font-size: $font-size-xs;
-    font-weight: $font-weight-semibold;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--color-accent);
-    background: rgba(99, 102, 241, 0.1);
-    border-radius: $radius-full;
-  }
-
-  &__icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 72px;
-    height: 72px;
-    margin-bottom: $spacing-lg;
-    color: var(--color-accent);
-    background: rgba(99, 102, 241, 0.1);
-    border-radius: $radius-full;
-
-    svg {
-      width: 32px;
-      height: 32px;
-    }
-  }
-
-  &__title {
-    max-width: 520px;
-    margin-bottom: $spacing-md;
-    font-size: $font-size-xl;
-    font-weight: $font-weight-bold;
-    color: var(--color-text-primary);
-    line-height: 1.4;
-
-    @include mobile-only {
-      font-size: $font-size-lg;
-    }
-  }
-
-  &__description {
-    max-width: 620px;
-    margin-bottom: $spacing-xl;
-    font-size: $font-size-md;
-    color: var(--color-text-secondary);
-    line-height: 1.8;
-
-    @include mobile-only {
-      margin-bottom: $spacing-lg;
-      font-size: $font-size-sm;
-    }
-  }
-
-  &__actions {
-    display: flex;
-    gap: $spacing-md;
-
-    @include mobile-only {
-      width: 100%;
-      flex-direction: column;
-    }
-  }
-
-  &__button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 144px;
-    padding: $spacing-sm $spacing-xl;
-    border-radius: $radius-full;
-    font-size: $font-size-sm;
-    font-weight: $font-weight-semibold;
-    text-decoration: none;
-    transition:
-      transform var(--transition-fast),
-      box-shadow var(--transition-fast),
-      background-color var(--transition-fast),
-      color var(--transition-fast),
-      border-color var(--transition-fast);
-
-    @include mobile-only {
-      width: 100%;
-    }
-
-    &:hover {
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-sm);
-    }
-
-    &--primary {
-      color: #fff;
-      background: var(--color-accent);
-    }
-
-    &--secondary {
-      color: var(--color-text-primary);
-      background: var(--color-bg-card);
-      border: 1px solid var(--color-border);
-    }
+    padding-top: calc($spacing-md + 52px);
   }
 }
 
@@ -509,25 +460,28 @@ onMounted(async () => {
 
   &--primary {
     color: #fff;
-    background: var(--color-accent);
+    background: var(--accent-gradient);
+    box-shadow: 0 12px 24px var(--accent-shadow);
+
+    &:hover {
+      background: var(--accent-gradient-hover);
+      box-shadow: 0 16px 30px var(--accent-shadow-strong);
+    }
   }
 }
 
-// 头像系列入口卡片容器
 .avatar-banners {
   display: flex;
   gap: $spacing-lg;
   margin-bottom: $spacing-xl;
 
-  // PC 端：两个卡片各占 50%
   > :deep(.diy-avatar-banner),
   > :deep(.avatar-maker-banner) {
     flex: 1;
-    min-width: 0; // 防止 flex 子元素溢出
-    margin-bottom: 0; // 移除单独的 margin-bottom，由容器统一控制
+    min-width: 0;
+    margin-bottom: 0;
   }
 
-  // 移动端：垂直堆叠
   @include mobile-only {
     flex-direction: column;
     gap: $spacing-md;

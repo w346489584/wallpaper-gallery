@@ -1,16 +1,19 @@
 <script setup>
 import { gsap } from 'gsap'
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, toRef, watch } from 'vue'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner.vue'
+import WallpaperCardActions from '@/components/wallpaper/card/shared/WallpaperCardActions.vue'
 import { useDevice } from '@/composables/useDevice'
+import { useInteraction } from '@/composables/useInteraction'
 import { useWallpaperType } from '@/composables/useWallpaperType'
 import { usePopularityStore } from '@/stores/popularity'
-import { trackWallpaperDownload, trackWallpaperPreview } from '@/utils/analytics'
-import { downloadFile, formatDate, formatFileSize, formatRelativeTime, getDisplayFilename, getFileExtension, getResolutionLabel } from '@/utils/format'
-import { recordDownload, recordView } from '@/utils/supabase'
-import ImageCropModal from '../ImageCropModal.vue'
-import BingWallpaperInfo from './BingWallpaperInfo.vue'
-import DesktopModal from './DesktopModal.vue'
+import { trackWallpaperDownload, trackWallpaperPreview } from '@/utils/common/analytics'
+import { buildProxyImageUrl, buildRawImageUrl, buildWallpaperDownloadFilename, downloadFile, formatDate, formatFileSize, formatRelativeTime, getDisplayFilename, getFileExtension, getResolutionLabel } from '@/utils/common/format'
+import { recordDownload, recordView } from '@/utils/integrations/supabase'
+import { resolveWallpaperSeries } from '@/utils/wallpaper/identity'
+import ImageCropModal from '../crop/index.vue'
+import DesktopModal from './desktop/DesktopModal.vue'
+import BingWallpaperInfo from './shared/BingWallpaperInfo.vue'
 
 const props = defineProps({
   wallpaper: {
@@ -30,16 +33,18 @@ const { isMobile, isTablet, isDesktop, isLandscape, isPortrait } = useDevice()
 
 // 获取当前系列
 const { currentSeries } = useWallpaperType()
+const effectiveSeries = computed(() => resolveWallpaperSeries(props.wallpaper, currentSeries.value))
+const { collected, isAuthenticated, liked, toggleCollect, toggleLike } = useInteraction(toRef(props, 'wallpaper'), effectiveSeries)
 
 // 热门数据 Store
 const popularityStore = usePopularityStore()
 
 // PC端桌面壁纸和每日Bing使用独立的桌面弹窗（带 MacBook 预览）
-const useDesktopModal = computed(() => isDesktop.value && (currentSeries.value === 'desktop' || currentSeries.value === 'bing'))
+const useDesktopModal = computed(() => isDesktop.value && ['desktop', 'bing'].includes(effectiveSeries.value))
 
 // 是否显示裁剪功能（PC端和平板端，仅 desktop 系列）
 // 平板用户也需要裁剪功能（4:3 iPad, 16:10 安卓, 3:2 Surface）
-const showCropFeature = computed(() => !isMobile.value && currentSeries.value === 'desktop')
+const showCropFeature = computed(() => !isMobile.value && effectiveSeries.value === 'desktop')
 
 // 是否使用水平布局（PC端，或平板横屏时）
 const useHorizontalLayout = computed(() => {
@@ -88,6 +93,7 @@ const previewLoaded = ref(false)
 const originalLoaded = ref(false)
 const showOriginal = ref(false)
 const loadingOriginal = ref(false)
+const fallbackStage = ref('none')
 
 // 下载次数（从 popularityStore 获取，支持乐观更新）
 const downloadCount = computed(() => {
@@ -103,11 +109,23 @@ const viewCount = computed(() => {
   return popularityStore.getViewCount(props.wallpaper.filename)
 })
 
+const likeCount = computed(() => {
+  if (!props.wallpaper)
+    return 0
+  return popularityStore.getLikeCount(props.wallpaper.filename)
+})
+
+const collectCount = computed(() => {
+  if (!props.wallpaper)
+    return 0
+  return popularityStore.getCollectCount(props.wallpaper.filename)
+})
+
 // 是否有预览图（仅 desktop 系列）
 const hasPreview = computed(() => !!props.wallpaper?.previewUrl)
 
 // 当前显示的图片 URL
-const displayUrl = computed(() => {
+const baseDisplayUrl = computed(() => {
   if (!props.wallpaper)
     return ''
 
@@ -125,6 +143,18 @@ const displayUrl = computed(() => {
   return props.wallpaper.previewUrl || props.wallpaper.url
 })
 
+const displayUrl = computed(() => {
+  if (!baseDisplayUrl.value)
+    return ''
+
+  if (fallbackStage.value === 'raw')
+    return buildRawImageUrl(baseDisplayUrl.value)
+  if (fallbackStage.value === 'proxy')
+    return buildProxyImageUrl(baseDisplayUrl.value)
+
+  return baseDisplayUrl.value
+})
+
 // GSAP 入场动画
 watch(() => props.isOpen, async (isOpen) => {
   if (isOpen) {
@@ -133,7 +163,7 @@ watch(() => props.isOpen, async (isOpen) => {
       // 追踪壁纸预览事件
       trackWallpaperPreview(props.wallpaper)
       // 记录到 Supabase 统计（异步 RPC）
-      recordView(props.wallpaper, currentSeries.value)
+      recordView(props.wallpaper, effectiveSeries.value)
     }
 
     // 保存当前滚动位置
@@ -222,6 +252,7 @@ function animateOut(callback) {
 
 // Reset state when wallpaper changes
 watch(() => props.wallpaper, () => {
+  fallbackStage.value = 'none'
   imageLoaded.value = false
   imageError.value = false
   actualDimensions.value = { width: 0, height: 0 }
@@ -231,6 +262,13 @@ watch(() => props.wallpaper, () => {
   showOriginal.value = false
   loadingOriginal.value = false
   // 统计数据现在是 computed，从 popularityStore 自动获取，无需手动重置
+})
+
+watch(baseDisplayUrl, () => {
+  fallbackStage.value = 'none'
+  imageLoaded.value = false
+  imageError.value = false
+  actualDimensions.value = { width: 0, height: 0 }
 })
 
 // 分辨率信息 - 显示当前加载图片的分辨率（预览图或原图）
@@ -340,6 +378,20 @@ function handleImageLoad(e) {
 }
 
 function handleImageError() {
+  if (fallbackStage.value === 'none') {
+    fallbackStage.value = 'raw'
+    imageLoaded.value = false
+    imageError.value = false
+    return
+  }
+
+  if (fallbackStage.value === 'raw') {
+    fallbackStage.value = 'proxy'
+    imageLoaded.value = false
+    imageError.value = false
+    return
+  }
+
   imageError.value = true
   imageLoaded.value = true
   loadingOriginal.value = false
@@ -365,11 +417,11 @@ async function handleDownload() {
 
   downloading.value = true
   try {
-    await downloadFile(props.wallpaper.url, props.wallpaper.filename)
+    await downloadFile(props.wallpaper.url, buildWallpaperDownloadFilename(props.wallpaper))
     // 追踪下载事件,包含系列信息
-    trackWallpaperDownload(props.wallpaper, currentSeries.value)
+    trackWallpaperDownload(props.wallpaper, effectiveSeries.value)
     // 记录到 Supabase 统计（异步 RPC）
-    recordDownload(props.wallpaper, currentSeries.value)
+    recordDownload(props.wallpaper, effectiveSeries.value)
   }
   finally {
     downloading.value = false
@@ -416,8 +468,15 @@ onUnmounted(() => {
     v-if="useDesktopModal"
     :wallpaper="wallpaper"
     :is-open="isOpen"
+    :liked="liked"
+    :collected="collected"
+    :is-authenticated="isAuthenticated"
+    :like-count="likeCount"
+    :collect-count="collectCount"
     @close="emit('close')"
     @open-crop="openCropModal"
+    @toggle-like="toggleLike"
+    @toggle-collect="toggleCollect"
   />
 
   <!-- 移动端和其他情况使用原有弹窗 -->
@@ -557,6 +616,18 @@ onUnmounted(() => {
                   </svg>
                   {{ downloadCount }}
                 </span>
+                <span v-if="collectCount > 0" class="tag tag--collect">
+                  <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                  {{ collectCount }}
+                </span>
+                <span v-if="likeCount > 0" class="tag tag--like">
+                  <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                    <path d="m12 21-1.45-1.32C5.4 15.03 2 11.95 2 8.5 2 5.42 4.42 3 7.5 3A5.3 5.3 0 0 1 12 5.09 5.3 5.3 0 0 1 16.5 3C19.58 3 22 5.42 22 8.5c0 3.45-3.4 6.53-8.55 11.18z" />
+                  </svg>
+                  {{ likeCount }}
+                </span>
               </div>
             </div>
 
@@ -655,6 +726,19 @@ onUnmounted(() => {
 
             <!-- 操作按钮组 -->
             <div class="action-buttons">
+              <WallpaperCardActions
+                v-if="isAuthenticated"
+                compact
+                :show-counts="false"
+                :liked="liked"
+                :collected="collected"
+                :like-count="likeCount"
+                :collect-count="collectCount"
+                :is-authenticated="isAuthenticated"
+                @toggle-like="toggleLike"
+                @toggle-collect="toggleCollect"
+              />
+
               <!-- 裁剪按钮（仅PC端 desktop 系列显示） -->
               <button
                 v-if="showCropFeature"
@@ -722,10 +806,13 @@ onUnmounted(() => {
   width: 100%;
   max-width: 95vw;
   max-height: 95vh;
-  background: var(--color-bg-card);
+  background: linear-gradient(180deg, rgba(22, 32, 54, 0.98), rgba(14, 22, 38, 0.96));
+  border: 1px solid rgba(96, 165, 250, 0.14);
   border-radius: var(--radius-xl);
   overflow: hidden;
-  box-shadow: var(--shadow-xl);
+  box-shadow:
+    0 30px 80px rgba(2, 8, 23, 0.46),
+    inset 0 1px 0 rgba(191, 219, 254, 0.08);
 
   // 平板竖屏：垂直布局，更宽
   @include tablet-only {
@@ -829,7 +916,7 @@ onUnmounted(() => {
   flex: 1;
   min-height: 300px; // 垂直布局初始高度
   max-height: 60vh; // 垂直布局限制图片区域高度
-  background: var(--color-bg-primary);
+  background: linear-gradient(180deg, rgba(8, 13, 24, 0.98), rgba(11, 18, 32, 0.94));
   overflow: hidden;
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
 
@@ -944,7 +1031,7 @@ onUnmounted(() => {
   flex-direction: column;
   gap: $spacing-lg;
   padding: $spacing-lg;
-  background: var(--color-bg-card);
+  background: linear-gradient(180deg, rgba(18, 28, 47, 0.96), rgba(14, 22, 38, 0.94));
   overflow-y: auto; // 允许滚动查看所有内容
 
   // 移动端底部圆角 + 增加间距（不再过于紧凑）
@@ -966,7 +1053,7 @@ onUnmounted(() => {
 .modal-content--horizontal .modal-info {
   width: 320px;
   min-width: 320px;
-  border-left: 1px solid var(--color-border);
+  border-left: 1px solid rgba(96, 165, 250, 0.14);
   padding: $spacing-xl;
   border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
 }
@@ -1016,9 +1103,10 @@ onUnmounted(() => {
   letter-spacing: 0.3px;
 
   &--ai {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(16, 185, 129, 0.15) 100%);
-    color: var(--color-accent);
-    border: 1px solid rgba(99, 102, 241, 0.3);
+    background: linear-gradient(180deg, rgba(34, 47, 76, 0.94), rgba(23, 33, 56, 0.9));
+    color: #dbeafe;
+    border: 1px solid rgba(96, 165, 250, 0.2);
+    box-shadow: inset 0 1px 0 rgba(191, 219, 254, 0.06);
     font-weight: $font-weight-semibold;
     position: relative;
 
@@ -1030,18 +1118,19 @@ onUnmounted(() => {
   }
 
   &--primary {
-    background: rgba(99, 102, 241, 0.15);
-    color: var(--color-accent);
+    background: rgba(37, 99, 235, 0.22);
+    color: #93c5fd;
+    border: 1px solid rgba(96, 165, 250, 0.22);
   }
 
   &--success {
     background: rgba(16, 185, 129, 0.15);
-    color: var(--color-success);
+    color: #34d399;
   }
 
   &--warning {
     background: rgba(245, 158, 11, 0.15);
-    color: var(--color-warning);
+    color: #fbbf24;
   }
 
   &--info {
@@ -1055,8 +1144,9 @@ onUnmounted(() => {
   }
 
   &--secondary {
-    background: var(--color-bg-hover);
-    color: var(--color-text-secondary);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(226, 232, 240, 0.76);
+    border: 1px solid rgba(148, 163, 184, 0.12);
   }
 
   &--view {
@@ -1078,8 +1168,34 @@ onUnmounted(() => {
     align-items: center;
     gap: 6px;
     background: rgba(16, 185, 129, 0.15);
-    color: var(--color-success);
+    color: #34d399;
     font-weight: $font-weight-bold;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  &--collect {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  &--like {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(244, 63, 94, 0.15);
+    color: #fb7185;
 
     svg {
       width: 12px;
@@ -1090,10 +1206,6 @@ onUnmounted(() => {
   &--dark {
     background: rgba(0, 0, 0, 0.6);
     color: white;
-
-    [data-theme='dark'] & {
-      background: rgba(255, 255, 255, 0.15);
-    }
   }
 }
 
@@ -1102,8 +1214,10 @@ onUnmounted(() => {
   flex-direction: column;
   gap: $spacing-md;
   padding: $spacing-md;
-  background: var(--color-bg-hover);
+  background: linear-gradient(180deg, rgba(34, 47, 76, 0.8), rgba(22, 31, 52, 0.76));
+  border: 1px solid rgba(148, 163, 184, 0.12);
   border-radius: var(--radius-md);
+  box-shadow: inset 0 1px 0 rgba(191, 219, 254, 0.05);
 
   // 移动端布局（增加间距，不再过于紧凑）
   &--compact {
@@ -1118,10 +1232,13 @@ onUnmounted(() => {
   flex-direction: column;
   gap: $spacing-sm;
   padding: $spacing-md;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(16, 185, 129, 0.12) 100%);
-  border: 1px solid rgba(99, 102, 241, 0.25);
+  background: linear-gradient(180deg, rgba(39, 56, 88, 0.96), rgba(23, 34, 58, 0.92));
+  border: 1px solid rgba(96, 165, 250, 0.18);
   border-radius: var(--radius-md);
   margin-bottom: $spacing-sm;
+  box-shadow:
+    0 14px 28px rgba(2, 8, 23, 0.24),
+    inset 0 1px 0 rgba(191, 219, 254, 0.08);
 
   // 移动端更紧凑的视觉效果
   @include mobile-only {
@@ -1138,7 +1255,7 @@ onUnmounted(() => {
 .mobile-card-label {
   font-size: $font-size-xs;
   font-weight: $font-weight-semibold;
-  color: var(--color-text-muted);
+  color: rgba(191, 219, 254, 0.56);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -1171,8 +1288,9 @@ onUnmounted(() => {
   }
 
   &.tag--primary {
-    background: rgba(99, 102, 241, 0.2);
-    color: var(--color-accent);
+    background: rgba(37, 99, 235, 0.24);
+    color: #bfdbfe;
+    border: 1px solid rgba(96, 165, 250, 0.2);
   }
 }
 
@@ -1198,7 +1316,7 @@ onUnmounted(() => {
 .mobile-card-value {
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
-  color: var(--color-text-primary);
+  color: #f8fafc;
 }
 
 .detail-item {
@@ -1206,17 +1324,17 @@ onUnmounted(() => {
   align-items: center;
   gap: $spacing-sm;
   font-size: $font-size-sm;
-  color: var(--color-text-secondary);
+  color: rgba(226, 232, 240, 0.76);
 
   svg {
     width: 18px;
     height: 18px;
-    color: var(--color-text-muted);
+    color: rgba(191, 219, 254, 0.46);
     flex-shrink: 0;
   }
 
   &--highlight {
-    color: var(--color-text-primary);
+    color: #f8fafc;
     font-weight: $font-weight-medium;
 
     svg {
@@ -1227,17 +1345,18 @@ onUnmounted(() => {
 
 .detail-sub {
   font-size: $font-size-xs;
-  color: var(--color-text-muted);
+  color: rgba(191, 219, 254, 0.44);
   margin-left: 2px;
 }
 
 // 预览图标签
 .detail-label {
   font-size: $font-size-xs;
-  color: var(--color-text-muted);
+  color: rgba(191, 219, 254, 0.5);
   margin-left: $spacing-xs;
   padding: 2px 6px;
-  background: var(--color-bg-hover);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.12);
   border-radius: 4px;
 }
 
@@ -1247,11 +1366,14 @@ onUnmounted(() => {
   flex-direction: column;
   gap: $spacing-sm;
   padding: $spacing-md;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  background: linear-gradient(180deg, rgba(39, 56, 88, 0.96), rgba(23, 34, 58, 0.92));
+  border: 1px solid rgba(96, 165, 250, 0.18);
   border-radius: var(--radius-md);
   position: relative;
   overflow: hidden;
+  box-shadow:
+    0 16px 30px rgba(2, 8, 23, 0.26),
+    inset 0 1px 0 rgba(191, 219, 254, 0.08);
 
   // 装饰性光晕
   &::before {
@@ -1261,7 +1383,7 @@ onUnmounted(() => {
     right: -50%;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(var(--color-accent-rgb), 0.15) 0%, transparent 70%);
     pointer-events: none;
   }
 }
@@ -1277,7 +1399,7 @@ onUnmounted(() => {
 .original-label {
   font-size: $font-size-xs;
   font-weight: $font-weight-semibold;
-  color: var(--color-text-muted);
+  color: rgba(191, 219, 254, 0.56);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -1310,8 +1432,9 @@ onUnmounted(() => {
   }
 
   &.tag--primary {
-    background: rgba(99, 102, 241, 0.2);
-    color: var(--color-accent);
+    background: rgba(37, 99, 235, 0.24);
+    color: #bfdbfe;
+    border: 1px solid rgba(96, 165, 250, 0.2);
   }
 }
 
@@ -1330,7 +1453,7 @@ onUnmounted(() => {
   gap: 6px;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
-  color: var(--color-text-primary);
+  color: #f8fafc;
 
   svg {
     width: 16px;
@@ -1341,7 +1464,7 @@ onUnmounted(() => {
 
 .original-hint {
   font-size: $font-size-xs;
-  color: var(--color-text-muted);
+  color: rgba(191, 219, 254, 0.46);
   margin: 0;
   position: relative;
   z-index: 1;
@@ -1365,17 +1488,21 @@ onUnmounted(() => {
   gap: $spacing-sm;
   width: 100%;
   padding: $spacing-md;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(16, 185, 129, 0.15) 100%);
-  color: var(--color-accent);
+  background: linear-gradient(180deg, rgba(34, 47, 76, 0.96), rgba(23, 33, 56, 0.92));
+  color: #dbeafe;
   font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
   border-radius: var(--radius-md);
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  border: 1px solid rgba(96, 165, 250, 0.2);
+  box-shadow: inset 0 1px 0 rgba(191, 219, 254, 0.08);
   transition: all var(--transition-fast);
 
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(16, 185, 129, 0.25) 100%);
-    border-color: var(--color-accent);
+    background: linear-gradient(180deg, rgba(43, 61, 96, 0.98), rgba(29, 41, 68, 0.94));
+    border-color: rgba(96, 165, 250, 0.28);
+    box-shadow:
+      inset 0 1px 0 rgba(191, 219, 254, 0.1),
+      0 14px 28px rgba(2, 8, 23, 0.26);
     transform: translateY(-2px);
   }
 
@@ -1397,15 +1524,18 @@ onUnmounted(() => {
   gap: $spacing-sm;
   width: 100%;
   padding: $spacing-md;
-  background: var(--color-accent);
+  background: var(--accent-gradient);
   color: white;
   font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
+  border: none;
   border-radius: var(--radius-md);
+  box-shadow: 0 16px 30px var(--accent-shadow);
   transition: all var(--transition-fast);
 
   &:hover:not(:disabled) {
-    background: var(--color-accent-hover);
+    background: var(--accent-gradient-hover);
+    box-shadow: 0 20px 38px var(--accent-shadow-strong);
     transform: translateY(-2px);
   }
 
@@ -1430,7 +1560,7 @@ onUnmounted(() => {
 .skeleton-title {
   height: 24px;
   width: 80%;
-  background: var(--color-bg-hover);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-sm);
   animation: skeletonPulse 1.5s ease-in-out infinite;
 }
@@ -1443,7 +1573,7 @@ onUnmounted(() => {
 .skeleton-tag {
   height: 24px;
   width: 50px;
-  background: var(--color-bg-hover);
+  background: rgba(255, 255, 255, 0.07);
   border-radius: $radius-sm;
   animation: skeletonPulse 1.5s ease-in-out infinite;
 
@@ -1463,13 +1593,14 @@ onUnmounted(() => {
   flex-direction: column;
   gap: $spacing-md;
   padding: $spacing-md;
-  background: var(--color-bg-hover);
+  background: linear-gradient(180deg, rgba(34, 47, 76, 0.8), rgba(22, 31, 52, 0.76));
+  border: 1px solid rgba(148, 163, 184, 0.12);
   border-radius: var(--radius-md);
 }
 
 .skeleton-line {
   height: 18px;
-  background: var(--color-bg-card);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-sm);
   animation: skeletonPulse 1.5s ease-in-out infinite;
 
@@ -1491,7 +1622,8 @@ onUnmounted(() => {
 .skeleton-btn {
   height: 48px;
   width: 100%;
-  background: var(--color-bg-hover);
+  background: linear-gradient(180deg, rgba(34, 47, 76, 0.96), rgba(23, 33, 56, 0.92));
+  border: 1px solid rgba(96, 165, 250, 0.18);
   border-radius: var(--radius-md);
   animation: skeletonPulse 1.5s ease-in-out infinite;
   margin-top: auto;

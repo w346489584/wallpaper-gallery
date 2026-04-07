@@ -1,7 +1,7 @@
 <div align="center">
   <img src="https://wallpaper.061129.xyz/favicon.svg" width="120" height="120" alt="Wallpaper Gallery Logo" />
   <h1>Wallpaper Gallery</h1>
-  <p>一个高雅大气的精选高清 4K 壁纸分享站，完美适配全平台</p>
+  <p>一个专注精选 4K 高清壁纸质感与浏览体验的壁纸项目，覆盖电脑、手机、头像与每日 Bing 壁纸场景</p>
 
   <p>
     <a href="https://wallpaper.061129.xyz"><img src="https://img.shields.io/badge/Deployed_with-Cloudflare_Pages-f38020?style=flat-square&logo=cloudflare&logoColor=white" alt="Cloudflare Pages"></a>
@@ -11,19 +11,35 @@
   </p>
   
   <p>
-    <a href="https://wallpaper.061129.xyz">🌐 访问体验站</a> | 
+    <a href="https://wallpaper.061129.xyz" target="_blank">🌐 访问体验站</a> | 
+    <a href="https://wallpaper-gallery-architecture.061129.xyz/" target="_blank">🏗️ 架构在线文档</a> |
+    <a href="https://linux.do" target="_blank">🤝 鸣谢社区 LINUX DO</a> |
     <a href="#-特性">✨ 功能亮点</a> | 
     <a href="#-技术栈">🛠️ 技术栈实现</a>
   </p>
 </div>
 
+> 不追求内容堆砌，也不与鱼龙混杂的壁纸站混在一起。  
+> 更看重精选、清晰度、系列划分与完整浏览体验。
 
 ## ✨ 特性
+
+适合直接使用，也适合作为个人内容站、壁纸站或前端展示项目继续扩展。
 
 ### 🎨 核心功能
 
 - **高清壁纸展示** - 支持 16K/8K/5K/4K 及更高分辨率壁纸
 - **四大系列** - 电脑壁纸、手机壁纸、头像、每日 Bing 壁纸
+- **部署友好** - 默认可直接 fork、同步线上数据并部署，无需先搭建图床
+- **账号体系与个人中心** - 支持登录、注册、认证回调、账号资料查看与安全设置
+  - 支持 `GitHub`、`Google`、`Linux.do` OAuth 登录
+  - 支持邮箱密码登录、启用密码、更新密码
+  - 支持第三方账号绑定 / 解绑与头像同步
+  - 第三方授权跳转与邮箱注册完成后都会切换到专属的 Auth Flow Panel，提供「正在跳转」「验证邮件已发送」「授权失败」等清晰提示，避免误触。
+- **个人壁纸库（Library）** - 提供 `收藏夹` 与 `我的喜欢` 两个独立入口
+  - 支持跨系列聚合查看与筛选
+  - 移动端仅展示手机壁纸与头像分区
+  - 卡片操作会根据当前 tab 自动收口，减少误操作
 - **头像自制工具** - PC 端专属在线头像制作功能
   - 本地上传或在线链接导入图片
   - 智能裁剪与实时预览（基于 Cropper.js）
@@ -34,33 +50,30 @@
 - **每日 Bing 壁纸** - 从 2019年6月至今约 2400+ 张必应精选壁纸
   - 按年度分片加载，性能优异
   - 直连 Bing CDN，无需额外存储
-- **智能裁剪** - PC 端电脑壁纸智能裁剪功能
-  - 自动适配当前屏幕分辨率
-  - 多种比例预设（16:9、21:9、16:10、4:3、iPad、iPhone、安卓全面屏等）
-  - 自定义分辨率输入
-  - 实时预览 + 沉浸式全屏预览
-  - 原图质量输出选项
-- **真机显示模式** - 手机壁纸和头像系列专属
-  - 手机壁纸：模拟 iPhone 14 Pro 外观（Dynamic Island 灵动岛动画、状态栏、Home 指示器）
-  - 头像系列：简洁 iPhone 框架（无灵动岛，突出头像展示）
-  - 电脑端和手机端统一支持
-  - 流畅的进入动画（GSAP 硬件加速）
-- **竖屏壁纸弹窗** - 移动端专属竖屏壁纸预览体验
-  - 高级感渐变设计（紫蓝渐变 #667eea → #764ba2）
-  - 头像弹窗支持圆形/方形切换
-  - 滚动锁定防止穿透
-- **头像制作弹窗** - PC 端专属头像自制工具
-  - 拖拽上传或在线链接导入
-  - 实时裁剪预览与形状切换
-  - 自定义尺寸与圆角设置
-  - iPhone 真机预览效果
-  - 一键下载高质量头像
+- **智能裁剪与真机预览** - 电脑壁纸支持智能裁剪；手机壁纸与头像支持真机显示模式
+  - 自动适配屏幕分辨率，提供多种比例预设与自定义尺寸
+  - 支持实时预览、沉浸式全屏预览与高质量导出
+  - 手机壁纸与头像系列统一支持 iPhone 外观预览
 - **智能搜索** - 实时搜索建议、关键词高亮、回车确认搜索
+- **热门模块** - 首页按系列展示热门分类与热门关键词
+  - 热门分类点击后直接切换筛选
+  - 热门关键词点击后直接进入搜索
+  - 桌面端支持悬停预览热门标签关联壁纸
+  - 移动端支持紧凑栅格布局与展开 / 收起
+- **Bing 搜索优化** - 针对 Bing 系列做专门交互处理
+  - 月份热门词点击后直接切换月份
+  - 中文单图热门词点击后直接定位对应壁纸
+  - 手动搜索时自动取消当前月份限制
+  - 清空搜索后恢复到当前月份浏览状态
 - **多种排序** - 按时间、热门、大小、名称排序
 - **动态分类** - 自动从壁纸数据中提取分类，按数量排序
 - **格式筛选** - 按 JPG/PNG 格式筛选
 - **分辨率筛选** - 仅电脑壁纸系列支持，按 16K/8K/5K+/4K+/4K/2K/超清/高清/标清精确筛选
 - **一键下载** - 直接下载原图
+- **喜欢 / 收藏交互** - 登录后支持即时标记与跨页面状态同步
+  - 首页卡片提供始终可见的状态角标
+  - 首页筛选栏内显示 `已喜欢` / `已收藏` 汇总
+  - 操作成功和取消操作均有明确提示反馈
 
 ### 🖼️ 视图与浏览
 
@@ -74,7 +87,6 @@
 - **全屏浏览** - 沉浸式全屏浏览模式，ESC 退出
 - **移动端无限滚动** - 滚动到底部自动加载更多
 - **今日精选** - 每日随机推荐精选壁纸（仅电脑壁纸系列）
-- **3D 热门轮播** - 首页 3D 卡片轮播展示热门壁纸（下线）
 - **分页条数切换** - 支持 10/20/30/50 条每页，实时切换
 
 ### 💫 用户体验
@@ -92,16 +104,34 @@
   - 手势滑动切换视图
   - 移除 backdrop-filter 提升滚动性能
   - 滚动锁定防止弹窗穿透
+  - 收藏夹仅保留手机壁纸 / 头像标签，更符合移动端使用场景
 - **用户偏好记忆** - 记住用户的系列选择、排序方式、视图模式
 - **本地缩略图** - 预生成 WebP 缩略图，首页加载更快
+- **深色模式细节补齐** - 手机壁纸弹窗、头像弹窗、标签与操作状态统一适配深色主题
+- **认证反馈面板** - OAuth 跳转前后使用 Lottie Loading / Success 面板、注册后显示邮箱验证提示，PC 与移动端都能第一时间获知登录是否成功。
 
 ### 📊 数据统计
 
 - **浏览量统计** - 记录每张壁纸的浏览次数
 - **下载量统计** - 记录每张壁纸的下载次数
+- **用户交互统计** - 记录喜欢数、收藏数，并在首页与 Library 中回显
 - **热门排序** - 基于浏览量的热门壁纸排序
 - **热门轮播** - 首页展示最受欢迎的壁纸
-- **Supabase 后端** - 使用 Supabase 存储统计数据，支持原子递增
+- **热门标签导出** - 基于浏览量、下载量与系列数据生成热门分类 / 热门关键词
+- **Supabase 后端** - 使用 Supabase 存储统计、认证与用户交互数据，支持原子递增
+
+### 🌱 使用体验
+
+- **默认可运行** - Fork 后同步一次线上数据即可本地启动
+- **文档齐全** - 提供 Fork 部署指南、统计系统说明与架构页
+- **渐进增强** - 不配置 Supabase 时仍可浏览壁纸；配置后可启用登录、收藏、喜欢与个人壁纸库
+- **适合二开** - 组件、stores、services 与 utils 已按职责拆分
+
+## 🎯 项目定位
+
+- 面向个人壁纸站、内容展示站和开源作品集场景。
+- 优先保证视觉体验、浏览性能和 fork 后可维护性。
+- 当前仓库同时包含前端展示、数据同步、热门标签导出与统计接入能力。
 
 ### 🧭 路由与导航
 
@@ -109,6 +139,7 @@
 - **偏好优先** - 用户明确选择的系列优先于设备推荐
 - **循环检测** - 防止路由守卫产生无限循环
 - **历史优化** - 使用 replace 避免污染浏览历史
+- **账户路由** - 新增 `/login`、`/signup`、`/auth/callback`、`/account`、`/library`
 
 ## 🛠️ 技术栈
 
@@ -167,10 +198,12 @@ pnpm dev
 # 开发
 pnpm dev              # 启动开发服务器
 pnpm build            # 构建生产版本
+pnpm build:seo        # 构建并生成预渲染 SEO 页面
 pnpm preview          # 预览构建结果
 
 # 数据同步
 pnpm sync             # 从线上 CDN 同步最新数据
+pnpm export:hot-tags  # 导出热门标签数据
 
 # 代码质量
 pnpm lint             # 检查代码规范
@@ -224,28 +257,38 @@ Fork 本项目后，无需任何配置即可使用：
 - ✅ **无需配置图床**：数据自动从线上 CDN 拉取
 - ✅ **自动更新**：每天 UTC 18:00（北京时间次日 02:00）自动同步最新数据
 - ✅ **完整数据**：包含所有壁纸、分类、元数据
+- ✅ **热门标签数据**：包含热门分类与热门关键词统计，可直接用于首页热门模块
 - ✅ **开箱即用**：Fork 后直接可用，无需额外配置
 
 ### 可选配置
 
-#### 启用统计功能（可选）
+#### 启用登录、喜欢 / 收藏与统计功能（可选）
 
-如果需要启用浏览量/下载量统计功能，需要配置 Supabase：
+如果需要启用账号登录、个人中心、收藏夹、我的喜欢，以及浏览量 / 下载量统计，需要配置 Supabase：
 
 1. **创建 Supabase 项目**
    - 访问 [Supabase](https://supabase.com/) 创建免费项目
-   - 获取 Project URL 和 anon public key
+   - 获取 Project URL、anon public key 和 service role key
 
 2. **配置 GitHub Secrets**
    - 进入仓库 **Settings** → **Secrets and variables** → **Actions**
    - 添加以下 Secrets：
      - `VITE_SUPABASE_URL`：你的 Supabase Project URL
      - `VITE_SUPABASE_ANON_KEY`：你的 Supabase anon public key
+     - `SUPABASE_SERVICE_ROLE_KEY`：用于同步壁纸资源与后台任务，请勿暴露到前端
 
 3. **创建数据库表**
    - 参考 [Fork 部署指南](docs/Fork部署指南.md) 中的 SQL 脚本
 
-**注意**：统计功能完全可选，不配置也不影响网站正常使用。
+4. **本地开发环境变量**
+   - 可参考 `.env.example`
+   - 本地启用账号能力时需要配置：
+     - `VITE_SUPABASE_URL`
+     - `VITE_SUPABASE_ANON_KEY`
+   - 本地执行 `pnpm sync:assets` 时额外需要：
+     - `SUPABASE_SERVICE_ROLE_KEY`
+
+**注意**：这些能力都是渐进增强，不配置也不影响网站基础浏览与下载。
 
 #### 其他可选配置
 
@@ -260,90 +303,120 @@ Fork 本项目后，无需任何配置即可使用：
 
 ```text
 wallpaper-gallery/
-├── .github/workflows/    # GitHub Actions 配置
-│   ├── deploy.yml        # 自动构建部署
-│   └── export-stats.yml  # 统计数据导出
+├── .github/workflows/        # GitHub Actions 配置
+│   ├── deploy.yml            # 自动构建部署
+│   └── export-stats.yml      # 统计数据导出
 ├── public/
-│   └── data/             # 壁纸数据 JSON（从 CDN 同步）
-│       ├── desktop/      # 电脑壁纸分类数据
-│       ├── mobile/       # 手机壁纸分类数据
-│       ├── avatar/       # 头像分类数据
-│       ├── bing/         # 每日 Bing 壁纸数据
-│       └── stats/        # 热门统计数据
+│   └── data/                 # 壁纸数据 JSON（从 CDN 同步）
+│       ├── desktop/          # 电脑壁纸分类数据
+│       ├── mobile/           # 手机壁纸分类数据
+│       ├── avatar/           # 头像分类数据
+│       ├── bing/             # 每日 Bing 壁纸数据
+│       └── stats/            # 热门统计数据
 ├── scripts/
-│   ├── sync-data.js      # 数据同步脚本（从 CDN 拉取）
-│   ├── export-stats.js   # 统计数据导出脚本
-│   └── supabase-migration.sql  # 数据库迁移脚本
+│   ├── config/               # 脚本配置
+│   ├── sync-data.js          # 数据同步脚本（从 CDN 拉取）
+│   ├── export-stats.js       # 统计数据导出脚本
+│   ├── export-hot-tags.js    # 热门标签导出脚本
+│   ├── supabase-init.sql     # 新项目一键初始化 SQL
+│   ├── supabase-migration.sql      # 统计结构迁移脚本
+│   └── supabase-retire-legacy.sql  # 旧结构下线脚本
 ├── docs/
-│   ├── Fork部署指南.md   # Fork 用户部署指南
-│   └── ...               # 其他文档
-├── WORKFLOW.md           # 开发工作流程说明
+│   ├── Fork部署指南.md       # Fork 用户部署指南
+│   ├── Supabase统计系统.md   # Supabase 统计架构说明
+│   └── ...
+├── WORKFLOW.md               # 开发工作流程说明
 ├── src/
-│   ├── assets/styles/    # 全局样式（Sass）
-│   ├── components/       # Vue 组件
-│   │   ├── common/       # 通用组件
-│   │   │   ├── feedback/     # 反馈提示组件（Loading、通知、横幅等）
-│   │   │   ├── form/         # 表单控件（日期选择器、下拉框、筛选面板等）
-│   │   │   ├── navigation/   # 导航组件（返回顶部、分页、抽屉等）
-│   │   │   └── ui/           # 基础 UI 组件（动画数字、环境徽章等）
-│   │   ├── home/         # 首页组件
-│   │   ├── layout/       # 布局组件
-│   │   └── wallpaper/    # 壁纸相关组件
-│   │       ├── PortraitWallpaperModal/  # 竖屏壁纸弹窗（手机/头像系列）
-│   │       ├── WallpaperGrid/           # 壁纸网格（含骨架屏）
-│   │       └── WallpaperModal/          # 横屏壁纸弹窗（电脑/Bing系列）
-│   ├── composables/      # 组合式函数（useScrollLock 等）
-│   ├── services/         # 服务层（统计服务等）
-│   ├── stores/           # Pinia 状态管理
-│   ├── router/           # Vue Router 路由配置
-│   ├── views/            # 页面视图组件
-│   │   └── demo/         # Demo 演示页面（IPhoneDemo、MacBookDemo）
-│   └── utils/            # 工具函数和常量
-└── index.html
-│       ├── desktop/      # 电脑壁纸分类数据
-│       ├── mobile/       # 手机壁纸分类数据
-│       ├── avatar/       # 头像分类数据
-│       ├── bing/         # 每日 Bing 壁纸数据
-│       └── stats/        # 热门统计数据
-├── scripts/
-│   ├── generate-data.js  # 数据生成脚本（含 cdnTag 生成）
-│   ├── export-stats.js   # 统计数据导出脚本
-│   └── supabase-migration.sql  # 数据库迁移脚本
-├── docs/
-│   ├── Fork部署指南.md   # Fork 用户部署指南
-│   └── ...               # 其他文档
-├── src/
-│   ├── assets/styles/    # 全局样式（Sass）
-│   ├── components/       # Vue 组件
-│   │   ├── avatar/       # 头像相关组件
-│   │   │   ├── AvatarMakerBanner.vue      # 头像制作入口横幅
-│   │   │   ├── DiyAvatarBanner.vue        # DIY 头像横幅
-│   │   │   └── AvatarMakerModal/          # 头像制作弹窗
-│   │   │       ├── index.vue              # 主弹窗组件
-│   │   │       ├── ControlPanel.vue       # 控制面板（形状、尺寸、下载）
-│   │   │       ├── CropperArea.vue        # 图片裁剪区域
-│   │   │       ├── ImageSourcePanel.vue   # 图片来源面板（上传/链接）
-│   │   │       └── PhonePreview.vue       # iPhone 预览组件
-│   │   ├── common/       # 通用组件
-│   │   ├── common/       # 通用组件
-│   │   │   ├── feedback/     # 反馈提示组件（Loading、通知、横幅等）
-│   │   │   ├── form/         # 表单控件（日期选择器、下拉框、筛选面板等）
-│   │   │   ├── navigation/   # 导航组件（返回顶部、分页、抽屉等）
-│   │   │   └── ui/           # 基础 UI 组件（动画数字、环境徽章等）
-│   │   ├── home/         # 首页组件
-│   │   ├── layout/       # 布局组件
-│   │   └── wallpaper/    # 壁纸相关组件
-│   │       ├── PortraitWallpaperModal/  # 竖屏壁纸弹窗（手机/头像系列）
-│   │       ├── WallpaperGrid/           # 壁纸网格（含骨架屏）
-│   │       └── WallpaperModal/          # 横屏壁纸弹窗（电脑/Bing系列）
-│   ├── composables/      # 组合式函数（useScrollLock 等）
-│   ├── services/         # 服务层（统计服务等）
-│   ├── stores/           # Pinia 状态管理
-│   ├── router/           # Vue Router 路由配置
-│   ├── views/            # 页面视图组件
-│   │   └── demo/         # Demo 演示页面（IPhoneDemo、MacBookDemo）
-│   └── utils/            # 工具函数和常量
-│       └── avatar-maker.js  # 头像制作工具函数
+│   ├── assets/styles/        # 全局样式（Sass）
+│   ├── components/
+│   │   ├── avatar/           # 头像相关组件
+│   │   │   ├── DiyAvatarBanner.vue       # DIY 头像横幅
+│   │   │   └── AvatarMakerModal/         # 头像制作弹窗
+│   │   │       ├── index.vue             # 主弹窗
+│   │   │       ├── composables/          # 弹窗业务逻辑（useAvatarMakerWorkflow）
+│   │   │       ├── panel/               # 控制面板
+│   │   │       ├── preview/             # iPhone 预览
+│   │   │       ├── shared/              # 裁剪区域等共享组件
+│   │   │       └── source/              # 图片来源面板
+│   │   ├── common/
+│   │   │   ├── feedback/     # 反馈组件（Loading、通知、横幅）
+│   │   │   ├── form/         # 通用表单控件
+│   │   │   ├── navigation/   # 导航组件（返回顶部、分页）
+│   │   │   └── ui/           # 基础 UI 组件（WallpaperSeriesIcon 等）
+│   │   ├── login/            # 登录体验与认证场景
+│   │   │   ├── AuthExperience.vue       # 登录 / 注册统一体验页
+│   │   │   └── LoginCharacterScene.vue  # 登录动效场景
+│   │   ├── home/             # 首页组件
+│   │   │   ├── HomeModalHost.vue         # 弹窗宿主
+│   │   │   ├── MobileSeriesNotice.vue    # 移动端系列提示
+│   │   │   └── HotTagsPanel.vue          # 热门标签面板
+│   │   ├── layout/
+│   │   │   ├── AppHeader.vue             # 顶栏主组件
+│   │   │   └── header/
+│   │   │       ├── mobile/              # 移动端抽屉、搜索弹窗
+│   │   │       └── theme/               # 主题切换器
+│   │   ├── search/           # 搜索模块
+│   │   │   ├── index.vue                # 搜索栏主组件
+│   │   │   ├── composables/             # useSearchSuggestions
+│   │   │   └── shared/                  # 搜索建议面板
+│   │   └── wallpaper/        # 壁纸相关组件
+│   │       ├── card/                    # 壁纸卡片（CardInfo、CardMedia）
+│   │       ├── crop/                    # 智能裁剪（7 个子组件）
+│   │       ├── filter/                  # 筛选系统
+│   │       │   ├── index.vue            # 筛选主组件
+│   │       │   ├── desktop/             # 桌面端筛选控件
+│   │       │   ├── mobile/              # 移动端筛选栏与弹窗
+│   │       │   ├── fields/              # 日期选择器、分类下拉框
+│   │       │   └── shared/              # FilterSummary、ViewModeToggle
+│   │       ├── PortraitWallpaperModal/  # 竖屏壁纸弹窗
+│   │       │   ├── desktop/             # 桌面端弹窗
+│   │       │   ├── mobile/              # 移动端弹窗
+│   │       │   └── shared/              # 共享组件（PhoneFrame、ModalInfo 等）
+│   │       ├── WallpaperGrid/           # 壁纸网格
+│   │       │   ├── index.vue            # 网格主组件
+│   │       │   ├── composables/         # 动画、分页、触摸模式
+│   │       │   └── shared/              # 空状态、加载状态
+│   │       └── WallpaperModal/          # 横屏壁纸弹窗
+│   │           ├── desktop/             # 桌面端弹窗
+│   │           └── shared/              # BingWallpaperInfo
+│   ├── composables/          # 组合式函数
+│   │   ├── header/           # useHeaderNavSlider
+│   │   ├── home/             # useHomeDataLoader、useHomeSeriesSync、useWallpaperNavigator
+│   │   ├── useInteraction.js # 壁纸喜欢 / 收藏交互封装
+│   │   ├── useDevice.js      # 设备检测
+│   │   ├── useTheme.js       # 主题管理
+│   │   ├── useViewMode.js    # 视图模式
+│   │   ├── useScrollLock.js  # 滚动锁定
+│   │   └── ...
+│   ├── services/             # 服务层
+│   │   ├── interactionService.js        # 喜欢 / 收藏 / Library 数据服务
+│   │   ├── userActivityService.js       # 用户行为相关服务
+│   │   └── wallpaper/                  # 壁纸数据获取与解码
+│   ├── stores/               # Pinia 状态管理
+│   │   ├── auth.js           # 用户认证与资料状态
+│   │   ├── interaction.js    # 喜欢 / 收藏 / 统计状态
+│   │   └── ...
+│   ├── router/               # Vue Router 路由配置
+│   ├── views/                # 页面视图
+│   │   ├── Home.vue          # 首页
+│   │   ├── About.vue         # 关于页
+│   │   ├── Login.vue         # 登录页
+│   │   ├── Signup.vue        # 注册页
+│   │   ├── AuthCallback.vue  # 认证回调页
+│   │   ├── Account.vue       # 账号中心
+│   │   ├── Library.vue       # 收藏夹 / 我的喜欢
+│   │   └── NotFound.vue      # 404 页
+│   ├── workers/              # Web Worker
+│   └── utils/                # 工具函数（按领域分类）
+│       ├── auth/             # 认证与身份工具
+│       ├── avatar/           # 头像制作工具
+│       ├── cache/            # LRU 缓存
+│       ├── common/           # 通用工具（analytics、codec、format、sorting）
+│       ├── config/           # 常量配置
+│       ├── filter/           # 筛选默认值
+│       ├── integrations/     # 第三方集成（Supabase）
+│       ├── platform/         # 平台适配（flexible）
+│       └── wallpaper/        # 壁纸相关（errors、transformers）
 └── index.html
 ```
 
@@ -367,6 +440,26 @@ wallpaper-gallery/
 | `resolution` | object? | 分辨率信息（可选） |
 | `tags` | string[] | 搜索标签 |
 
+### 热门标签数据说明
+
+热门模块数据位于 `public/data/stats/hot-tags-*.json`，按系列拆分：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `tag` | string | 标签文本 |
+| `score` | number | 综合热度分数 |
+| `views` | number | 浏览量 |
+| `downloads` | number | 下载量 |
+| `wallpaperCount` | number | 关联壁纸数量 |
+| `series` | string[] | 标签所属系列 |
+| `topWallpapers` | string[] | 热门预览壁纸文件名列表 |
+
+说明：
+- 电脑 / 手机 / 头像系列中，热门分类会优先映射到分类筛选，其他标签进入搜索。
+- Bing 系列中，月份标签会映射到月份筛选，单图中文标签会直接定位到对应壁纸。
+- Bing 手动搜索时会自动取消当前月份限制；清空搜索后再恢复到当前月份。
+- 热门标签数据可通过 `pnpm export:hot-tags` 重新导出。
+
 ## 📱 四大系列
 
 | 系列 | 路由 | 设备可见性 | 宽高比 | 数据来源 |
@@ -374,10 +467,12 @@ wallpaper-gallery/
 | 电脑壁纸 | `/desktop` | PC 端 | 16:10 | 自有图床 |
 | 手机壁纸 | `/mobile` | 移动端 | 9:16 | 自有图床 |
 | 头像 | `/avatar` | 全设备 | 1:1 | 自有图床 |
-| 每日 Bing 壁纸 | `/bing` | 全设备 | 16:9 | Bing CDN |
+| 每日 Bing 壁纸 | `/bing` | PC / 平板优先 | 16:9 | Bing CDN |
 
-- PC 端显示：电脑壁纸 + Bing + 头像
-- 移动端显示：手机壁纸 + Bing + 头像
+- PC 端显示：电脑壁纸 + Bing + 手机壁纸 + 头像
+- 平板端显示：电脑壁纸 + Bing + 手机壁纸 + 头像
+- 移动端默认显示：手机壁纸 + 头像
+- Bing 和电脑壁纸在移动端可通过直达路由访问，但界面会给出大屏浏览提示
 
 ## 🎯 性能优化
 

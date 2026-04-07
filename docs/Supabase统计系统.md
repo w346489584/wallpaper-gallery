@@ -1,355 +1,203 @@
-# Supabase 壁纸统计系统
+# Supabase 统计系统
 
-## 概述
+## 当前状态
 
-本项目使用 Supabase 作为后端数据库，记录用户的下载和预览行为，用于实现"热门壁纸"、"最受欢迎"等功能。
+当前项目已经完成统计链路重构，前端与导出脚本都基于 `image_stats` + RPC 工作。
 
-**为什么不用 Umami？**
+对外提供两份 SQL：
 
-- Umami Cloud 免费版只记录事件名称的总次数
-- 无法获取事件携带的详细数据（如具体哪个壁纸被下载）
-- 因此选择 Supabase 来存储详细的统计数据
+- `scripts/supabase-init.sql`
+  给新项目 / fork 用户使用，整段复制执行即可
+- `scripts/supabase-migration.sql`
+  给已经存在旧统计结构的项目使用，用于迁移历史数据
 
----
+现行链路：
 
-## 配置方法
+- 前端写入：调用 `increment_view` / `increment_download`
+- 数据落库：写入 `public.image_stats`
+- 前端展示：优先读取 `public/data/stats/hot-*.json`
+- 静态导出：调用 `get_hot_stats`
+- 定时任务：`.github/workflows/export-stats.yml` 执行 `scripts/export-stats.js`
 
-### 1. 创建 Supabase 项目
+旧结构 `wallpaper_views` / `wallpaper_downloads` / `popular_wallpapers*` 仅用于历史迁移参考，不再是当前代码依赖。
 
-访问 [Supabase](https://supabase.com) 创建项目，获取：
+## 当前数据库架构
 
-- Project URL
-- Anon Key（公开密钥）
+### 1. 主表：`public.image_stats`
 
-### 2. 配置环境变量
+用途：存储每张图片的聚合统计结果，是当前线上唯一写入目标。
 
-在 `.env.production` 中添加：
+核心字段：
 
-```env
-VITE_SUPABASE_URL=你的Supabase项目URL
-VITE_SUPABASE_ANON_KEY=你的Supabase匿名密钥
-```
+- `image_id`: 图片唯一标识
+  使用非空白约束，避免写入空字符串
+- `series`: 系列，如 `desktop` / `mobile` / `avatar` / `bing`
+  使用 `CHECK` 约束限制取值，避免写入脏数据
+- `category`: 分类
+- `total_views`: 累计浏览数
+- `total_downloads`: 累计下载数
+- `last_viewed_at`: 最近一次浏览时间
+- `last_downloaded_at`: 最近一次下载时间
+- `created_at`: 该聚合记录首次创建时间
+- `updated_at`: 最近一次被更新的时间
 
-**注意：** 建议只在生产环境配置，测试环境不记录以节省存储空间（免费 500MB）。
+字段保护：
 
-### 3. 创建数据库表
+- `image_id` 不允许为空白字符串
+- `total_views >= 0`
+- `total_downloads >= 0`
 
-在 Supabase SQL Editor 中执行以下 SQL。
+时间字段约定：
 
----
+- 所有时间字段继续使用 `TIMESTAMPTZ`
+- 查询时如需按北京时间展示，使用 `AT TIME ZONE 'Asia/Shanghai'`
+- 最终展示为固定格式时，使用 `to_char(..., 'YYYY-MM-DD HH24:MI:SS')`
 
-## 数据库表结构
-
-### 1. wallpaper_downloads（下载记录表）
-
-```sql
-CREATE TABLE wallpaper_downloads (
-  id BIGSERIAL PRIMARY KEY,
-  filename TEXT NOT NULL,
-  series TEXT NOT NULL,
-  category TEXT,
-  created_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NOW()
-);
-
-CREATE INDEX idx_downloads_filename ON wallpaper_downloads(filename);
-CREATE INDEX idx_downloads_series ON wallpaper_downloads(series);
-```
-
-### 2. wallpaper_views（预览记录表）
+示例：
 
 ```sql
-CREATE TABLE wallpaper_views (
-  id BIGSERIAL PRIMARY KEY,
-  filename TEXT NOT NULL,
-  series TEXT NOT NULL,
-  category TEXT,
-  created_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NOW()
-);
-
-CREATE INDEX idx_views_filename ON wallpaper_views(filename);
-CREATE INDEX idx_views_series ON wallpaper_views(series);
-CREATE INDEX idx_views_created_at ON wallpaper_views(created_at);
-```
-
-> **注意：** `created_at` 使用 `TIMESTAMP(0) WITHOUT TIME ZONE` 类型，精确到秒，不含时区信息。
-
-### 3. wallpaper_stats_summary（汇总表）
-
-```sql
-CREATE TABLE wallpaper_stats_summary (
-  id BIGSERIAL PRIMARY KEY,
-  filename TEXT NOT NULL,
-  series TEXT NOT NULL,
-  category TEXT,
-  total_downloads BIGINT DEFAULT 0,
-  total_views BIGINT DEFAULT 0,
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(filename, series)
-);
-```
-
----
-
-## 数据库视图
-
-### download_stats（下载统计）
-
-```sql
-CREATE VIEW download_stats AS
-SELECT filename, series, category, COUNT(*) as download_count
-FROM wallpaper_downloads
-GROUP BY filename, series, category
-ORDER BY download_count DESC;
-```
-
-### view_stats（浏览统计）
-
-```sql
-CREATE VIEW view_stats AS
-SELECT filename, series, category, COUNT(*) as view_count
-FROM wallpaper_views
-GROUP BY filename, series, category
-ORDER BY view_count DESC;
-```
-
-### popular_wallpapers（热门壁纸）
-
-```sql
-CREATE VIEW popular_wallpapers AS
 SELECT
-  COALESCE(d.filename, v.filename) as filename,
-  COALESCE(d.series, v.series) as series,
-  COALESCE(d.category, v.category) as category,
-  COALESCE(d.download_count, 0) as download_count,
-  COALESCE(v.view_count, 0) as view_count,
-  (COALESCE(d.download_count, 0) * 3 + COALESCE(v.view_count, 0)) as popularity_score
-FROM download_stats d
-FULL OUTER JOIN view_stats v ON d.filename = v.filename AND d.series = v.series
-ORDER BY popularity_score DESC;
+  image_id,
+  to_char(updated_at AT TIME ZONE 'Asia/Shanghai', 'YYYY-MM-DD HH24:MI:SS') AS updated_at_cn
+FROM public.image_stats
+ORDER BY updated_at DESC
+LIMIT 20;
 ```
 
-**热门算法：** `popularity_score = download_count × 3 + view_count`
+### 2. RPC：`increment_view`
 
-### popular_wallpapers_weekly（本周热门壁纸）
+用途：浏览量原子加一。
 
-```sql
-CREATE VIEW popular_wallpapers_weekly AS
-SELECT
-  COALESCE(d.filename, v.filename) as filename,
-  COALESCE(d.series, v.series) as series,
-  COALESCE(d.category, v.category) as category,
-  COALESCE(d.download_count, 0) as download_count,
-  COALESCE(v.view_count, 0) as view_count,
-  (COALESCE(d.download_count, 0) * 3 + COALESCE(v.view_count, 0)) as popularity_score
-FROM (
-  SELECT filename, series, category, COUNT(*) as download_count
-  FROM wallpaper_downloads
-  WHERE created_at >= NOW() - INTERVAL '7 days'
-  GROUP BY filename, series, category
-) d
-FULL OUTER JOIN (
-  SELECT filename, series, category, COUNT(*) as view_count
-  FROM wallpaper_views
-  WHERE created_at >= NOW() - INTERVAL '7 days'
-  GROUP BY filename, series, category
-) v ON d.filename = v.filename AND d.series = v.series
-ORDER BY popularity_score DESC;
-```
+输入参数：
 
-**说明：** 只统计最近 7 天的下载和访问数据，用于"本周热门"排序功能。
+- `img_id`
+- `series_name`
+- `cat`
 
-### popular_wallpapers_monthly（本月热门壁纸）
+行为：
 
-```sql
-CREATE VIEW popular_wallpapers_monthly AS
-SELECT
-  COALESCE(d.filename, v.filename) as filename,
-  COALESCE(d.series, v.series) as series,
-  COALESCE(d.category, v.category) as category,
-  COALESCE(d.download_count, 0) as download_count,
-  COALESCE(v.view_count, 0) as view_count,
-  (COALESCE(d.download_count, 0) * 3 + COALESCE(v.view_count, 0)) as popularity_score
-FROM (
-  SELECT filename, series, category, COUNT(*) as download_count
-  FROM wallpaper_downloads
-  WHERE created_at >= NOW() - INTERVAL '30 days'
-  GROUP BY filename, series, category
-) d
-FULL OUTER JOIN (
-  SELECT filename, series, category, COUNT(*) as view_count
-  FROM wallpaper_views
-  WHERE created_at >= NOW() - INTERVAL '30 days'
-  GROUP BY filename, series, category
-) v ON d.filename = v.filename AND d.series = v.series
-ORDER BY popularity_score DESC;
-```
+- 若 `image_id` 不存在，则新建聚合行
+- 若已存在，则 `total_views + 1`
+- 同步更新 `last_viewed_at` 和 `updated_at`
 
-**说明：** 只统计最近 30 天的下载和访问数据，用于"本月热门"排序功能。
+### 3. RPC：`increment_download`
 
----
+用途：下载量原子加一。
 
-## 行级安全策略 (RLS)
+输入参数：
 
-```sql
--- 启用 RLS
-ALTER TABLE wallpaper_downloads ENABLE ROW LEVEL SECURITY;
-ALTER TABLE wallpaper_views ENABLE ROW LEVEL SECURITY;
-ALTER TABLE wallpaper_stats_summary ENABLE ROW LEVEL SECURITY;
+- `img_id`
+- `series_name`
+- `cat`
 
--- 允许匿名插入和读取
-CREATE POLICY "Allow anonymous insert" ON wallpaper_downloads FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow anonymous select" ON wallpaper_downloads FOR SELECT USING (true);
+行为：
 
-CREATE POLICY "Allow anonymous insert" ON wallpaper_views FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow anonymous select" ON wallpaper_views FOR SELECT USING (true);
+- 若 `image_id` 不存在，则新建聚合行
+- 若已存在，则 `total_downloads + 1`
+- 同步更新 `last_downloaded_at` 和 `updated_at`
 
-CREATE POLICY "Allow anonymous select" ON wallpaper_stats_summary FOR SELECT USING (true);
-```
+### 4. RPC：`get_hot_stats`
 
----
+用途：导出某个系列的热门统计，供静态 JSON 生成脚本使用。
 
-## 前端上报机制
+输入参数：
 
-### 上报工具
+- `series_filter`
+- `limit_count`
 
-文件：`src/utils/supabase.js`
+返回字段：
 
-### 上报数据
+- `image_id`
+- `total_views`
+- `total_downloads`
 
-```json
-{
-  "filename": "anime_001.jpg",
-  "series": "desktop",
-  "category": "动漫"
-}
-```
+## 代码中的实际依赖
 
-### 集成位置
+当前代码里与统计相关的主要文件：
 
-| 组件                         | 上报函数           | 触发时机     |
-| ---------------------------- | ------------------ | ------------ |
-| `WallpaperModal.vue`         | `recordDownload()` | 点击下载按钮 |
-| `WallpaperModal.vue`         | `recordView()`     | 打开弹窗     |
-| `PortraitWallpaperModal.vue` | `recordDownload()` | 点击下载按钮 |
-| `PortraitWallpaperModal.vue` | `recordView()`     | 打开弹窗     |
+- `scripts/supabase-init.sql`
+  面向新用户的简化初始化脚本
+- `src/services/statsService.js`
+  负责静态统计加载、RPC 写入、Supabase 兜底读取
+- `src/utils/supabase.js`
+  兼容层，实际转发到 `statsService`
+- `scripts/export-stats.js`
+  从 `get_hot_stats` 导出静态 JSON
+- `scripts/supabase-migration.sql`
+  新结构初始化与历史迁移脚本
 
----
+结论：
 
-## 定时任务（可选）
+- 代码中已经没有直接向 `wallpaper_views` / `wallpaper_downloads` 插入数据的逻辑
+- 代码中也没有继续读取 `popular_wallpapers` 等旧视图的逻辑
+- 当前统计以 `image_stats` 为唯一运行时真源
 
-### 自动清理与汇总
+## 保留与清理建议
 
-使用 `pg_cron` 扩展，每周清理 90 天前的明细数据并汇总到 summary 表。
+### 应保留
 
-```sql
--- 启用 pg_cron 扩展
-CREATE EXTENSION IF NOT EXISTS pg_cron;
+- `public.image_stats`
+- `increment_view`
+- `increment_download`
+- `get_hot_stats`
+- `scripts/supabase-init.sql`
 
--- 创建清理函数
-CREATE OR REPLACE FUNCTION aggregate_and_cleanup_stats()
-RETURNS void AS $$
-BEGIN
-  -- 汇总下载数据
-  INSERT INTO wallpaper_stats_summary (filename, series, category, total_downloads, total_views, updated_at)
-  SELECT filename, series, category, COUNT(*), 0, NOW()
-  FROM wallpaper_downloads
-  WHERE created_at < NOW() - INTERVAL '90 days'
-  GROUP BY filename, series, category
-  ON CONFLICT (filename, series)
-  DO UPDATE SET
-    total_downloads = wallpaper_stats_summary.total_downloads + EXCLUDED.total_downloads,
-    updated_at = NOW();
+### 可保留但仅作迁移参考
 
-  -- 汇总浏览数据
-  INSERT INTO wallpaper_stats_summary (filename, series, category, total_downloads, total_views, updated_at)
-  SELECT filename, series, category, 0, COUNT(*), NOW()
-  FROM wallpaper_views
-  WHERE created_at < NOW() - INTERVAL '90 days'
-  GROUP BY filename, series, category
-  ON CONFLICT (filename, series)
-  DO UPDATE SET
-    total_views = wallpaper_stats_summary.total_views + EXCLUDED.total_views,
-    updated_at = NOW();
+- `scripts/supabase-migration.sql`
 
-  -- 删除旧数据
-  DELETE FROM wallpaper_downloads WHERE created_at < NOW() - INTERVAL '90 days';
-  DELETE FROM wallpaper_views WHERE created_at < NOW() - INTERVAL '90 days';
-END;
-$$ LANGUAGE plpgsql;
+说明：
 
--- 设置定时任务（每周日凌晨3点执行）
-SELECT cron.schedule('weekly-cleanup', '0 3 * * 0', 'SELECT aggregate_and_cleanup_stats()');
-```
+- 这个脚本仍然引用旧表，是因为它负责“从旧结构迁移到新结构”
+- 它不是运行时依赖，不代表项目仍在使用旧架构
 
----
+### 可下线
 
-## 存储空间估算
+以下对象如果你确认不再需要查看历史原始事件，可以下线：
 
-- 每条记录约 150 字节
-- 500MB 可存储约 330 万条记录
-- 假设每天 1200 条（1000 预览 + 200 下载）
-- 90 天保留约 10.8 万条明细（约 16MB）
-- **完全够用**
+- `public.wallpaper_views`
+- `public.wallpaper_downloads`
+- `public.view_stats`
+- `public.download_stats`
+- `public.popular_wallpapers`
+- `public.popular_wallpapers_weekly`
+- `public.popular_wallpapers_monthly`
+- `public.wallpaper_stats_summary`
 
----
+## 推荐的下线流程
 
-## API 使用示例
+建议分两步进行：
 
-### 记录下载
+### 第一步：标记旧结构
 
-```bash
-curl -X POST "https://你的项目.supabase.co/rest/v1/wallpaper_downloads" \
-  -H "Content-Type: application/json" \
-  -H "apikey: 你的ANON_KEY" \
-  -H "Authorization: Bearer 你的ANON_KEY" \
-  -d '{"filename": "test.jpg", "series": "desktop", "category": "动漫"}'
-```
+执行 `scripts/supabase-retire-legacy.sql` 中的“标记阶段”SQL。
 
-### 获取热门壁纸
+目的：
 
-```bash
-curl "https://你的项目.supabase.co/rest/v1/popular_wallpapers?series=eq.desktop&limit=20" \
-  -H "apikey: 你的ANON_KEY"
-```
+- 给旧对象增加注释
+- 明确这些对象不再被当前代码使用
+- 让后续维护时一眼看出哪些是遗留结构
 
-### 获取本周热门壁纸
+### 第二步：确认后再删除
 
-```bash
-curl "https://你的项目.supabase.co/rest/v1/popular_wallpapers_weekly?series=eq.desktop&limit=20" \
-  -H "apikey: 你的ANON_KEY"
-```
+确认以下条件都满足后，再执行“删除阶段”SQL：
 
-### 获取本月热门壁纸
+- 最近一段时间只观察 `image_stats`
+- 不再依赖旧表里的逐条事件时间线
+- 已完成必要备份
 
-```bash
-curl "https://你的项目.supabase.co/rest/v1/popular_wallpapers_monthly?series=eq.desktop&limit=20" \
-  -H "apikey: 你的ANON_KEY"
-```
+## 快速排查口径
 
----
+如果你想确认“最近是否有统计写入”，优先看：
 
-## 后续功能规划
+- `image_stats.updated_at`
+- `image_stats.last_viewed_at`
+- `image_stats.last_downloaded_at`
 
-| 功能            | 说明                         | 实现方式                                         | 难度 |
-| --------------- | ---------------------------- | ------------------------------------------------ | ---- |
-| 🔥 热门壁纸区块 | 首页展示热门壁纸 Top 10      | 调用 `popular_wallpapers` 视图                   | 简单 |
-| 📊 下载次数显示 | 详情弹窗显示"已下载 xxx 次"  | 查询 `download_stats` 视图                       | 简单 |是·
-| 🏷️ 热门标签     | 壁纸卡片角标显示"热门"       | 根据 `popularity_score` 阈值判断                 | 简单 |
-| 📈 本周/月热门  | 只统计最近 7/30 天数据       | 新建带时间筛选的视图                             | 中等 |
-| 🔀 热度排序     | 筛选面板添加"按热度排序"选项 | 前端调用 API 获取排序数据                        | 中等 |
-| ❤️ 用户收藏     | 用户收藏喜欢的壁纸           | 新建 `user_favorites` 表，localStorage 存用户 ID | 中等 |
-| 👍 点赞功能     | 用户可以给壁纸点赞           | 新建 `wallpaper_likes` 表                        | 中等 |
-| 📉 趋势分析     | 对比本周 vs 上周热度变化     | 复杂查询对比两个时间段                           | 较难 |
+不要再以 `wallpaper_views` / `wallpaper_downloads` 是否持续增长作为当前架构是否正常的判断标准，因为当前前端已不再写入它们。
 
-**推荐优先级**：热门壁纸区块 → 下载次数显示 → 热门标签（投入小、效果明显）
+## 附：当前架构的一句话定义
 
----
+当前项目的 Supabase 统计架构是：
 
-## 注意事项
-
-1. **文件名不要改** - 改了会导致统计数据对不上
-2. **只在生产环境上报** - 测试环境不配置，避免浪费存储
-3. **静默失败** - 上报失败不影响用户体验
-4. **定期检查存储** - 建议每月检查 Supabase 存储使用情况（免费 500MB）
-5. **分类名保持一致** - 分类改名后，旧数据的 category 字段不会自动更新
-6. **密钥安全** - `anon key` 可放前端；`service_role key` 绝不能暴露
+`前端 RPC 写入 image_stats -> GitHub Actions 定时导出 hot-*.json -> 前端优先消费静态统计文件`

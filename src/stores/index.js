@@ -1,8 +1,6 @@
-// ========================================
-// Store Barrel Export
-// ========================================
-
+export { useAuthStore } from './auth'
 export { useFilterStore } from './filter'
+export { useInteractionStore } from './interaction'
 export { usePopularityStore } from './popularity'
 export { useSeriesStore } from './series'
 export { useWallpaperStore } from './wallpaper'

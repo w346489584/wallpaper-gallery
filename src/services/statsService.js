@@ -3,16 +3,36 @@
 // ========================================
 // 负责：静态数据加载、RPC 写入
 
+import { normalizeWallpaperFilename } from '@/utils/wallpaper/identity'
 import {
   getCachedStats,
   setCachedStats,
 } from './localStatsCache'
+import { recordAuthenticatedDownloadHistory } from './userActivityService'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 // 静态统计文件路径
 const STATS_BASE_URL = '/data/stats'
+
+function normalizeStatsImageId(imageId, series) {
+  return normalizeWallpaperFilename(imageId, series)
+}
+
+function mergeStatsEntry(statsMap, imageId, stats, series) {
+  const normalizedId = normalizeStatsImageId(imageId, series)
+  if (!normalizedId)
+    return
+
+  const prev = statsMap.get(normalizedId) || { views: 0, downloads: 0, likes: 0, collects: 0 }
+  statsMap.set(normalizedId, {
+    views: prev.views + (stats.views || 0),
+    downloads: prev.downloads + (stats.downloads || 0),
+    likes: prev.likes + (stats.likes || 0),
+    collects: prev.collects + (stats.collects || 0),
+  })
+}
 
 /**
  * 检查 Supabase 是否配置
@@ -57,12 +77,14 @@ export async function loadStaticStats(series, forceRefresh = false) {
     // 转换为 Map
     const statsMap = new Map()
     if (Array.isArray(data)) {
-      // 数组格式：[{ image_id, views, downloads }, ...]
+      // 数组格式：[{ image_id, views, downloads, likes, collects }, ...]
       data.forEach((item) => {
-        statsMap.set(item.image_id, {
+        mergeStatsEntry(statsMap, item.image_id, {
           views: item.views || item.total_views || 0,
           downloads: item.downloads || item.total_downloads || 0,
-        })
+          likes: item.likes || item.total_likes || 0,
+          collects: item.collects || item.total_collects || 0,
+        }, series)
       })
     }
     else if (typeof data === 'object') {
@@ -70,13 +92,15 @@ export async function loadStaticStats(series, forceRefresh = false) {
       Object.entries(data).forEach(([imageId, stats]) => {
         if (typeof stats === 'number') {
           // 简化格式：{ image_id: views }
-          statsMap.set(imageId, { views: stats, downloads: 0 })
+          mergeStatsEntry(statsMap, imageId, { views: stats, downloads: 0, likes: 0, collects: 0 }, series)
         }
         else {
-          statsMap.set(imageId, {
+          mergeStatsEntry(statsMap, imageId, {
             views: stats.views || stats.total_views || 0,
             downloads: stats.downloads || stats.total_downloads || 0,
-          })
+            likes: stats.likes || stats.total_likes || 0,
+            collects: stats.collects || stats.total_collects || 0,
+          }, series)
         }
       })
     }
@@ -105,7 +129,7 @@ export function recordView(wallpaper, series) {
   if (!isSupabaseConfigured())
     return
 
-  const imageId = wallpaper.filename || wallpaper.id
+  const imageId = normalizeStatsImageId(wallpaper.filename || wallpaper.id, series)
 
   // 异步写入 Supabase（静默失败）
   callRPC('increment_view', {
@@ -128,7 +152,7 @@ export function recordDownload(wallpaper, series) {
   if (!isSupabaseConfigured())
     return
 
-  const imageId = wallpaper.filename || wallpaper.id
+  const imageId = normalizeStatsImageId(wallpaper.filename || wallpaper.id, series)
 
   // 异步写入 Supabase（静默失败）
   callRPC('increment_download', {
@@ -138,6 +162,12 @@ export function recordDownload(wallpaper, series) {
   }).catch((err) => {
     if (import.meta.env.DEV) {
       console.warn('[StatsService] 写入下载统计失败:', err)
+    }
+  })
+
+  recordAuthenticatedDownloadHistory(wallpaper, series).catch((err) => {
+    if (import.meta.env.DEV) {
+      console.warn('[StatsService] 写入登录下载历史失败:', err)
     }
   })
 }
@@ -165,6 +195,54 @@ async function callRPC(functionName, params) {
 
   if (!response.ok) {
     throw new Error(`RPC ${functionName} failed: ${response.status}`)
+  }
+}
+
+/**
+ * 从 Supabase 加载壁纸的点赞/收藏聚合计数
+ * @param {string} series - 系列名称
+ * @returns {Promise<Map<string, {likes: number, collects: number}>>}
+ */
+export async function loadLikeCollectCounts(series) {
+  if (!isSupabaseConfigured()) {
+    return new Map()
+  }
+
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/image_stats?series=eq.${encodeURIComponent(series)}&or=(total_likes.gt.0,total_collects.gt.0)&select=image_id,total_likes,total_collects`,
+      {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+      },
+    )
+
+    if (!response.ok) {
+      return new Map()
+    }
+
+    const data = await response.json()
+    const countsMap = new Map()
+
+    if (Array.isArray(data)) {
+      data.forEach((item) => {
+        const normalizedId = normalizeStatsImageId(item.image_id, series)
+        if (normalizedId) {
+          countsMap.set(normalizedId, {
+            likes: item.total_likes || 0,
+            collects: item.total_collects || 0,
+          })
+        }
+      })
+    }
+
+    return countsMap
+  }
+  catch (error) {
+    console.error('[StatsService] 加载点赞/收藏统计失败:', error)
+    return new Map()
   }
 }
 
@@ -205,10 +283,12 @@ export async function loadStatsFromSupabase(series, limit = 100) {
 
     if (Array.isArray(data)) {
       data.forEach((item) => {
-        statsMap.set(item.image_id, {
+        mergeStatsEntry(statsMap, item.image_id, {
           views: item.total_views || 0,
           downloads: item.total_downloads || 0,
-        })
+          likes: item.total_likes || 0,
+          collects: item.total_collects || 0,
+        }, series)
       })
     }
 

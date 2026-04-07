@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { isMobileDevice } from '@/composables/useDevice'
-import { DEVICE_SERIES } from '@/utils/constants'
+import { detectDevice, DEVICE_TYPES } from '@/composables/useDevice'
+import { DEVICE_SERIES } from '@/utils/config/constants'
 
 const SITE_NAME = 'Wallpaper Gallery'
 const SITE_URL = 'https://wallpaper.061129.xyz'
@@ -83,30 +83,68 @@ const routes = [
       title: '关于 Wallpaper Gallery - 4K 高清壁纸站',
       description: '了解 Wallpaper Gallery 的项目定位、特色功能与壁纸资源分类，查看更多关于 4K 高清壁纸站的信息。',
       canonicalPath: '/about',
-    },
-  },
-  // iPhone 真机预览 Demo
-  {
-    path: '/iphone-demo',
-    name: 'IPhoneDemo',
-    component: () => import('@/views/demo/IPhoneDemo.vue'),
-    meta: {
-      title: 'iPhone 真机预览 Demo',
-      description: DEFAULT_DESCRIPTION,
-      canonicalPath: '/iphone-demo',
       hideHeader: true,
     },
   },
-  // MacBook 真机预览 Demo
   {
-    path: '/macbook-demo',
-    name: 'MacBookDemo',
-    component: () => import('@/views/demo/MacBookDemo.vue'),
+    path: '/login',
+    name: 'Login',
+    component: () => import('@/views/Login.vue'),
     meta: {
-      title: 'MacBook Pro 真机预览 Demo',
-      description: DEFAULT_DESCRIPTION,
-      canonicalPath: '/macbook-demo',
+      title: '登录 Wallpaper Gallery - 壁纸画廊',
+      description: '登录 Wallpaper Gallery，同步收藏夹、下载历史、跨设备偏好与社区身份入口。',
+      canonicalPath: '/login',
       hideHeader: true,
+    },
+  },
+  {
+    path: '/signup',
+    name: 'Signup',
+    component: () => import('@/views/Signup.vue'),
+    meta: {
+      title: '注册 Wallpaper Gallery - 壁纸画廊',
+      description: '注册 Wallpaper Gallery 账号，后续可同步收藏夹、下载记录、社区身份与壁纸偏好。',
+      canonicalPath: '/signup',
+      hideHeader: true,
+    },
+  },
+  {
+    path: '/auth/callback',
+    name: 'AuthCallback',
+    component: () => import('@/views/AuthCallback.vue'),
+    meta: {
+      title: '账号同步中 - Wallpaper Gallery',
+      description: DEFAULT_DESCRIPTION,
+      canonicalPath: '/auth/callback',
+      hideHeader: true,
+    },
+  },
+  {
+    path: '/account',
+    name: 'Account',
+    component: () => import('@/views/Account.vue'),
+    meta: {
+      compactMain: true,
+      title: '账号与安全 - Wallpaper Gallery',
+      description: '管理 Wallpaper Gallery 的第三方登录绑定、邮箱密码登录和账号资料同步状态。',
+      canonicalPath: '/account',
+      loadingScene: true,
+      loadingText: '正在同步账号资料...',
+      loadingTitle: '个人中心加载中',
+    },
+  },
+  {
+    path: '/library',
+    name: 'Library',
+    component: () => import('@/views/Library.vue'),
+    meta: {
+      compactMain: true,
+      title: '我的壁纸库 - Wallpaper Gallery',
+      description: '查看 Wallpaper Gallery 账号下的收藏夹与我的喜欢入口。',
+      canonicalPath: '/library',
+      loadingScene: true,
+      loadingText: '正在准备你的壁纸库...',
+      loadingTitle: '壁纸库加载中',
     },
   },
   // 404 重定向到首页
@@ -130,22 +168,16 @@ const router = createRouter({
     if (savedPosition) {
       return savedPosition
     }
-    return { top: 0, behavior: 'smooth' }
+    return { top: 0 }
   },
 })
 
-// ========================================
-// 路由守卫配置（简化版）
-// ========================================
-
+// 路由守卫配置
 const STORAGE_KEY = 'wallpaper-gallery-current-series'
 
-// 缓存设备类型
-let deviceType = null
 function getDeviceType() {
-  if (!deviceType)
-    deviceType = isMobileDevice() ? 'mobile' : 'desktop'
-  return deviceType
+  const deviceType = detectDevice()
+  return deviceType === DEVICE_TYPES.MOBILE ? 'mobile' : deviceType
 }
 
 // 获取默认系列
@@ -240,6 +272,11 @@ function applyRouteSeo(to) {
 
 // 路由守卫
 router.beforeEach((to, from, next) => {
+  if (to.path === '/auth/callback') {
+    next()
+    return
+  }
+
   // 首页重定向到默认系列
   if (to.path === '/') {
     next({ path: `/${getDefaultSeries()}`, replace: true })

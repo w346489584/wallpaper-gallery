@@ -1,82 +1,63 @@
 <script setup>
+import { ElMessage } from 'element-plus'
 import { gsap } from 'gsap'
+import { storeToRefs } from 'pinia'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import SearchBar from '@/components/common/form/SearchBar.vue'
 import EnvBadge from '@/components/common/ui/EnvBadge.vue'
+import RemoteAvatar from '@/components/common/ui/RemoteAvatar.vue'
+import WallpaperSeriesIcon from '@/components/common/ui/WallpaperSeriesIcon.vue'
+import HeaderMobileDrawer from '@/components/layout/header/mobile/HeaderMobileDrawer.vue'
+import HeaderMobileSearchPopup from '@/components/layout/header/mobile/HeaderMobileSearchPopup.vue'
+import HeaderThemeSwitcher from '@/components/layout/header/theme/HeaderThemeSwitcher.vue'
+import SearchBar from '@/components/search/index.vue'
+import { useHeaderNavSlider } from '@/composables/header/useHeaderNavSlider'
 import { useDevice } from '@/composables/useDevice'
 import { useFullscreen } from '@/composables/useFullscreen'
-import { useSearch } from '@/composables/useSearch'
 import { useTheme } from '@/composables/useTheme'
 import { useWallpaperType } from '@/composables/useWallpaperType'
+import { useAuthStore } from '@/stores/auth'
+import { useFilterStore } from '@/stores/filter'
+import { useWallpaperStore } from '@/stores/wallpaper'
+import { getAvatarInitial, getAvatarStyle } from '@/utils/auth/avatarAppearance'
+import { normalizeRedirectTarget } from '@/utils/auth/redirect'
 
 const route = useRoute()
 const router = useRouter()
-const { theme, toggleTheme } = useTheme()
+const { theme, themeMode, themeOptions, toggleTheme, setThemeMode } = useTheme()
 const { isFullscreen, toggleFullscreen } = useFullscreen()
-const { isMobile } = useDevice()
-const { searchQuery, wallpapers } = useSearch()
+const { isMobile, isTablet, windowWidth } = useDevice()
+const authStore = useAuthStore()
+const filterStore = useFilterStore()
+const wallpaperStore = useWallpaperStore()
+const { searchQuery } = storeToRefs(filterStore)
+const { wallpapers } = storeToRefs(wallpaperStore)
+const {
+  accountSecondaryLabel,
+  avatarCandidates,
+  avatarUrl: authAvatarUrl,
+  displayName: authDisplayName,
+  isAuthenticated,
+  isConfigured: isAuthConfigured,
+  primaryEmail,
+} = storeToRefs(authStore)
 const { availableSeriesOptions, currentSeries } = useWallpaperType()
 
-// 判断系列是否为当前激活状态（结合路由和当前系列）
-const isSeriesActive = computed(() => (seriesId) => {
-  const currentPath = route.path
-  // 首页 '/' 根据当前系列判断
-  if (currentPath === '/') {
-    return currentSeries.value === seriesId
-  }
-  // 其他路由根据路径判断
-  if (seriesId === 'desktop') {
-    return currentPath === '/desktop'
-  }
-  return currentPath === `/${seriesId}`
+const { isSeriesActive, navRef, navSliderStyle } = useHeaderNavSlider({
+  availableSeriesOptions,
+  currentSeries,
+  isMobile,
+  route,
 })
-
-// 导航滑块相关
-const navRef = ref(null)
-const navSliderStyle = ref({})
-
-// 获取当前激活的系列ID
-const activeSeriesId = computed(() => {
-  for (const option of availableSeriesOptions.value) {
-    if (isSeriesActive.value(option.id))
-      return option.id
-  }
-  return 'desktop'
-})
-
-// 更新滑块位置
-async function updateNavSliderPosition() {
-  await nextTick()
-  if (!navRef.value || isMobile.value)
-    return
-  const activeLink = navRef.value.querySelector('.nav-link.is-active')
-  if (activeLink) {
-    const navRect = navRef.value.getBoundingClientRect()
-    const linkRect = activeLink.getBoundingClientRect()
-    navSliderStyle.value = {
-      width: `${linkRect.width}px`,
-      transform: `translateX(${linkRect.left - navRect.left - 4}px)`,
-    }
-  }
-}
-
-// 监听变化
-watch(activeSeriesId, updateNavSliderPosition)
-watch(() => route.path, updateNavSliderPosition)
-
-// 处理窗口大小变化
-function handleResize() {
-  updateNavSliderPosition()
-}
 
 onMounted(() => {
-  updateNavSliderPosition()
-  window.addEventListener('resize', handleResize)
+  document.addEventListener('pointerdown', handleGlobalPointerDown)
+  window.addEventListener('keydown', handleGlobalKeydown)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
+  document.removeEventListener('pointerdown', handleGlobalPointerDown)
+  window.removeEventListener('keydown', handleGlobalKeydown)
 })
 
 // 获取系列对应的路由路径
@@ -96,6 +77,70 @@ const isSearchExpanded = ref(false)
 const searchContainerRef = ref(null)
 const searchBarRef = ref(null)
 const isAnimating = ref(false)
+const showThemeMenu = ref(false)
+const themeSwitcherRef = ref(null)
+
+onUnmounted(() => {
+  const searchBar = searchBarRef.value?.$el || searchBarRef.value
+  if (searchBar) {
+    gsap.killTweensOf(searchBar)
+  }
+})
+
+const activeThemeOption = computed(() =>
+  themeOptions.find(option => option.value === themeMode.value) || themeOptions[0],
+)
+
+const themeButtonLabel = computed(() =>
+  `${activeThemeOption.value.label}，当前${theme.value === 'dark' ? '深色' : '浅色'}`,
+)
+const hasSearchQuery = computed(() => Boolean(searchQuery.value?.trim()))
+const authEntryRoute = computed(() => ({
+  path: '/login',
+  query: {
+    redirect: normalizeRedirectTarget(
+      ['/login', '/signup', '/auth/callback'].includes(route.path) ? '/desktop' : route.fullPath,
+    ),
+  },
+}))
+const accountRoute = computed(() => '/account')
+const libraryCollectionsRoute = computed(() => ({
+  path: '/library',
+  query: {
+    tab: 'collections',
+  },
+}))
+const libraryLikesRoute = computed(() => ({
+  path: '/library',
+  query: {
+    tab: 'likes',
+  },
+}))
+const authInitial = computed(() => getAvatarInitial(authDisplayName.value || primaryEmail.value))
+const authAvatarStyle = computed(() => getAvatarStyle(authDisplayName.value || primaryEmail.value))
+
+const searchExpandWidth = computed(() => {
+  if (isTablet.value) {
+    return Math.min(360, Math.max(280, Math.round(windowWidth.value * 0.34)))
+  }
+
+  return 360
+})
+
+const tabletSeriesShortLabelMap = {
+  desktop: '电脑',
+  mobile: '手机',
+  avatar: '头像',
+  bing: 'Bing',
+}
+
+function getSeriesLabel(option) {
+  if (isTablet.value) {
+    return tabletSeriesShortLabelMap[option.id] || option.name
+  }
+
+  return option.name
+}
 
 function openDrawer() {
   showDrawer.value = true
@@ -128,6 +173,7 @@ function toggleSearch() {
     // 展开动画
     isSearchExpanded.value = true
     nextTick(() => {
+      const searchBar = searchBarRef.value?.$el || searchBarRef.value
       const tl = gsap.timeline({
         onComplete: () => {
           isAnimating.value = false
@@ -138,7 +184,7 @@ function toggleSearch() {
       })
 
       // 搜索框从右向左展开
-      tl.fromTo(searchBar, { width: 0, opacity: 0, x: 20 }, { width: 450, opacity: 1, x: 0, duration: 0.4, ease: 'power2.out' },
+      tl.fromTo(searchBar, { width: 0, opacity: 0, x: 20 }, { width: searchExpandWidth.value, opacity: 1, x: 0, duration: 0.4, ease: 'power2.out' },
       )
     })
   }
@@ -180,6 +226,113 @@ function closeSearch() {
     },
   })
 }
+
+function handleSearch(payload) {
+  if (currentSeries.value === 'bing') {
+    filterStore.categoryFilter = 'all'
+    filterStore.subcategoryFilter = 'all'
+  }
+
+  if (payload?.mode === 'exact' && payload.exactValue) {
+    filterStore.setExactSearch(payload.query, payload.exactValue)
+  }
+  else {
+    filterStore.clearExactSearch()
+    searchQuery.value = payload?.query ?? ''
+  }
+
+  if (isMobile.value) {
+    closeSearch()
+  }
+}
+
+function handleClearSearch() {
+  filterStore.clearSearch()
+  filterStore.clearExactSearch()
+}
+
+function toggleThemeMenu() {
+  showThemeMenu.value = !showThemeMenu.value
+}
+
+function closeThemeMenu() {
+  showThemeMenu.value = false
+}
+
+function handleThemeOptionSelect(mode) {
+  setThemeMode(mode)
+  closeThemeMenu()
+}
+
+function handleThemeQuickToggle() {
+  toggleTheme()
+  closeThemeMenu()
+}
+
+async function handleSignOut() {
+  closeDrawer()
+
+  const shouldRedirectBeforeSignOut = ['/account', '/library'].includes(route.path)
+
+  try {
+    if (shouldRedirectBeforeSignOut) {
+      await router.replace('/desktop')
+    }
+
+    await authStore.signOut()
+    ElMessage.success('已退出登录')
+  }
+  catch (error) {
+    console.warn('[AppHeader] 退出登录失败:', error)
+    ElMessage.error('退出登录失败，请稍后重试')
+  }
+}
+
+function handleAccountCommand(command) {
+  switch (command) {
+    case 'account':
+      router.push(accountRoute.value)
+      break
+    case 'collections':
+      router.push(libraryCollectionsRoute.value)
+      break
+    case 'likes':
+      router.push(libraryLikesRoute.value)
+      break
+    case 'signout':
+      handleSignOut()
+      break
+    default:
+      break
+  }
+}
+
+function handleGlobalPointerDown(event) {
+  if (isMobile.value || !showThemeMenu.value)
+    return
+
+  const target = event.target
+  if (themeSwitcherRef.value?.containsTarget(target))
+    return
+
+  closeThemeMenu()
+}
+
+function handleGlobalKeydown(event) {
+  if (event.key === 'Escape') {
+    closeThemeMenu()
+  }
+}
+
+watch(() => route.path, () => {
+  closeSearch()
+  closeThemeMenu()
+}, { flush: 'post' })
+
+watch(isMobile, () => {
+  closeSearch()
+  closeThemeMenu()
+})
 </script>
 
 <template>
@@ -213,30 +366,8 @@ function closeSearch() {
           class="nav-link"
           :class="{ 'is-active': isSeriesActive(option.id) }"
         >
-          <!-- 电脑壁纸图标 -->
-          <svg v-if="option.id === 'desktop'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-            <line x1="8" y1="21" x2="16" y2="21" />
-            <line x1="12" y1="17" x2="12" y2="21" />
-          </svg>
-          <!-- 手机壁纸图标 -->
-          <svg v-else-if="option.id === 'mobile'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
-            <line x1="12" y1="18" x2="12.01" y2="18" />
-          </svg>
-          <!-- 头像图标 -->
-          <svg v-else-if="option.id === 'avatar'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
-          <!-- 每日Bing图标 -->
-          <svg v-else-if="option.id === 'bing'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-            <line x1="16" y1="2" x2="16" y2="6" />
-            <line x1="8" y1="2" x2="8" y2="6" />
-            <line x1="3" y1="10" x2="21" y2="10" />
-          </svg>
-          <span>{{ option.name }}</span>
+          <WallpaperSeriesIcon :series-id="option.id" />
+          <span>{{ getSeriesLabel(option) }}</span>
         </router-link>
       </nav>
 
@@ -251,13 +382,26 @@ function closeSearch() {
             placeholder="搜索壁纸..."
             :wallpapers="wallpapers"
             class="header-search-bar"
+            @search="handleSearch"
           />
           <button
+            v-if="hasSearchQuery && !isSearchExpanded"
+            class="header-search-clear"
+            aria-label="清空当前搜索"
+            @click="handleClearSearch"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+            <span>清空搜索</span>
+          </button>
+          <button
             class="search-toggle"
-            :class="{ 'is-active': isSearchExpanded }"
+            :class="{ 'has-query': hasSearchQuery, 'is-active': isSearchExpanded }"
             :aria-label="isSearchExpanded ? '关闭搜索' : '打开搜索'"
             @click="toggleSearch"
           >
+            <span v-if="hasSearchQuery && !isSearchExpanded" class="search-toggle-indicator" />
             <!-- Search Icon -->
             <svg v-if="!isSearchExpanded" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="11" cy="11" r="8" />
@@ -287,21 +431,29 @@ function closeSearch() {
           </svg>
         </button>
 
-        <button
-          class="theme-toggle"
-          :aria-label="theme === 'dark' ? '切换到浅色模式' : '切换到深色模式'"
-          @click="toggleTheme"
+        <HeaderThemeSwitcher
+          ref="themeSwitcherRef"
+          v-model:show-theme-menu="showThemeMenu"
+          :active-theme-option="activeThemeOption"
+          :theme="theme"
+          :theme-button-label="themeButtonLabel"
+          :theme-mode="themeMode"
+          :theme-options="themeOptions"
+          @toggle="toggleThemeMenu"
+          @quick-toggle="handleThemeQuickToggle"
+          @select="handleThemeOptionSelect"
+        />
+
+        <router-link
+          to="/about"
+          class="header-about-link"
+          aria-label="关于项目"
         >
-          <!-- Sun Icon -->
-          <svg v-if="theme === 'dark'" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="5" />
-            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4M12 8h.01" />
           </svg>
-          <!-- Moon Icon -->
-          <svg v-else class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-          </svg>
-        </button>
+        </router-link>
 
         <a
           href="https://github.com/IT-NuanxinPro/wallpaper-gallery"
@@ -315,38 +467,101 @@ function closeSearch() {
           </svg>
         </a>
 
-        <!-- 环境标识 -->
-        <EnvBadge class="header-env-badge" />
+        <router-link
+          v-if="!isAuthenticated"
+          :to="authEntryRoute"
+          class="header-auth-link"
+          aria-label="登录账号"
+        >
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+            <path d="M10 17l5-5-5-5" />
+            <path d="M15 12H3" />
+          </svg>
+          <span>登录</span>
+        </router-link>
+
+        <el-dropdown
+          v-else-if="isAuthConfigured"
+          trigger="hover"
+          placement="bottom-end"
+          popper-class="header-account-dropdown-menu"
+          @command="handleAccountCommand"
+        >
+          <button
+            class="header-account-trigger"
+            type="button"
+            :aria-label="`${authDisplayName || '当前账号'} 菜单`"
+          >
+            <RemoteAvatar
+              :sources="avatarCandidates"
+              :src="authAvatarUrl"
+              :alt="`${authDisplayName} 头像`"
+              :initial="authInitial"
+              :fallback-style="authAvatarStyle"
+              image-class="header-account-trigger__avatar-image"
+              fallback-class="header-account-trigger__avatar"
+            />
+          </button>
+
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="account">
+                个人信息
+              </el-dropdown-item>
+              <el-dropdown-item command="collections">
+                收藏夹
+              </el-dropdown-item>
+              <el-dropdown-item command="likes">
+                我的喜欢
+              </el-dropdown-item>
+              <el-dropdown-item command="signout" divided>
+                退出登录
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
       </div>
 
       <!-- 移动端操作栏 -->
       <div v-else class="header-actions-mobile">
+        <button
+          v-if="hasSearchQuery && !isSearchExpanded"
+          class="header-search-clear header-search-clear--mobile"
+          aria-label="清空当前搜索"
+          @click="handleClearSearch"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+
         <!-- 搜索按钮 -->
         <button
           class="search-toggle"
-          :class="{ 'is-active': isSearchExpanded }"
+          :class="{ 'has-query': hasSearchQuery, 'is-active': isSearchExpanded }"
           aria-label="搜索"
           @click="toggleSearch"
         >
+          <span v-if="hasSearchQuery && !isSearchExpanded" class="search-toggle-indicator" />
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8" />
             <path d="M21 21l-4.35-4.35" />
           </svg>
         </button>
 
-        <button
-          class="theme-toggle"
-          :aria-label="theme === 'dark' ? '切换到浅色模式' : '切换到深色模式'"
-          @click="toggleTheme"
-        >
-          <svg v-if="theme === 'dark'" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="5" />
-            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-          </svg>
-          <svg v-else class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-          </svg>
-        </button>
+        <HeaderThemeSwitcher
+          v-model:show-theme-menu="showThemeMenu"
+          :active-theme-option="activeThemeOption"
+          :is-mobile="isMobile"
+          :theme="theme"
+          :theme-button-label="themeButtonLabel"
+          :theme-mode="themeMode"
+          :theme-options="themeOptions"
+          @toggle="toggleThemeMenu"
+          @quick-toggle="handleThemeQuickToggle"
+          @select="handleThemeOptionSelect"
+        />
 
         <!-- 汉堡菜单按钮 -->
         <button class="hamburger-btn" aria-label="打开菜单" @click="openDrawer">
@@ -360,165 +575,106 @@ function closeSearch() {
       </div>
     </div>
 
-    <!-- 移动端搜索弹窗 -->
-    <Teleport v-if="isMobile" to="body">
-      <van-popup
-        v-model:show="isSearchExpanded"
-        position="top"
-        :style="{ width: '100%' }"
-        class="mobile-search-popup"
-        :teleport="null"
-        :close-on-click-overlay="true"
-      >
-        <div class="search-popup-content">
-          <SearchBar
-            v-model="searchQuery"
-            placeholder="搜索壁纸..."
-            :wallpapers="wallpapers"
-            class="mobile-search-bar"
-            @search="closeSearch"
-          />
-          <button class="search-close-btn" @click="closeSearch">
-            取消
-          </button>
-        </div>
-      </van-popup>
-    </Teleport>
+    <HeaderMobileSearchPopup
+      v-if="isMobile"
+      v-model:show="isSearchExpanded"
+      v-model:search-query="searchQuery"
+      :wallpapers="wallpapers"
+      @close="closeSearch"
+      @search="handleSearch"
+    />
 
-    <!-- 移动端左侧抽屉 - 使用 Teleport 确保层级 -->
-    <Teleport to="body">
-      <van-popup
-        v-model:show="showDrawer"
-        position="left"
-        :style="{ width: '75%', maxWidth: '300px', height: '100%' }"
-        class="mobile-drawer"
-        :teleport="null"
-        :close-on-click-overlay="true"
-      >
-        <div class="drawer-content">
-          <!-- 抽屉头部 -->
-          <div class="drawer-header">
-            <div class="drawer-brand">
-              <div class="brand-logo">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="3" width="18" height="18" rx="2" />
-                  <circle cx="8.5" cy="8.5" r="1.5" />
-                  <path d="M21 15l-5-5L5 21" />
-                </svg>
-              </div>
-              <span>Wallpaper Gallery</span>
-            </div>
-            <button class="drawer-close" @click="closeDrawer">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 6L6 18M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          <!-- 导航菜单 - 卡片网格风格 -->
-          <div class="drawer-section nav-section">
-            <h3 class="section-title">
-              快捷导航
-            </h3>
-            <div class="nav-grid">
-              <button
-                class="nav-card"
-                @click="navigateTo('/')"
-              >
-                <div class="nav-card-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                    <polyline points="9 22 9 12 15 12 15 22" />
-                  </svg>
-                </div>
-                <span>首页</span>
-              </button>
-              <button
-                class="nav-card"
-                @click="navigateTo('/about')"
-              >
-                <div class="nav-card-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M12 16v-4M12 8h.01" />
-                  </svg>
-                </div>
-                <span>关于</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- 系列切换 -->
-          <div class="drawer-section series-section">
-            <h3 class="section-title">
-              壁纸分类
-            </h3>
-            <div class="series-grid">
-              <button
-                v-for="option in availableSeriesOptions"
-                :key="option.id"
-                class="series-item"
-                :class="{ 'is-active': isSeriesActive(option.id) }"
-                @click="navigateTo(getSeriesPath(option.id))"
-              >
-                <!-- 电脑壁纸图标 -->
-                <svg v-if="option.id === 'desktop'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-                  <line x1="8" y1="21" x2="16" y2="21" />
-                  <line x1="12" y1="17" x2="12" y2="21" />
-                </svg>
-                <!-- 手机壁纸图标 -->
-                <svg v-else-if="option.id === 'mobile'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
-                  <line x1="12" y1="18" x2="12.01" y2="18" />
-                </svg>
-                <!-- 头像图标 -->
-                <svg v-else-if="option.id === 'avatar'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-                <!-- 每日Bing图标 -->
-                <svg v-else-if="option.id === 'bing'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
-                <span>{{ option.name }}</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- 外部链接 - 卡片风格 -->
-          <div class="drawer-section links-section">
-            <h3 class="section-title">
-              更多
-            </h3>
-            <a
-              href="https://github.com/IT-NuanxinPro/wallpaper-gallery"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="link-card"
-            >
-              <div class="link-card-icon github">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                </svg>
-              </div>
-              <div class="link-card-content">
-                <span class="link-card-title">GitHub</span>
-                <span class="link-card-desc">查看源代码</span>
-              </div>
-              <svg class="link-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </a>
-          </div>
-        </div>
-      </van-popup>
-    </Teleport>
+    <HeaderMobileDrawer
+      v-model:show="showDrawer"
+      :auth-avatar-initial="authInitial"
+      :auth-avatar-sources="avatarCandidates"
+      :auth-avatar-style="authAvatarStyle"
+      :auth-avatar-url="authAvatarUrl"
+      :account-route="accountRoute"
+      :available-series-options="availableSeriesOptions"
+      :auth-display-name="authDisplayName"
+      :auth-secondary-label="accountSecondaryLabel"
+      :auth-entry-route="authEntryRoute"
+      :get-series-path="getSeriesPath"
+      :is-auth-configured="isAuthConfigured"
+      :is-authenticated="isAuthenticated"
+      :is-series-active="isSeriesActive"
+      :library-collections-route="libraryCollectionsRoute"
+      :library-likes-route="libraryLikesRoute"
+      @close="closeDrawer"
+      @navigate="navigateTo"
+      @signout="handleSignOut"
+    />
   </header>
 </template>
+
+<style lang="scss">
+.header-account-dropdown-menu.el-popper {
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.header-account-dropdown-menu .el-dropdown-menu {
+  min-width: 180px;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow:
+    0 24px 54px rgba(15, 23, 42, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.68);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.header-account-dropdown-menu .el-dropdown-menu__item {
+  min-height: 42px;
+  border-radius: 12px;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.header-account-dropdown-menu .el-dropdown-menu__item:not(.is-disabled):hover,
+.header-account-dropdown-menu .el-dropdown-menu__item:not(.is-disabled):focus {
+  color: #0f172a;
+  background: rgba(14, 165, 233, 0.12);
+}
+
+.header-account-dropdown-menu .el-dropdown-menu__item--divided {
+  margin-top: 8px;
+  color: #dc2626;
+}
+
+.header-account-dropdown-menu .el-dropdown-menu__item--divided::before {
+  margin: 0 0 8px;
+  background: rgba(148, 163, 184, 0.16);
+}
+
+html[data-theme='dark'] .header-account-dropdown-menu .el-dropdown-menu {
+  border-color: rgba(148, 163, 184, 0.18);
+  background: rgba(8, 15, 28, 0.94);
+  box-shadow:
+    0 26px 62px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+html[data-theme='dark'] .header-account-dropdown-menu .el-dropdown-menu__item {
+  color: #cbd5e1;
+}
+
+html[data-theme='dark'] .header-account-dropdown-menu .el-dropdown-menu__item:not(.is-disabled):hover,
+html[data-theme='dark'] .header-account-dropdown-menu .el-dropdown-menu__item:not(.is-disabled):focus {
+  color: #f8fafc;
+  background: rgba(56, 189, 248, 0.14);
+}
+
+html[data-theme='dark'] .header-account-dropdown-menu .el-dropdown-menu__item--divided::before {
+  background: rgba(148, 163, 184, 0.14);
+}
+</style>
 
 <style lang="scss" scoped>
 .app-header {
@@ -584,10 +740,10 @@ function closeSearch() {
   justify-content: center;
   width: 46px;
   height: 46px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--accent-gradient);
   border-radius: $radius-lg;
   color: white;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35);
+  box-shadow: 0 4px 15px var(--accent-shadow);
   transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
 
   svg {
@@ -597,7 +753,7 @@ function closeSearch() {
 
   &:hover {
     transform: scale(1.05) rotate(-3deg);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.45);
+    box-shadow: 0 6px 20px var(--accent-shadow-strong);
   }
 }
 
@@ -610,7 +766,7 @@ function closeSearch() {
   font-size: $font-size-lg;
   font-weight: $font-weight-bold;
   line-height: 1.2;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--accent-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -637,6 +793,8 @@ function closeSearch() {
   margin-left: $spacing-xl;
   position: relative;
   padding: 5px;
+  flex-shrink: 1;
+  min-width: 0;
   background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -648,6 +806,12 @@ function closeSearch() {
     background: rgba(15, 23, 42, 0.6);
     border-color: rgba(255, 255, 255, 0.08);
   }
+
+  @media (min-width: 768px) and (max-width: 1180px) {
+    margin-left: $spacing-md;
+    gap: 4px;
+    padding: 4px;
+  }
 }
 
 // 导航滑块 - 渐变效果
@@ -656,10 +820,11 @@ function closeSearch() {
   top: 5px;
   left: 5px;
   height: calc(100% - 10px);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--accent-gradient);
   border-radius: $radius-lg;
-  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 2px 10px var(--accent-shadow);
   transition:
+    opacity 180ms ease,
     transform 350ms cubic-bezier(0.4, 0, 0.2, 1),
     width 350ms cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 0;
@@ -679,6 +844,8 @@ function closeSearch() {
   position: relative;
   z-index: 1;
   background: transparent;
+  white-space: nowrap;
+  flex-shrink: 0;
 
   svg {
     width: 18px;
@@ -699,12 +866,28 @@ function closeSearch() {
     color: white;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   }
+
+  @media (min-width: 768px) and (max-width: 1180px) {
+    gap: 5px;
+    padding: 9px 12px;
+    font-size: 13px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
 }
 
 .header-actions {
   display: flex;
   align-items: center;
   gap: $spacing-sm;
+  flex-shrink: 0;
+
+  @media (min-width: 768px) and (max-width: 1180px) {
+    gap: 8px;
+  }
 }
 
 .header-env-badge {
@@ -717,12 +900,22 @@ function closeSearch() {
   align-items: center;
   gap: $spacing-sm;
   position: relative;
+
+  @media (min-width: 768px) and (max-width: 1180px) {
+    width: 42px;
+    flex-shrink: 0;
+  }
 }
 
 .header-search-bar {
   width: 0;
   opacity: 0;
   overflow: hidden;
+  pointer-events: none;
+
+  .header-search.is-expanded & {
+    pointer-events: auto;
+  }
 
   :deep(.search-bar) {
     --search-height: 42px;
@@ -737,11 +930,83 @@ function closeSearch() {
       border-color: rgba(255, 255, 255, 0.08);
     }
   }
+
+  @media (min-width: 768px) and (max-width: 1180px) {
+    position: absolute;
+    top: 50%;
+    right: calc(100% + 10px);
+    z-index: 8;
+    overflow: visible;
+    transform: translateY(-50%);
+
+    :deep(.search-bar) {
+      min-width: 0;
+      max-width: 360px;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.22);
+    }
+  }
+}
+
+.header-search-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: $radius-full;
+  font-size: 12px;
+  font-weight: $font-weight-semibold;
+  color: var(--color-accent);
+  background: var(--accent-surface);
+  border: 1px solid var(--accent-border);
+  white-space: nowrap;
+  transition: all 220ms ease;
+
+  [data-theme='dark'] & {
+    background: var(--accent-surface-strong);
+    border-color: var(--accent-border-strong);
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  &:hover {
+    color: white;
+    background: var(--accent-gradient);
+    border-color: transparent;
+    box-shadow: 0 8px 18px var(--accent-shadow);
+  }
+
+  &--mobile {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    justify-content: center;
+
+    span {
+      display: none;
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1180px) {
+    position: absolute;
+    top: 50%;
+    right: calc(100% + 8px);
+    z-index: 7;
+    transform: translateY(-50%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
 }
 
 // 操作按钮 - 毛玻璃效果
 .search-toggle,
 .theme-toggle,
+.header-about-link,
+.header-auth-link,
+.header-account-trigger,
 .github-link,
 .fullscreen-toggle,
 .hamburger-btn {
@@ -777,11 +1042,11 @@ function closeSearch() {
   }
 
   &:hover {
-    background: rgba(102, 126, 234, 0.15);
-    border-color: rgba(102, 126, 234, 0.3);
-    color: #667eea;
+    background: var(--accent-surface);
+    border-color: var(--accent-border-strong);
+    color: var(--color-accent);
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+    box-shadow: 0 4px 15px var(--accent-shadow);
   }
 
   &:active {
@@ -799,16 +1064,135 @@ function closeSearch() {
   }
 }
 
+.header-about-link {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  text-decoration: none;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+
+  .icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  &.router-link-active {
+    background: transparent;
+    border-color: transparent;
+    color: var(--color-accent);
+    box-shadow: none;
+  }
+
+  &:hover {
+    background: transparent;
+    border-color: transparent;
+    color: var(--color-accent);
+    box-shadow: none;
+  }
+}
+
+.header-auth-link {
+  width: auto;
+  gap: 8px;
+  padding: 0 14px;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  text-decoration: none;
+}
+
+.header-account-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+
+  &:hover {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+  }
+}
+
+:deep(.header-account-trigger__avatar),
+:deep(.header-account-trigger__avatar-image) {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+:deep(.header-account-trigger__avatar) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  background: var(--avatar-accent-end, #2563eb);
+  box-shadow: 0 4px 10px var(--avatar-accent-shadow, rgba(37, 99, 235, 0.28));
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+
+  [data-theme='dark'] & {
+    border-color: rgba(148, 163, 184, 0.18);
+  }
+}
+
+:deep(.header-account-trigger__avatar-image) {
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+
+  [data-theme='dark'] & {
+    border-color: rgba(148, 163, 184, 0.18);
+  }
+}
+
 .search-toggle.is-active,
+.theme-toggle.is-active,
 .fullscreen-toggle.is-active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--accent-gradient);
   border-color: transparent;
   color: white;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 15px var(--accent-shadow);
 
   &:hover {
     color: white;
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    box-shadow: 0 6px 20px var(--accent-shadow-strong);
+  }
+}
+
+.search-toggle.has-query:not(.is-active) {
+  color: var(--color-accent);
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+.search-toggle-indicator {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.9),
+    0 0 0 5px rgba(16, 185, 129, 0.12);
+
+  [data-theme='dark'] & {
+    box-shadow:
+      0 0 0 2px rgba(15, 23, 42, 0.95),
+      0 0 0 5px rgba(16, 185, 129, 0.16);
   }
 }
 
@@ -816,387 +1200,5 @@ function closeSearch() {
   display: flex;
   align-items: center;
   gap: $spacing-xs;
-}
-
-.action-divider {
-  width: 1px;
-  height: 24px;
-  background: rgba(255, 255, 255, 0.2);
-  margin: 0 $spacing-xs;
-
-  [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.08);
-  }
-}
-
-// 移动端抽屉样式 - 毛玻璃
-.mobile-drawer {
-  :deep(.van-popup) {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-
-    [data-theme='dark'] & {
-      background: rgba(15, 23, 42, 0.9);
-    }
-  }
-}
-
-.drawer-content {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background: transparent;
-}
-
-.drawer-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-
-  [data-theme='dark'] & {
-    border-bottom-color: rgba(255, 255, 255, 0.08);
-  }
-}
-
-.drawer-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--color-text-primary);
-  font-weight: 700;
-  font-size: 16px;
-
-  .brand-logo {
-    width: 40px;
-    height: 40px;
-
-    svg {
-      width: 22px;
-      height: 22px;
-    }
-  }
-}
-
-.drawer-close {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  color: var(--color-text-secondary);
-  background: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 250ms;
-
-  [data-theme='dark'] & {
-    background: rgba(15, 23, 42, 0.6);
-    border-color: rgba(255, 255, 255, 0.08);
-  }
-
-  &:active {
-    background: rgba(102, 126, 234, 0.15);
-    color: #667eea;
-  }
-
-  svg {
-    width: 20px;
-    height: 20px;
-  }
-}
-
-// 快捷导航卡片网格
-.nav-section {
-  .section-title {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--color-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 14px;
-  }
-}
-
-.nav-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.nav-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 18px 14px;
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
-  color: var(--color-text-secondary);
-  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
-
-  [data-theme='dark'] & {
-    background: rgba(15, 23, 42, 0.6);
-    border-color: rgba(255, 255, 255, 0.08);
-  }
-
-  .nav-card-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    background: rgba(102, 126, 234, 0.1);
-    border-radius: 14px;
-    transition: all 250ms;
-
-    svg {
-      width: 24px;
-      height: 24px;
-      color: #667eea;
-    }
-  }
-
-  span {
-    font-size: 13px;
-    font-weight: 600;
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-}
-
-.drawer-nav {
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-
-  [data-theme='dark'] & {
-    border-bottom-color: rgba(255, 255, 255, 0.08);
-  }
-}
-
-// 外部链接卡片
-.links-section {
-  .section-title {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--color-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 14px;
-  }
-}
-
-.link-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 14px;
-  text-decoration: none;
-  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
-
-  [data-theme='dark'] & {
-    background: rgba(15, 23, 42, 0.6);
-    border-color: rgba(255, 255, 255, 0.08);
-  }
-
-  &:active {
-    transform: scale(0.98);
-    background: rgba(102, 126, 234, 0.1);
-  }
-
-  .link-card-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    flex-shrink: 0;
-
-    svg {
-      width: 22px;
-      height: 22px;
-    }
-
-    &.github {
-      background: linear-gradient(135deg, #24292e 0%, #40464d 100%);
-      color: white;
-    }
-  }
-
-  .link-card-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .link-card-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--color-text-primary);
-  }
-
-  .link-card-desc {
-    font-size: 12px;
-    color: var(--color-text-muted);
-  }
-
-  .link-card-arrow {
-    width: 20px;
-    height: 20px;
-    color: var(--color-text-muted);
-    flex-shrink: 0;
-    transition: transform 250ms;
-  }
-
-  &:active .link-card-arrow {
-    transform: translateX(4px);
-  }
-}
-
-.drawer-section {
-  padding: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-
-  [data-theme='dark'] & {
-    border-bottom-color: rgba(255, 255, 255, 0.08);
-  }
-}
-
-// 移动端系列切换 - 毛玻璃卡片
-.series-section {
-  .section-title {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--color-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 14px;
-  }
-}
-
-.series-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.series-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 18px 14px;
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
-  color: var(--color-text-secondary);
-  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
-
-  [data-theme='dark'] & {
-    background: rgba(15, 23, 42, 0.6);
-    border-color: rgba(255, 255, 255, 0.08);
-  }
-
-  svg {
-    width: 26px;
-    height: 26px;
-    transition: transform 250ms;
-  }
-
-  span {
-    font-size: 13px;
-    font-weight: 600;
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-
-  &.is-active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-color: transparent;
-    color: white;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-
-    svg {
-      color: white;
-      transform: scale(1.1);
-    }
-  }
-}
-
-// 移动端搜索弹窗 - 毛玻璃
-.mobile-search-popup {
-  :deep(.van-popup) {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-
-    [data-theme='dark'] & {
-      background: rgba(15, 23, 42, 0.9);
-    }
-  }
-}
-
-.search-popup-content {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  padding-top: calc(14px + env(safe-area-inset-top, 0px));
-  background: transparent;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-
-  [data-theme='dark'] & {
-    border-bottom-color: rgba(255, 255, 255, 0.08);
-  }
-}
-
-.mobile-search-bar {
-  flex: 1;
-
-  :deep(.search-bar) {
-    --search-height: 42px;
-    --search-radius: 21px;
-    max-width: 100%;
-    background: rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-
-    [data-theme='dark'] & {
-      background: rgba(15, 23, 42, 0.6);
-      border-color: rgba(255, 255, 255, 0.08);
-    }
-  }
-}
-
-.search-close-btn {
-  flex-shrink: 0;
-  padding: 10px 14px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #667eea;
-  background: transparent;
-  white-space: nowrap;
-  transition: opacity 200ms;
-
-  &:active {
-    opacity: 0.7;
-  }
 }
 </style>
