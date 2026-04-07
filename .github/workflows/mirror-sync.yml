@@ -22,6 +22,17 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.MIRROR_SYNC_TOKEN }}
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Preserve mirror workflow
+        run: |
+          mkdir -p /tmp/mirror-workflow
+          cp .github/workflows/mirror-sync.yml /tmp/mirror-workflow/mirror-sync.yml
 
       - name: Configure upstream remote
         run: |
@@ -33,14 +44,23 @@ jobs:
         run: |
           git fetch upstream main --tags --force
 
-      - name: Mirror upstream/main to origin/main
+      - name: Mirror upstream/main and keep only mirror workflow
         run: |
           git checkout main
           git reset --hard upstream/main
-          git push origin main --force
+          rm -rf .github/workflows
+          mkdir -p .github/workflows
+          cp /tmp/mirror-workflow/mirror-sync.yml .github/workflows/mirror-sync.yml
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: mirror upstream"
+          git push origin main
 
       - name: Summary
         run: |
           echo "Mirrored upstream/main to origin/main successfully." >> "$GITHUB_STEP_SUMMARY"
-          echo "Latest mirrored commit:" >> "$GITHUB_STEP_SUMMARY"
-          git log -1 --oneline upstream/main >> "$GITHUB_STEP_SUMMARY"
+          echo "Current HEAD:" >> "$GITHUB_STEP_SUMMARY"
+          git log -1 --oneline >> "$GITHUB_STEP_SUMMARY"
