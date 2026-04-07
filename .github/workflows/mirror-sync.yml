@@ -1,0 +1,46 @@
+name: Mirror Sync from Upstream
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 每天北京时间 03:20（UTC 19:20）同步一次
+    - cron: '20 19 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mirror-sync
+  cancel-in-progress: true
+
+jobs:
+  mirror-sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout current repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure upstream remote
+        run: |
+          git remote remove upstream 2>/dev/null || true
+          git remote add upstream https://github.com/IT-NuanxinPro/wallpaper-gallery.git
+          git remote -v
+
+      - name: Fetch upstream
+        run: |
+          git fetch upstream main --tags --force
+
+      - name: Mirror upstream/main to origin/main
+        run: |
+          git checkout main
+          git reset --hard upstream/main
+          git push origin main --force
+
+      - name: Summary
+        run: |
+          echo "Mirrored upstream/main to origin/main successfully." >> "$GITHUB_STEP_SUMMARY"
+          echo "Latest mirrored commit:" >> "$GITHUB_STEP_SUMMARY"
+          git log -1 --oneline upstream/main >> "$GITHUB_STEP_SUMMARY"
