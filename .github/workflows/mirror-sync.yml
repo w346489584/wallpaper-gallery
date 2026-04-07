@@ -36,29 +36,19 @@ jobs:
       - name: Fetch upstream
         run: git fetch upstream main --tags --force
 
-      - name: Sync upstream changes (excluding .github/workflows)
+      - name: Sync upstream tree (excluding .github/workflows)
         run: |
-          # 获取与上游有差异的文件（排除 workflows 目录）
-          CHANGED=$(git diff --name-only HEAD upstream/main -- ':(exclude).github/workflows' ':(exclude).github/workflows/**' || true)
+          TMPDIR=$(mktemp -d)
+          trap 'rm -rf "$TMPDIR"' EXIT
 
-          if [ -z "$CHANGED" ]; then
-            echo "Already up to date."
-            exit 0
-          fi
+          # 导出上游 main 分支文件树到临时目录
+          git archive upstream/main | tar -x -C "$TMPDIR"
 
-          echo "Files to sync:"
-          echo "$CHANGED"
-
-          for f in $CHANGED; do
-            if git cat-file -e "upstream/main:$f" 2>/dev/null; then
-              # 上游存在该文件：检出覆盖
-              mkdir -p "$(dirname "$f")"
-              git checkout upstream/main -- "$f"
-            else
-              # 上游已删除该文件：本地也删除
-              git rm -f "$f"
-            fi
-          done
+          # 同步除 workflows 目录外的全部内容
+          rsync -a --delete \
+            --exclude='.git' \
+            --exclude='.github/workflows/' \
+            "$TMPDIR"/ ./
 
       - name: Commit and push
         run: |
