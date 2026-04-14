@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-04-13T18:46:12.180Z",
+  "generatedAt": "2026-04-14T18:45:00.754Z",
   "series": "bing",
   "total": 170,
   "tags": [
     {
       "tag": "2026 01",
-      "score": 257,
+      "score": 256,
       "views": 332,
       "downloads": 63,
       "wallpaperCount": 31,
@@ -39,7 +39,7 @@
     },
     {
       "tag": "2025 12",
-      "score": 49,
+      "score": 48,
       "views": 67,
       "downloads": 18,
       "wallpaperCount": 26,
@@ -431,32 +431,6 @@
       ]
     },
     {
-      "tag": "柏林，新年之桥",
-      "score": 7,
-      "views": 8,
-      "downloads": 2,
-      "wallpaperCount": 1,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2025-12-31.jpg"
-      ]
-    },
-    {
-      "tag": "帕拉米蒂的历史之阶",
-      "score": 7,
-      "views": 7,
-      "downloads": 2,
-      "wallpaperCount": 1,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2026-01-14.jpg"
-      ]
-    },
-    {
       "tag": "聚光灯下的番红花",
       "score": 7,
       "views": 4,
@@ -566,6 +540,32 @@
       ],
       "topWallpapers": [
         "bing-2025-12-07.jpg"
+      ]
+    },
+    {
+      "tag": "柏林，新年之桥",
+      "score": 6,
+      "views": 8,
+      "downloads": 2,
+      "wallpaperCount": 1,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2025-12-31.jpg"
+      ]
+    },
+    {
+      "tag": "晨光透过结霜的树木洒下，瑞典",
+      "score": 6,
+      "views": 7,
+      "downloads": 2,
+      "wallpaperCount": 1,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2025-12-30.jpg"
       ]
     }
   ]
