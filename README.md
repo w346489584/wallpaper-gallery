@@ -12,6 +12,7 @@
   
   <p>
     <a href="https://wallpaper.061129.xyz" target="_blank">🌐 访问体验站</a> | 
+    <a href="https://zread.ai/IT-NuanxinPro/wallpaper-gallery" target="_blank">项目文档在线解析</a> |
     <a href="https://wallpaper-gallery-architecture.061129.xyz/" target="_blank">🏗️ 架构在线文档</a> |
     <a href="https://linux.do" target="_blank">🤝 鸣谢社区 LINUX DO</a> |
     <a href="#-特性">✨ 功能亮点</a> | 
