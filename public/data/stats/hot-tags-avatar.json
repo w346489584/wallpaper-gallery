@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-04-18T18:04:20.273Z",
+  "generatedAt": "2026-04-19T18:05:10.676Z",
   "series": "avatar",
   "total": 422,
   "tags": [
     {
       "tag": "人像",
-      "score": 422,
+      "score": 421,
       "views": 331,
       "downloads": 170,
       "wallpaperCount": 102,
@@ -37,7 +37,7 @@
     },
     {
       "tag": "氛围感",
-      "score": 250,
+      "score": 249,
       "views": 190,
       "downloads": 106,
       "wallpaperCount": 51,
@@ -101,7 +101,7 @@
     },
     {
       "tag": "萌宠",
-      "score": 179,
+      "score": 178,
       "views": 143,
       "downloads": 77,
       "wallpaperCount": 29,
@@ -133,7 +133,7 @@
     },
     {
       "tag": "猫咪",
-      "score": 147,
+      "score": 146,
       "views": 118,
       "downloads": 64,
       "wallpaperCount": 16,
@@ -165,7 +165,7 @@
     },
     {
       "tag": "IP形象",
-      "score": 140,
+      "score": 138,
       "views": 140,
       "downloads": 46,
       "wallpaperCount": 42,
@@ -788,38 +788,6 @@
       ]
     },
     {
-      "tag": "小八",
-      "score": 25,
-      "views": 22,
-      "downloads": 9,
-      "wallpaperCount": 11,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165124_953.webp",
-          "cdnTag": "v1.1.53"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165048_375.webp",
-          "cdnTag": "v1.1.53"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/IP形象/小八/%E4%B8%BE%E5%B0%8F%E4%B8%91%E9%9D%A2%E5%85%B7.webp",
-          "cdnTag": "v1.1.4"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/IP形象/小八/%E6%8A%B1%E9%B1%BC%E4%B9%96%E5%B7%A7.webp",
-          "cdnTag": "v1.1.4"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/IP形象/小八/%E6%8F%A3%E6%89%8B%E7%AB%99%E5%AE%9A.webp",
-          "cdnTag": "v1.1.4"
-        }
-      ]
-    },
-    {
       "tag": "办公电脑前皱眉",
       "score": 24,
       "views": 19,
@@ -872,26 +840,34 @@
       ]
     },
     {
-      "tag": "搞笑",
+      "tag": "小八",
       "score": 23,
-      "views": 16,
+      "views": 22,
       "downloads": 9,
-      "wallpaperCount": 3,
+      "wallpaperCount": 11,
       "series": [
         "avatar"
       ],
       "topWallpapers": [
         {
-          "thumbnail": "/thumbnail/avatar/萌宠/猫咪/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165613_598.webp",
+          "thumbnail": "/thumbnail/avatar/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165124_953.webp",
           "cdnTag": "v1.1.53"
         },
         {
-          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165009_180.webp",
+          "thumbnail": "/thumbnail/avatar/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165048_375.webp",
           "cdnTag": "v1.1.53"
         },
         {
-          "thumbnail": "/thumbnail/avatar/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165101_406.webp",
-          "cdnTag": "v1.1.53"
+          "thumbnail": "/thumbnail/avatar/IP形象/小八/%E4%B8%BE%E5%B0%8F%E4%B8%91%E9%9D%A2%E5%85%B7.webp",
+          "cdnTag": "v1.1.4"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/IP形象/小八/%E6%8A%B1%E9%B1%BC%E4%B9%96%E5%B7%A7.webp",
+          "cdnTag": "v1.1.4"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/IP形象/小八/%E6%8F%A3%E6%89%8B%E7%AB%99%E5%AE%9A.webp",
+          "cdnTag": "v1.1.4"
         }
       ]
     },
@@ -956,6 +932,30 @@
         {
           "thumbnail": "/thumbnail/avatar/动漫/海贼王/%E5%85%89%E6%9C%88%E5%BE%A1%E7%94%B0%E4%B9%8B%E5%A5%B3.webp",
           "cdnTag": "v1.1.24"
+        }
+      ]
+    },
+    {
+      "tag": "搞笑",
+      "score": 22,
+      "views": 16,
+      "downloads": 9,
+      "wallpaperCount": 3,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/萌宠/猫咪/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165613_598.webp",
+          "cdnTag": "v1.1.53"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165009_180.webp",
+          "cdnTag": "v1.1.53"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-23_165101_406.webp",
+          "cdnTag": "v1.1.53"
         }
       ]
     },
