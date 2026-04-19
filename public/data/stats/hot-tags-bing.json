@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-04-18T18:04:20.286Z",
+  "generatedAt": "2026-04-19T18:05:10.689Z",
   "series": "bing",
   "total": 171,
   "tags": [
     {
       "tag": "2026 01",
-      "score": 252,
+      "score": 250,
       "views": 333,
       "downloads": 63,
       "wallpaperCount": 31,
@@ -22,7 +22,7 @@
     },
     {
       "tag": "2026 03",
-      "score": 160,
+      "score": 159,
       "views": 135,
       "downloads": 29,
       "wallpaperCount": 25,
@@ -98,19 +98,6 @@
       ]
     },
     {
-      "tag": "小村庄，大视野",
-      "score": 20,
-      "views": 22,
-      "downloads": 6,
-      "wallpaperCount": 1,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2026-01-15.jpg"
-      ]
-    },
-    {
       "tag": "当水划出界线",
       "score": 20,
       "views": 14,
@@ -122,6 +109,19 @@
       "topWallpapers": [
         "bing-2026-03-23.jpg",
         "bing-2026-03-22.jpg"
+      ]
+    },
+    {
+      "tag": "小村庄，大视野",
+      "score": 19,
+      "views": 22,
+      "downloads": 6,
+      "wallpaperCount": 1,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2026-01-15.jpg"
       ]
     },
     {
@@ -345,19 +345,6 @@
       ]
     },
     {
-      "tag": "大自然的波普艺术",
-      "score": 10,
-      "views": 10,
-      "downloads": 3,
-      "wallpaperCount": 1,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2026-01-19.jpg"
-      ]
-    },
-    {
       "tag": "2025 02",
       "score": 9,
       "views": 11,
@@ -372,6 +359,19 @@
         "bing-2025-02-06.jpg",
         "bing-2025-02-08.jpg",
         "bing-2025-02-09.jpg"
+      ]
+    },
+    {
+      "tag": "大自然的波普艺术",
+      "score": 9,
+      "views": 10,
+      "downloads": 3,
+      "wallpaperCount": 1,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2026-01-19.jpg"
       ]
     },
     {
@@ -483,19 +483,6 @@
       ]
     },
     {
-      "tag": "走进熊猫世界",
-      "score": 7,
-      "views": 9,
-      "downloads": 0,
-      "wallpaperCount": 1,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2026-03-16.jpg"
-      ]
-    },
-    {
       "tag": "2025 01",
       "score": 6,
       "views": 10,
@@ -566,6 +553,19 @@
       ],
       "topWallpapers": [
         "bing-2025-12-30.jpg"
+      ]
+    },
+    {
+      "tag": "帕拉米蒂的历史之阶",
+      "score": 6,
+      "views": 7,
+      "downloads": 2,
+      "wallpaperCount": 1,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2026-01-14.jpg"
       ]
     }
   ]
