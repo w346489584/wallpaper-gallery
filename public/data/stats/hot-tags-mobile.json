@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-04-25T18:06:09.990Z",
+  "generatedAt": "2026-04-26T18:06:49.066Z",
   "series": "mobile",
-  "total": 718,
+  "total": 706,
   "tags": [
     {
       "tag": "人像",
-      "score": 1997,
-      "views": 2144,
-      "downloads": 516,
+      "score": 2065,
+      "views": 2227,
+      "downloads": 537,
       "wallpaperCount": 120,
       "series": [
         "mobile"
@@ -26,21 +26,21 @@
           "cdnTag": "v1.1.57"
         },
         {
-          "thumbnail": "/thumbnail/mobile/人像/易烊千玺/%E8%8D%89%E5%9C%B0%E4%BB%B0%E8%BA%BA.webp",
-          "cdnTag": "v1.1.11"
-        },
-        {
           "thumbnail": "/thumbnail/mobile/人像/清新/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260310202300_667_4.webp",
           "cdnTag": "v1.2.9"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/人像/易烊千玺/%E8%8D%89%E5%9C%B0%E4%BB%B0%E8%BA%BA.webp",
+          "cdnTag": "v1.1.11"
         }
       ]
     },
     {
       "tag": "风景",
-      "score": 1375,
-      "views": 1361,
-      "downloads": 443,
-      "wallpaperCount": 89,
+      "score": 1386,
+      "views": 1379,
+      "downloads": 452,
+      "wallpaperCount": 87,
       "series": [
         "mobile"
       ],
@@ -58,52 +58,20 @@
           "cdnTag": "v1.2.19"
         },
         {
+          "thumbnail": "/thumbnail/mobile/插画/风景/%E5%8A%A8%E6%BC%AB%E5%8C%96-%E8%A1%97%E6%99%AF.webp",
+          "cdnTag": "v1.1.98"
+        },
+        {
           "thumbnail": "/thumbnail/mobile/风景/雪山/image_%E9%AB%98%E7%BA%A7%E5%85%A8%E9%9D%A2%E5%B1%8F4k%E8%B6%85%E6%B8%85%E6%89%8B%E6%9C%BA%E5%A3%81%E7%BA%B8_%E6%99%AF%E6%B7%B1..._9.webp",
           "cdnTag": "v1.1.84"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/插画/风景/%E5%8A%A8%E6%BC%AB%E5%8C%96-%E8%A1%97%E6%99%AF.webp",
-          "cdnTag": "v1.1.98"
-        }
-      ]
-    },
-    {
-      "tag": "插画",
-      "score": 997,
-      "views": 799,
-      "downloads": 294,
-      "wallpaperCount": 60,
-      "series": [
-        "mobile"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/mobile/插画/创意/6865_1714297702.webp",
-          "cdnTag": "v1.2.19"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/插画/创意/8k-%E4%BA%BA%E7%89%A9.webp",
-          "cdnTag": "v1.1.98"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/插画/创意/image_%E7%A5%9E%E5%9B%BE%E5%A3%81%E7%BA%B8_%E9%94%81%E5%B1%8F%E5%A3%81%E7%BA%B8_%E6%89%8B%E6%9C%BA%E5%A3%81%E7%BA%B8_%E5%A3%81..._17.webp",
-          "cdnTag": "v1.1.96"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/插画/风景/%E5%8A%A8%E6%BC%AB%E5%8C%96-%E8%A1%97%E6%99%AF.webp",
-          "cdnTag": "v1.1.98"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/动漫/插画/%E4%B8%89%E6%9C%88%E4%B8%83-%E4%B8%AA%E6%80%A7%E7%A9%BF%E6%90%AD.webp",
-          "cdnTag": "v1.1.98"
         }
       ]
     },
     {
       "tag": "创意",
-      "score": 995,
-      "views": 810,
-      "downloads": 304,
+      "score": 1014,
+      "views": 845,
+      "downloads": 308,
       "wallpaperCount": 68,
       "series": [
         "mobile"
@@ -132,10 +100,42 @@
       ]
     },
     {
+      "tag": "插画",
+      "score": 997,
+      "views": 812,
+      "downloads": 291,
+      "wallpaperCount": 58,
+      "series": [
+        "mobile"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/mobile/插画/创意/6865_1714297702.webp",
+          "cdnTag": "v1.2.19"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/插画/创意/8k-%E4%BA%BA%E7%89%A9.webp",
+          "cdnTag": "v1.1.98"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/插画/创意/image_%E7%A5%9E%E5%9B%BE%E5%A3%81%E7%BA%B8_%E9%94%81%E5%B1%8F%E5%A3%81%E7%BA%B8_%E6%89%8B%E6%9C%BA%E5%A3%81%E7%BA%B8_%E5%A3%81..._17.webp",
+          "cdnTag": "v1.1.96"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/插画/风景/%E5%8A%A8%E6%BC%AB%E5%8C%96-%E8%A1%97%E6%99%AF.webp",
+          "cdnTag": "v1.1.98"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/动漫/插画/%E4%B8%89%E6%9C%88%E4%B8%83-%E4%B8%AA%E6%80%A7%E7%A9%BF%E6%90%AD.webp",
+          "cdnTag": "v1.1.98"
+        }
+      ]
+    },
+    {
       "tag": "魅力",
-      "score": 936,
-      "views": 884,
-      "downloads": 214,
+      "score": 987,
+      "views": 943,
+      "downloads": 230,
       "wallpaperCount": 25,
       "series": [
         "mobile"
@@ -165,10 +165,10 @@
     },
     {
       "tag": "动漫",
-      "score": 642,
-      "views": 684,
-      "downloads": 207,
-      "wallpaperCount": 60,
+      "score": 640,
+      "views": 688,
+      "downloads": 208,
+      "wallpaperCount": 59,
       "series": [
         "mobile"
       ],
@@ -197,9 +197,9 @@
     },
     {
       "tag": "漫画风格",
-      "score": 615,
-      "views": 496,
-      "downloads": 129,
+      "score": 632,
+      "views": 519,
+      "downloads": 132,
       "wallpaperCount": 2,
       "series": [
         "mobile"
@@ -217,9 +217,9 @@
     },
     {
       "tag": "紧身衣",
-      "score": 570,
-      "views": 483,
-      "downloads": 112,
+      "score": 586,
+      "views": 505,
+      "downloads": 115,
       "wallpaperCount": 2,
       "series": [
         "mobile"
@@ -237,9 +237,9 @@
     },
     {
       "tag": "丝袜",
-      "score": 550,
-      "views": 460,
-      "downloads": 106,
+      "score": 566,
+      "views": 480,
+      "downloads": 109,
       "wallpaperCount": 1,
       "series": [
         "mobile"
@@ -253,9 +253,9 @@
     },
     {
       "tag": "清新",
-      "score": 518,
-      "views": 524,
-      "downloads": 148,
+      "score": 532,
+      "views": 537,
+      "downloads": 152,
       "wallpaperCount": 36,
       "series": [
         "mobile"
@@ -274,20 +274,20 @@
           "cdnTag": "v1.1.9"
         },
         {
-          "thumbnail": "/thumbnail/mobile/人像/清新/image_iOS26%E8%8B%B9%E6%9E%9C%E7%B3%BB%E7%BB%9F%E7%A9%BA%E9%97%B4%E6%99%AF%E6%B7%B1%E5%A3%81%E7%BA%B8%E6%95%88..._13.webp",
-          "cdnTag": "v1.1.50"
-        },
-        {
           "thumbnail": "/thumbnail/mobile/人像/清新/image_%E7%A5%9E%E5%9B%BE%E5%A3%81%E7%BA%B8_%E9%94%81%E5%B1%8F%E5%A3%81%E7%BA%B8_%E8%AF%A5%E6%8D%A2%E5%A3%81%E7%BA%B8%E4%BA%86_..._20.webp",
           "cdnTag": "v1.1.96"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/人像/清新/image_iOS26%E8%8B%B9%E6%9E%9C%E7%B3%BB%E7%BB%9F%E7%A9%BA%E9%97%B4%E6%99%AF%E6%B7%B1%E5%A3%81%E7%BA%B8%E6%95%88..._13.webp",
+          "cdnTag": "v1.1.50"
         }
       ]
     },
     {
       "tag": "氛围感",
-      "score": 437,
-      "views": 531,
-      "downloads": 124,
+      "score": 447,
+      "views": 544,
+      "downloads": 130,
       "wallpaperCount": 40,
       "series": [
         "mobile"
@@ -317,10 +317,10 @@
     },
     {
       "tag": "星空",
-      "score": 363,
-      "views": 364,
-      "downloads": 113,
-      "wallpaperCount": 14,
+      "score": 356,
+      "views": 363,
+      "downloads": 112,
+      "wallpaperCount": 13,
       "series": [
         "mobile"
       ],
@@ -350,7 +350,7 @@
     {
       "tag": "梦幻",
       "score": 330,
-      "views": 201,
+      "views": 206,
       "downloads": 100,
       "wallpaperCount": 7,
       "series": [
@@ -381,8 +381,8 @@
     },
     {
       "tag": "艺术",
-      "score": 315,
-      "views": 199,
+      "score": 319,
+      "views": 208,
       "downloads": 89,
       "wallpaperCount": 4,
       "series": [
@@ -409,8 +409,8 @@
     },
     {
       "tag": "雪山",
-      "score": 292,
-      "views": 265,
+      "score": 290,
+      "views": 269,
       "downloads": 84,
       "wallpaperCount": 10,
       "series": [
@@ -473,9 +473,9 @@
     },
     {
       "tag": "花卉",
-      "score": 216,
-      "views": 171,
-      "downloads": 72,
+      "score": 219,
+      "views": 174,
+      "downloads": 73,
       "wallpaperCount": 8,
       "series": [
         "mobile"
@@ -498,15 +498,15 @@
           "cdnTag": "v1.1.68"
         },
         {
-          "thumbnail": "/thumbnail/mobile/风景/花卉/image_iOS26%E8%8B%B9%E6%9E%9C%E7%B3%BB%E7%BB%9F%E7%A9%BA%E9%97%B4%E6%99%AF%E6%B7%B1%E5%A3%81%E7%BA%B8%E6%95%88..._19.webp",
-          "cdnTag": "v1.1.50"
+          "thumbnail": "/thumbnail/mobile/风景/花卉/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260204205040_603_4.webp",
+          "cdnTag": "v1.1.68"
         }
       ]
     },
     {
       "tag": "冬日雪景",
-      "score": 212,
-      "views": 235,
+      "score": 211,
+      "views": 239,
       "downloads": 52,
       "wallpaperCount": 25,
       "series": [
@@ -536,10 +536,42 @@
       ]
     },
     {
+      "tag": "海滨",
+      "score": 203,
+      "views": 205,
+      "downloads": 59,
+      "wallpaperCount": 13,
+      "series": [
+        "mobile"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/mobile/风景/海滨/image_%E9%AB%98%E7%BA%A7%E5%85%A8%E9%9D%A2%E5%B1%8F4k%E8%B6%85%E6%B8%85%E6%89%8B%E6%9C%BA%E5%A3%81%E7%BA%B8_%E6%99%AF%E6%B7%B1..._10.webp",
+          "cdnTag": "v1.1.84"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/风景/海滨/image_%E9%AB%98%E7%BA%A7%E5%85%A8%E9%9D%A2%E5%B1%8F4k%E8%B6%85%E6%B8%85%E6%89%8B%E6%9C%BA%E5%A3%81%E7%BA%B8_%E6%99%AF%E6%B7%B1..._15.webp",
+          "cdnTag": "v1.1.84"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/风景/海滨/image_%E9%AB%98%E7%BA%A7%E5%85%A8%E9%9D%A2%E5%B1%8F4k%E8%B6%85%E6%B8%85%E6%89%8B%E6%9C%BA%E5%A3%81%E7%BA%B8_%E6%99%AF%E6%B7%B1..._2.webp",
+          "cdnTag": "v1.1.84"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/风景/海滨/%E6%B5%B7%E6%BB%A9%E7%AF%9D%E7%81%AB%E6%A3%95%E6%A6%88%E6%A0%91%E5%A4%9C%E6%99%AF.webp",
+          "cdnTag": "v1.1.4"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/风景/海滨/image_%E9%AB%98%E7%BA%A73D%E6%99%AF%E6%B7%B1%E5%85%A8%E5%B1%8F%E5%A3%81%E7%BA%B8%E5%BC%A0%E5%BC%A0%E8%B4%A8%E6%84%9F%E6%8B%89%E6%BB%A1..._19.webp",
+          "cdnTag": "v1.1.50"
+        }
+      ]
+    },
+    {
       "tag": "水下",
-      "score": 196,
-      "views": 143,
-      "downloads": 58,
+      "score": 201,
+      "views": 148,
+      "downloads": 59,
       "wallpaperCount": 3,
       "series": [
         "mobile"
@@ -560,41 +592,9 @@
       ]
     },
     {
-      "tag": "海滨",
-      "score": 195,
-      "views": 198,
-      "downloads": 56,
-      "wallpaperCount": 13,
-      "series": [
-        "mobile"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/mobile/风景/海滨/image_%E9%AB%98%E7%BA%A7%E5%85%A8%E9%9D%A2%E5%B1%8F4k%E8%B6%85%E6%B8%85%E6%89%8B%E6%9C%BA%E5%A3%81%E7%BA%B8_%E6%99%AF%E6%B7%B1..._15.webp",
-          "cdnTag": "v1.1.84"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/风景/海滨/image_%E9%AB%98%E7%BA%A7%E5%85%A8%E9%9D%A2%E5%B1%8F4k%E8%B6%85%E6%B8%85%E6%89%8B%E6%9C%BA%E5%A3%81%E7%BA%B8_%E6%99%AF%E6%B7%B1..._10.webp",
-          "cdnTag": "v1.1.84"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/风景/海滨/image_%E9%AB%98%E7%BA%A7%E5%85%A8%E9%9D%A2%E5%B1%8F4k%E8%B6%85%E6%B8%85%E6%89%8B%E6%9C%BA%E5%A3%81%E7%BA%B8_%E6%99%AF%E6%B7%B1..._2.webp",
-          "cdnTag": "v1.1.84"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/风景/海滨/%E6%B5%B7%E6%BB%A9%E7%AF%9D%E7%81%AB%E6%A3%95%E6%A6%88%E6%A0%91%E5%A4%9C%E6%99%AF.webp",
-          "cdnTag": "v1.1.4"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/风景/海滨/image_%E9%AB%98%E7%BA%A73D%E6%99%AF%E6%B7%B1%E5%85%A8%E5%B1%8F%E5%A3%81%E7%BA%B8%E5%BC%A0%E5%BC%A0%E8%B4%A8%E6%84%9F%E6%8B%89%E6%BB%A1..._19.webp",
-          "cdnTag": "v1.1.50"
-        }
-      ]
-    },
-    {
       "tag": "海贼王",
-      "score": 187,
-      "views": 190,
+      "score": 188,
+      "views": 192,
       "downloads": 68,
       "wallpaperCount": 16,
       "series": [
@@ -625,9 +625,9 @@
     },
     {
       "tag": "文字",
-      "score": 172,
-      "views": 149,
-      "downloads": 64,
+      "score": 179,
+      "views": 158,
+      "downloads": 67,
       "wallpaperCount": 20,
       "series": [
         "mobile"
@@ -646,20 +646,20 @@
           "cdnTag": "v1.1.84"
         },
         {
-          "thumbnail": "/thumbnail/mobile/创意/文字/image_%E7%A5%9E%E5%9B%BE%E5%A3%81%E7%BA%B8_%E9%94%81%E5%B1%8F%E5%A3%81%E7%BA%B8_%E6%89%8B%E6%9C%BA%E5%A3%81%E7%BA%B8_%E5%A3%81..._9.webp",
-          "cdnTag": "v1.1.96"
+          "thumbnail": "/thumbnail/mobile/创意/文字/image_%E9%AB%98%E7%BA%A73D%E6%99%AF%E6%B7%B1%E5%85%A8%E5%B1%8F%E5%A3%81%E7%BA%B8%E5%BC%A0%E5%BC%A0%E8%B4%A8%E6%84%9F%E6%8B%89%E6%BB%A1..._22.webp",
+          "cdnTag": "v1.1.50"
         },
         {
-          "thumbnail": "/thumbnail/mobile/创意/文字/image_iOS26%E8%8B%B9%E6%9E%9C%E7%B3%BB%E7%BB%9F%E7%A9%BA%E9%97%B4%E6%99%AF%E6%B7%B1%E5%A3%81%E7%BA%B8%E6%95%88..._34.webp",
-          "cdnTag": "v1.1.50"
+          "thumbnail": "/thumbnail/mobile/创意/文字/image_%E7%A5%9E%E5%9B%BE%E5%A3%81%E7%BA%B8_%E9%94%81%E5%B1%8F%E5%A3%81%E7%BA%B8_%E6%89%8B%E6%9C%BA%E5%A3%81%E7%BA%B8_%E5%A3%81..._9.webp",
+          "cdnTag": "v1.1.96"
         }
       ]
     },
     {
       "tag": "长发",
-      "score": 162,
-      "views": 154,
-      "downloads": 38,
+      "score": 170,
+      "views": 162,
+      "downloads": 40,
       "wallpaperCount": 10,
       "series": [
         "mobile"
@@ -688,11 +688,43 @@
       ]
     },
     {
+      "tag": "魅力人像",
+      "score": 158,
+      "views": 164,
+      "downloads": 50,
+      "wallpaperCount": 10,
+      "series": [
+        "mobile"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/mobile/人像/魅力/%E5%AE%A4%E5%86%85-%E6%80%A7%E6%84%9F-%E6%97%B6%E5%B0%9A.webp",
+          "cdnTag": "v1.1.57"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/人像/魅力/hhjn-qsfg.webp",
+          "cdnTag": "v1.1.57"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/人像/魅力/image_iOS26%E8%8B%B9%E6%9E%9C%E7%B3%BB%E7%BB%9F%E7%A9%BA%E9%97%B4%E6%99%AF%E6%B7%B1%E5%A3%81%E7%BA%B8%E6%95%88..._9.webp",
+          "cdnTag": "v1.1.50"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/人像/魅力/Ios-%E5%A4%8F%E6%97%A5-%E6%97%B6%E5%B0%9A.webp",
+          "cdnTag": "v1.1.57"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/人像/魅力/image_iOS26%E8%8B%B9%E6%9E%9C%E7%B3%BB%E7%BB%9F%E7%A9%BA%E9%97%B4%E6%99%AF%E6%B7%B1%E5%A3%81%E7%BA%B8%E6%95%88..._27.webp",
+          "cdnTag": "v1.1.50"
+        }
+      ]
+    },
+    {
       "tag": "建筑",
-      "score": 154,
-      "views": 191,
-      "downloads": 46,
-      "wallpaperCount": 17,
+      "score": 155,
+      "views": 195,
+      "downloads": 47,
+      "wallpaperCount": 16,
       "series": [
         "mobile"
       ],
@@ -710,20 +742,20 @@
           "cdnTag": "v1.1.9"
         },
         {
-          "thumbnail": "/thumbnail/mobile/风景/建筑/%E5%B8%86%E8%88%B9-%E6%88%BF%E5%B1%8B.webp",
+          "thumbnail": "/thumbnail/mobile/风景/建筑/%E6%9E%AB%E5%8F%B6-%E6%A0%91%E5%BD%B1.webp",
           "cdnTag": "v1.1.22"
         },
         {
-          "thumbnail": "/thumbnail/mobile/风景/建筑/%E6%88%BF%E5%B1%8B-%E6%97%A5%E8%90%BD.webp",
+          "thumbnail": "/thumbnail/mobile/风景/建筑/%E5%B8%86%E8%88%B9-%E6%88%BF%E5%B1%8B.webp",
           "cdnTag": "v1.1.22"
         }
       ]
     },
     {
       "tag": "少女",
-      "score": 148,
-      "views": 132,
-      "downloads": 40,
+      "score": 153,
+      "views": 139,
+      "downloads": 41,
       "wallpaperCount": 9,
       "series": [
         "mobile"
@@ -752,42 +784,42 @@
       ]
     },
     {
-      "tag": "魅力人像",
+      "tag": "易烊千玺",
       "score": 144,
-      "views": 150,
-      "downloads": 45,
-      "wallpaperCount": 10,
+      "views": 214,
+      "downloads": 35,
+      "wallpaperCount": 6,
       "series": [
         "mobile"
       ],
       "topWallpapers": [
         {
-          "thumbnail": "/thumbnail/mobile/人像/魅力/%E5%AE%A4%E5%86%85-%E6%80%A7%E6%84%9F-%E6%97%B6%E5%B0%9A.webp",
-          "cdnTag": "v1.1.57"
+          "thumbnail": "/thumbnail/mobile/人像/易烊千玺/%E7%BA%A2%E8%A1%A3%E8%88%9E%E5%8F%B0%E7%87%83%E7%82%B8.webp",
+          "cdnTag": "v1.1.11"
         },
         {
-          "thumbnail": "/thumbnail/mobile/人像/魅力/hhjn-qsfg.webp",
-          "cdnTag": "v1.1.57"
+          "thumbnail": "/thumbnail/mobile/人像/易烊千玺/%E8%8D%89%E5%9C%B0%E4%BB%B0%E8%BA%BA.webp",
+          "cdnTag": "v1.1.11"
         },
         {
-          "thumbnail": "/thumbnail/mobile/人像/魅力/image_iOS26%E8%8B%B9%E6%9E%9C%E7%B3%BB%E7%BB%9F%E7%A9%BA%E9%97%B4%E6%99%AF%E6%B7%B1%E5%A3%81%E7%BA%B8%E6%95%88..._9.webp",
-          "cdnTag": "v1.1.50"
+          "thumbnail": "/thumbnail/mobile/人像/易烊千玺/%E6%B2%99%E5%8F%91%E6%B2%89%E6%80%9D.webp",
+          "cdnTag": "v1.1.11"
         },
         {
-          "thumbnail": "/thumbnail/mobile/人像/魅力/image_iOS26%E8%8B%B9%E6%9E%9C%E7%B3%BB%E7%BB%9F%E7%A9%BA%E9%97%B4%E6%99%AF%E6%B7%B1%E5%A3%81%E7%BA%B8%E6%95%88..._27.webp",
-          "cdnTag": "v1.1.50"
+          "thumbnail": "/thumbnail/mobile/人像/易烊千玺/%E6%85%B5%E6%87%92%E6%B2%99%E5%8F%91%E5%B0%8F%E6%86%A9.webp",
+          "cdnTag": "v1.1.11"
         },
         {
-          "thumbnail": "/thumbnail/mobile/人像/魅力/Ios-%E5%A4%8F%E6%97%A5-%E6%97%B6%E5%B0%9A.webp",
-          "cdnTag": "v1.1.57"
+          "thumbnail": "/thumbnail/mobile/人像/易烊千玺/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260204205245_644_4.webp",
+          "cdnTag": "v1.1.68"
         }
       ]
     },
     {
       "tag": "萌宠",
-      "score": 144,
-      "views": 139,
-      "downloads": 39,
+      "score": 143,
+      "views": 141,
+      "downloads": 38,
       "wallpaperCount": 15,
       "series": [
         "mobile"
@@ -816,41 +848,9 @@
       ]
     },
     {
-      "tag": "易烊千玺",
-      "score": 143,
-      "views": 213,
-      "downloads": 35,
-      "wallpaperCount": 6,
-      "series": [
-        "mobile"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/mobile/人像/易烊千玺/%E7%BA%A2%E8%A1%A3%E8%88%9E%E5%8F%B0%E7%87%83%E7%82%B8.webp",
-          "cdnTag": "v1.1.11"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/人像/易烊千玺/%E8%8D%89%E5%9C%B0%E4%BB%B0%E8%BA%BA.webp",
-          "cdnTag": "v1.1.11"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/人像/易烊千玺/%E6%B2%99%E5%8F%91%E6%B2%89%E6%80%9D.webp",
-          "cdnTag": "v1.1.11"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/人像/易烊千玺/%E6%85%B5%E6%87%92%E6%B2%99%E5%8F%91%E5%B0%8F%E6%86%A9.webp",
-          "cdnTag": "v1.1.11"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/人像/易烊千玺/%E5%87%9D%E8%A7%86.webp",
-          "cdnTag": "v1.1.24"
-        }
-      ]
-    },
-    {
       "tag": "二次元",
-      "score": 134,
-      "views": 153,
+      "score": 131,
+      "views": 154,
       "downloads": 43,
       "wallpaperCount": 18,
       "series": [
@@ -881,7 +881,7 @@
     },
     {
       "tag": "卡通",
-      "score": 117,
+      "score": 116,
       "views": 110,
       "downloads": 27,
       "wallpaperCount": 9,
@@ -902,18 +902,18 @@
           "cdnTag": "v1.1.98"
         },
         {
-          "thumbnail": "/thumbnail/mobile/插画/创意/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260204205032_594_4.webp",
+          "thumbnail": "/thumbnail/mobile/插画/创意/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260204205225_626_4.webp",
           "cdnTag": "v1.1.68"
         },
         {
-          "thumbnail": "/thumbnail/mobile/插画/创意/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260204205225_626_4.webp",
+          "thumbnail": "/thumbnail/mobile/插画/创意/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260204205032_594_4.webp",
           "cdnTag": "v1.1.68"
         }
       ]
     },
     {
       "tag": "极光",
-      "score": 117,
+      "score": 115,
       "views": 110,
       "downloads": 22,
       "wallpaperCount": 3,
@@ -936,42 +936,10 @@
       ]
     },
     {
-      "tag": "蜡笔小新",
-      "score": 112,
-      "views": 126,
-      "downloads": 31,
-      "wallpaperCount": 8,
-      "series": [
-        "mobile"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/mobile/动漫/蜡笔小新/image_%E7%A5%9E%E5%9B%BE%E5%A3%81%E7%BA%B8_%E9%94%81%E5%B1%8F%E5%A3%81%E7%BA%B8_%E6%89%8B%E6%9C%BA%E5%A3%81%E7%BA%B8_%E5%A3%81..._6.webp",
-          "cdnTag": "v1.1.96"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/动漫/蜡笔小新/%E5%85%A8%E5%AE%B6%E7%A6%8F-%E5%8A%A8%E6%BC%AB%E5%AE%B6%E5%BA%AD.webp",
-          "cdnTag": "v1.1.29"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/动漫/蜡笔小新/%E6%8B%BC%E6%8E%A5%E5%B0%8F%E6%96%B0.webp",
-          "cdnTag": "v1.1.24"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/动漫/蜡笔小新/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-26_085008_556.webp",
-          "cdnTag": "v1.1.53"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/动漫/蜡笔小新/image_%E9%AB%98%E7%BA%A73D%E6%99%AF%E6%B7%B1%E5%85%A8%E5%B1%8F%E5%A3%81%E7%BA%B8%E5%BC%A0%E5%BC%A0%E8%B4%A8%E6%84%9F%E6%8B%89%E6%BB%A1..._10.webp",
-          "cdnTag": "v1.1.37"
-        }
-      ]
-    },
-    {
       "tag": "黄昏",
-      "score": 109,
-      "views": 94,
-      "downloads": 30,
+      "score": 114,
+      "views": 96,
+      "downloads": 33,
       "wallpaperCount": 6,
       "series": [
         "mobile"
@@ -1000,11 +968,43 @@
       ]
     },
     {
-      "tag": "国风",
-      "score": 108,
-      "views": 112,
+      "tag": "蜡笔小新",
+      "score": 114,
+      "views": 127,
       "downloads": 32,
-      "wallpaperCount": 18,
+      "wallpaperCount": 8,
+      "series": [
+        "mobile"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/mobile/动漫/蜡笔小新/image_%E7%A5%9E%E5%9B%BE%E5%A3%81%E7%BA%B8_%E9%94%81%E5%B1%8F%E5%A3%81%E7%BA%B8_%E6%89%8B%E6%9C%BA%E5%A3%81%E7%BA%B8_%E5%A3%81..._6.webp",
+          "cdnTag": "v1.1.96"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/动漫/蜡笔小新/%E5%85%A8%E5%AE%B6%E7%A6%8F-%E5%8A%A8%E6%BC%AB%E5%AE%B6%E5%BA%AD.webp",
+          "cdnTag": "v1.1.29"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/动漫/蜡笔小新/%E6%8B%BC%E6%8E%A5%E5%B0%8F%E6%96%B0.webp",
+          "cdnTag": "v1.1.24"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/动漫/蜡笔小新/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-26_085008_556.webp",
+          "cdnTag": "v1.1.53"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/动漫/蜡笔小新/image_%E9%AB%98%E7%BA%A73D%E6%99%AF%E6%B7%B1%E5%85%A8%E5%B1%8F%E5%A3%81%E7%BA%B8%E5%BC%A0%E5%BC%A0%E8%B4%A8%E6%84%9F%E6%8B%89%E6%BB%A1..._10.webp",
+          "cdnTag": "v1.1.37"
+        }
+      ]
+    },
+    {
+      "tag": "国风",
+      "score": 104,
+      "views": 110,
+      "downloads": 30,
+      "wallpaperCount": 17,
       "series": [
         "mobile"
       ],
@@ -1034,7 +1034,7 @@
     {
       "tag": "夜景",
       "score": 99,
-      "views": 108,
+      "views": 110,
       "downloads": 28,
       "wallpaperCount": 10,
       "series": [
@@ -1064,9 +1064,33 @@
       ]
     },
     {
+      "tag": "微笑",
+      "score": 95,
+      "views": 77,
+      "downloads": 24,
+      "wallpaperCount": 3,
+      "series": [
+        "mobile"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/mobile/人像/清新/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260310202300_667_4.webp",
+          "cdnTag": "v1.2.9"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/人像/清新/image_%E7%A5%9E%E5%9B%BE%E5%A3%81%E7%BA%B8_%E9%94%81%E5%B1%8F%E5%A3%81%E7%BA%B8_%E8%AF%A5%E6%8D%A2%E5%A3%81%E7%BA%B8%E4%BA%86_..._20.webp",
+          "cdnTag": "v1.1.96"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/萌宠/狗狗/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260204205234_638_4.webp",
+          "cdnTag": "v1.1.68"
+        }
+      ]
+    },
+    {
       "tag": "氧气感",
-      "score": 93,
-      "views": 66,
+      "score": 94,
+      "views": 68,
       "downloads": 41,
       "wallpaperCount": 7,
       "series": [
@@ -1082,15 +1106,75 @@
           "cdnTag": "v1.1.57"
         },
         {
-          "thumbnail": "/thumbnail/mobile/人像/清新/image_iOS26%E8%8B%B9%E6%9E%9C%E7%B3%BB%E7%BB%9F%E7%A9%BA%E9%97%B4%E6%99%AF%E6%B7%B1%E5%A3%81%E7%BA%B8%E6%95%88..._1.webp",
-          "cdnTag": "v1.1.50"
-        },
-        {
           "thumbnail": "/thumbnail/mobile/人像/清新/image_%E9%AB%98%E7%BA%A73D%E6%99%AF%E6%B7%B1%E5%85%A8%E5%B1%8F%E5%A3%81%E7%BA%B8%E5%BC%A0%E5%BC%A0%E8%B4%A8%E6%84%9F%E6%8B%89%E6%BB%A1..._25.webp",
           "cdnTag": "v1.1.50"
         },
         {
+          "thumbnail": "/thumbnail/mobile/人像/清新/image_iOS26%E8%8B%B9%E6%9E%9C%E7%B3%BB%E7%BB%9F%E7%A9%BA%E9%97%B4%E6%99%AF%E6%B7%B1%E5%A3%81%E7%BA%B8%E6%95%88..._1.webp",
+          "cdnTag": "v1.1.50"
+        },
+        {
           "thumbnail": "/thumbnail/mobile/人像/清新/image_%E9%AB%98%E7%BA%A73D%E6%99%AF%E6%B7%B1%E5%85%A8%E5%B1%8F%E5%A3%81%E7%BA%B8%E5%BC%A0%E5%BC%A0%E8%B4%A8%E6%84%9F%E6%8B%89%E6%BB%A1..._14.webp",
+          "cdnTag": "v1.1.37"
+        }
+      ]
+    },
+    {
+      "tag": "森林",
+      "score": 92,
+      "views": 94,
+      "downloads": 39,
+      "wallpaperCount": 4,
+      "series": [
+        "mobile"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/mobile/风景/森林/%E7%A7%8B%E6%97%A5%E6%9E%97%E8%8D%AB%E5%B0%8F%E5%BE%84%E8%90%BD%E5%8F%B6%E6%BB%A1%E5%9C%B0.webp",
+          "cdnTag": "v1.1.4"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/风景/森林/%E6%A3%AE%E6%9E%97%E6%99%A8%E5%85%89%E7%A9%BF%E9%80%8F%E9%AB%98%E8%80%B8%E5%B7%A8%E6%A0%91.webp",
+          "cdnTag": "v1.1.4"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/风景/森林/image_iOS26%E8%8B%B9%E6%9E%9C%E7%B3%BB%E7%BB%9F%E7%A9%BA%E9%97%B4%E6%99%AF%E6%B7%B1%E5%A3%81%E7%BA%B8%E6%95%88..._14.webp",
+          "cdnTag": "v1.1.50"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/风景/森林/image_%E9%AB%98%E7%BA%A73D%E6%99%AF%E6%B7%B1%E5%85%A8%E5%B1%8F%E5%A3%81%E7%BA%B8%E5%BC%A0%E5%BC%A0%E8%B4%A8%E6%84%9F%E6%8B%89%E6%BB%A1..._34.webp",
+          "cdnTag": "v1.1.50"
+        }
+      ]
+    },
+    {
+      "tag": "爱国主题",
+      "score": 92,
+      "views": 108,
+      "downloads": 25,
+      "wallpaperCount": 17,
+      "series": [
+        "mobile"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/mobile/创意/爱国主题/image_%E7%A5%9E%E5%9B%BE%E5%A3%81%E7%BA%B8_%E9%94%81%E5%B1%8F%E5%A3%81%E7%BA%B8_%E5%A3%81%E7%BA%B8_%E8%AF%A5%E6%8D%A2%E5%A3%81..._11.webp",
+          "cdnTag": "v1.1.84"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/创意/爱国主题/%E5%9B%BD%E5%BE%BD%E8%80%80%E9%87%91%E8%BE%89.webp",
+          "cdnTag": "v1.1.11"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/创意/爱国主题/image_%E9%AB%98%E7%BA%A7%E5%85%A8%E9%9D%A2%E5%B1%8F4k%E8%B6%85%E6%B8%85%E6%89%8B%E6%9C%BA%E5%A3%81%E7%BA%B8_%E6%99%AF%E6%B7%B1..._6.webp",
+          "cdnTag": "v1.1.84"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/创意/爱国主题/image_%E7%A5%9E%E5%9B%BE%E5%A3%81%E7%BA%B8_%E9%94%81%E5%B1%8F%E5%A3%81%E7%BA%B8_%E5%A3%81%E7%BA%B8_%E8%AF%A5%E6%8D%A2%E5%A3%81..._2.webp",
+          "cdnTag": "v1.1.84"
+        },
+        {
+          "thumbnail": "/thumbnail/mobile/创意/爱国主题/image_%E9%AB%98%E7%BA%A73D%E6%99%AF%E6%B7%B1%E5%85%A8%E5%B1%8F%E5%A3%81%E7%BA%B8%E5%BC%A0%E5%BC%A0%E8%B4%A8%E6%84%9F%E6%8B%89%E6%BB%A1..._9.webp",
           "cdnTag": "v1.1.37"
         }
       ]
@@ -1124,86 +1208,6 @@
         {
           "thumbnail": "/thumbnail/mobile/影视/海绵宝宝/%E5%A5%BD%E5%8F%8B%E8%81%9A%E9%A4%90.webp",
           "cdnTag": "v1.1.24"
-        }
-      ]
-    },
-    {
-      "tag": "星空湖面倒映地球日出奇景",
-      "score": 90,
-      "views": 106,
-      "downloads": 35,
-      "wallpaperCount": 1,
-      "series": [
-        "mobile"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/mobile/风景/星空/%E6%98%9F%E7%A9%BA%E6%B9%96%E9%9D%A2%E5%80%92%E6%98%A0%E5%9C%B0%E7%90%83%E6%97%A5%E5%87%BA%E5%A5%87%E6%99%AF.webp",
-          "cdnTag": "v1.1.4"
-        }
-      ]
-    },
-    {
-      "tag": "爱国主题",
-      "score": 89,
-      "views": 102,
-      "downloads": 25,
-      "wallpaperCount": 17,
-      "series": [
-        "mobile"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/mobile/创意/爱国主题/image_%E7%A5%9E%E5%9B%BE%E5%A3%81%E7%BA%B8_%E9%94%81%E5%B1%8F%E5%A3%81%E7%BA%B8_%E5%A3%81%E7%BA%B8_%E8%AF%A5%E6%8D%A2%E5%A3%81..._11.webp",
-          "cdnTag": "v1.1.84"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/创意/爱国主题/%E5%9B%BD%E5%BE%BD%E8%80%80%E9%87%91%E8%BE%89.webp",
-          "cdnTag": "v1.1.11"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/创意/爱国主题/image_%E9%AB%98%E7%BA%A7%E5%85%A8%E9%9D%A2%E5%B1%8F4k%E8%B6%85%E6%B8%85%E6%89%8B%E6%9C%BA%E5%A3%81%E7%BA%B8_%E6%99%AF%E6%B7%B1..._6.webp",
-          "cdnTag": "v1.1.84"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/创意/爱国主题/image_%E7%A5%9E%E5%9B%BE%E5%A3%81%E7%BA%B8_%E9%94%81%E5%B1%8F%E5%A3%81%E7%BA%B8_%E5%A3%81%E7%BA%B8_%E8%AF%A5%E6%8D%A2%E5%A3%81..._2.webp",
-          "cdnTag": "v1.1.84"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/创意/爱国主题/%E4%BB%B0%E5%85%89%E6%95%AC%E7%A4%BC.webp",
-          "cdnTag": "v1.1.11"
-        }
-      ]
-    },
-    {
-      "tag": "治愈系",
-      "score": 87,
-      "views": 104,
-      "downloads": 23,
-      "wallpaperCount": 12,
-      "series": [
-        "mobile"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/mobile/动漫/蜡笔小新/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_2026-01-26_085008_556.webp",
-          "cdnTag": "v1.1.53"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/插画/氛围感/HFYH-ZFG.webp",
-          "cdnTag": "v1.1.57"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/创意/文字/image_iOS26%E8%8B%B9%E6%9E%9C%E7%B3%BB%E7%BB%9F%E7%A9%BA%E9%97%B4%E6%99%AF%E6%B7%B1%E5%A3%81%E7%BA%B8%E6%95%88..._34.webp",
-          "cdnTag": "v1.1.50"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/风景/海滨/image_iOS26%E8%8B%B9%E6%9E%9C%E7%B3%BB%E7%BB%9F%E7%A9%BA%E9%97%B4%E6%99%AF%E6%B7%B1%E5%A3%81%E7%BA%B8%E6%95%88..._25.webp",
-          "cdnTag": "v1.1.50"
-        },
-        {
-          "thumbnail": "/thumbnail/mobile/萌宠/通用/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260310202303_670_4.webp",
-          "cdnTag": "v1.2.9"
         }
       ]
     }
