@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-04-30T18:53:26.074Z",
+  "generatedAt": "2026-05-01T18:40:31.451Z",
   "series": "bing",
   "total": 282,
   "tags": [
     {
       "tag": "2026 01",
-      "score": 306,
+      "score": 304,
       "views": 373,
       "downloads": 100,
       "wallpaperCount": 31,
@@ -22,7 +22,7 @@
     },
     {
       "tag": "2026 03",
-      "score": 235,
+      "score": 233,
       "views": 170,
       "downloads": 63,
       "wallpaperCount": 25,
@@ -366,19 +366,6 @@
       ]
     },
     {
-      "tag": "威尼斯的灵魂",
-      "score": 13,
-      "views": 20,
-      "downloads": 3,
-      "wallpaperCount": 1,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2026-01-02.jpg"
-      ]
-    },
-    {
       "tag": "春日绯梦",
       "score": 13,
       "views": 13,
@@ -389,6 +376,19 @@
       ],
       "topWallpapers": [
         "bing-2026-03-20.jpg"
+      ]
+    },
+    {
+      "tag": "威尼斯的灵魂",
+      "score": 12,
+      "views": 20,
+      "downloads": 3,
+      "wallpaperCount": 1,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2026-01-02.jpg"
       ]
     },
     {
@@ -440,7 +440,7 @@
     },
     {
       "tag": "治愈、宁静且充满希望",
-      "score": 11,
+      "score": 10,
       "views": 5,
       "downloads": 4,
       "wallpaperCount": 1,
@@ -449,23 +449,6 @@
       ],
       "topWallpapers": [
         "bing-2026-03-07.jpg"
-      ]
-    },
-    {
-      "tag": "2025 04",
-      "score": 10,
-      "views": 17,
-      "downloads": 13,
-      "wallpaperCount": 8,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2025-04-15.jpg",
-        "bing-2025-04-06.jpg",
-        "bing-2025-04-02.jpg",
-        "bing-2025-04-03.jpg",
-        "bing-2025-04-10.jpg"
       ]
     },
     {
@@ -499,6 +482,23 @@
       ]
     },
     {
+      "tag": "2025 04",
+      "score": 9,
+      "views": 17,
+      "downloads": 13,
+      "wallpaperCount": 8,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2025-04-15.jpg",
+        "bing-2025-04-02.jpg",
+        "bing-2025-04-03.jpg",
+        "bing-2025-04-06.jpg",
+        "bing-2025-04-10.jpg"
+      ]
+    },
+    {
       "tag": "巴伐利亚的瑰宝",
       "score": 9,
       "views": 7,
@@ -522,19 +522,6 @@
       ],
       "topWallpapers": [
         "bing-2026-01-24.jpg"
-      ]
-    },
-    {
-      "tag": "聚光灯下的番红花",
-      "score": 9,
-      "views": 5,
-      "downloads": 3,
-      "wallpaperCount": 1,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2026-03-04.jpg"
       ]
     },
     {
@@ -574,6 +561,19 @@
       ],
       "topWallpapers": [
         "bing-2026-03-16.jpg"
+      ]
+    },
+    {
+      "tag": "柏林，新年之桥",
+      "score": 8,
+      "views": 9,
+      "downloads": 3,
+      "wallpaperCount": 1,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2025-12-31.jpg"
       ]
     }
   ]

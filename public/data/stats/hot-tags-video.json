@@ -1,24 +1,24 @@
 {
-  "generatedAt": "2026-04-30T18:53:26.060Z",
+  "generatedAt": "2026-05-01T18:40:31.436Z",
   "series": "video",
   "total": 25,
   "tags": [
     {
       "tag": "desktop",
-      "score": 121,
-      "views": 136,
-      "downloads": 2,
+      "score": 135,
+      "views": 150,
+      "downloads": 3,
       "wallpaperCount": 6,
       "series": [
         "video"
       ],
       "topWallpapers": [
         {
-          "thumbnail": "/thumbnail/video/desktop/动漫/窗边白发少女_晨光飞鸟.png",
+          "thumbnail": "/thumbnail/video/desktop/动漫/彩瞳少女特写_碎光倒影.png",
           "cdnTag": "v1.1.30"
         },
         {
-          "thumbnail": "/thumbnail/video/desktop/动漫/彩瞳少女特写_碎光倒影.png",
+          "thumbnail": "/thumbnail/video/desktop/动漫/窗边白发少女_晨光飞鸟.png",
           "cdnTag": "v1.1.30"
         },
         {
@@ -37,28 +37,28 @@
     },
     {
       "tag": "动漫",
-      "score": 60,
-      "views": 70,
-      "downloads": 0,
+      "score": 66,
+      "views": 75,
+      "downloads": 1,
       "wallpaperCount": 2,
       "series": [
         "video"
       ],
       "topWallpapers": [
         {
-          "thumbnail": "/thumbnail/video/desktop/动漫/窗边白发少女_晨光飞鸟.png",
+          "thumbnail": "/thumbnail/video/desktop/动漫/彩瞳少女特写_碎光倒影.png",
           "cdnTag": "v1.1.30"
         },
         {
-          "thumbnail": "/thumbnail/video/desktop/动漫/彩瞳少女特写_碎光倒影.png",
+          "thumbnail": "/thumbnail/video/desktop/动漫/窗边白发少女_晨光飞鸟.png",
           "cdnTag": "v1.1.30"
         }
       ]
     },
     {
       "tag": "IP形象",
-      "score": 34,
-      "views": 34,
+      "score": 37,
+      "views": 38,
       "downloads": 2,
       "wallpaperCount": 2,
       "series": [
@@ -71,6 +71,38 @@
         },
         {
           "thumbnail": "/thumbnail/video/desktop/IP形象/HelloKitty_秋日秋千.png",
+          "cdnTag": "v1.1.30"
+        }
+      ]
+    },
+    {
+      "tag": "彩瞳少女特写",
+      "score": 34,
+      "views": 37,
+      "downloads": 1,
+      "wallpaperCount": 1,
+      "series": [
+        "video"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/video/desktop/动漫/彩瞳少女特写_碎光倒影.png",
+          "cdnTag": "v1.1.30"
+        }
+      ]
+    },
+    {
+      "tag": "碎光倒影",
+      "score": 34,
+      "views": 37,
+      "downloads": 1,
+      "wallpaperCount": 1,
+      "series": [
+        "video"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/video/desktop/动漫/彩瞳少女特写_碎光倒影.png",
           "cdnTag": "v1.1.30"
         }
       ]
@@ -158,7 +190,7 @@
     {
       "tag": "晨光飞鸟",
       "score": 32,
-      "views": 37,
+      "views": 38,
       "downloads": 0,
       "wallpaperCount": 1,
       "series": [
@@ -174,7 +206,7 @@
     {
       "tag": "窗边白发少女",
       "score": 32,
-      "views": 37,
+      "views": 38,
       "downloads": 0,
       "wallpaperCount": 1,
       "series": [
@@ -188,41 +220,9 @@
       ]
     },
     {
-      "tag": "彩瞳少女特写",
-      "score": 28,
-      "views": 33,
-      "downloads": 0,
-      "wallpaperCount": 1,
-      "series": [
-        "video"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/video/desktop/动漫/彩瞳少女特写_碎光倒影.png",
-          "cdnTag": "v1.1.30"
-        }
-      ]
-    },
-    {
-      "tag": "碎光倒影",
-      "score": 28,
-      "views": 33,
-      "downloads": 0,
-      "wallpaperCount": 1,
-      "series": [
-        "video"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/video/desktop/动漫/彩瞳少女特写_碎光倒影.png",
-          "cdnTag": "v1.1.30"
-        }
-      ]
-    },
-    {
       "tag": "风景",
-      "score": 27,
-      "views": 32,
+      "score": 32,
+      "views": 37,
       "downloads": 0,
       "wallpaperCount": 2,
       "series": [
@@ -241,8 +241,8 @@
     },
     {
       "tag": "聚光帅舞",
-      "score": 25,
-      "views": 23,
+      "score": 26,
+      "views": 25,
       "downloads": 2,
       "wallpaperCount": 1,
       "series": [
@@ -257,8 +257,8 @@
     },
     {
       "tag": "水豚噜噜",
-      "score": 25,
-      "views": 23,
+      "score": 26,
+      "views": 25,
       "downloads": 2,
       "wallpaperCount": 1,
       "series": [
@@ -337,8 +337,8 @@
     },
     {
       "tag": "晴空云朵笑脸",
-      "score": 15,
-      "views": 18,
+      "score": 18,
+      "views": 21,
       "downloads": 0,
       "wallpaperCount": 1,
       "series": [
@@ -353,8 +353,8 @@
     },
     {
       "tag": "屋顶阳光",
-      "score": 15,
-      "views": 18,
+      "score": 18,
+      "views": 21,
       "downloads": 0,
       "wallpaperCount": 1,
       "series": [
@@ -369,8 +369,8 @@
     },
     {
       "tag": "雨滴玻璃",
-      "score": 12,
-      "views": 14,
+      "score": 14,
+      "views": 16,
       "downloads": 0,
       "wallpaperCount": 1,
       "series": [
@@ -385,8 +385,8 @@
     },
     {
       "tag": "紫色光影",
-      "score": 12,
-      "views": 14,
+      "score": 14,
+      "views": 16,
       "downloads": 0,
       "wallpaperCount": 1,
       "series": [
@@ -401,8 +401,8 @@
     },
     {
       "tag": "秋日秋千",
-      "score": 9,
-      "views": 11,
+      "score": 11,
+      "views": 13,
       "downloads": 0,
       "wallpaperCount": 1,
       "series": [
@@ -417,8 +417,8 @@
     },
     {
       "tag": "HelloKitty",
-      "score": 9,
-      "views": 11,
+      "score": 11,
+      "views": 13,
       "downloads": 0,
       "wallpaperCount": 1,
       "series": [
