@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-05-01T18:40:31.451Z",
+  "generatedAt": "2026-05-02T18:29:32.846Z",
   "series": "bing",
-  "total": 282,
+  "total": 281,
   "tags": [
     {
       "tag": "2026 01",
@@ -22,7 +22,7 @@
     },
     {
       "tag": "2026 03",
-      "score": 233,
+      "score": 229,
       "views": 170,
       "downloads": 63,
       "wallpaperCount": 25,
@@ -56,7 +56,7 @@
     },
     {
       "tag": "2026 02",
-      "score": 77,
+      "score": 75,
       "views": 70,
       "downloads": 23,
       "wallpaperCount": 17,
@@ -64,8 +64,8 @@
         "bing"
       ],
       "topWallpapers": [
-        "bing-2026-02-01.jpg",
         "bing-2026-02-06.jpg",
+        "bing-2026-02-01.jpg",
         "bing-2026-02-25.jpg",
         "bing-2026-02-20.jpg",
         "bing-2026-02-26.jpg"
@@ -452,19 +452,6 @@
       ]
     },
     {
-      "tag": "一个美好的春天",
-      "score": 10,
-      "views": 6,
-      "downloads": 3,
-      "wallpaperCount": 1,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2026-03-11.jpg"
-      ]
-    },
-    {
       "tag": "2025 01",
       "score": 9,
       "views": 19,
@@ -525,16 +512,16 @@
       ]
     },
     {
-      "tag": "古老岩石，现代灯光",
+      "tag": "一个美好的春天",
       "score": 9,
-      "views": 8,
-      "downloads": 2,
+      "views": 6,
+      "downloads": 3,
       "wallpaperCount": 1,
       "series": [
         "bing"
       ],
       "topWallpapers": [
-        "bing-2026-03-05.jpg"
+        "bing-2026-03-11.jpg"
       ]
     },
     {
@@ -551,19 +538,6 @@
       ]
     },
     {
-      "tag": "走进熊猫世界",
-      "score": 9,
-      "views": 10,
-      "downloads": 1,
-      "wallpaperCount": 1,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2026-03-16.jpg"
-      ]
-    },
-    {
       "tag": "柏林，新年之桥",
       "score": 8,
       "views": 9,
@@ -574,6 +548,32 @@
       ],
       "topWallpapers": [
         "bing-2025-12-31.jpg"
+      ]
+    },
+    {
+      "tag": "帕拉米蒂的历史之阶",
+      "score": 8,
+      "views": 8,
+      "downloads": 3,
+      "wallpaperCount": 1,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2026-01-14.jpg"
+      ]
+    },
+    {
+      "tag": "拉古塞拉——奥运赛季的巅峰",
+      "score": 8,
+      "views": 6,
+      "downloads": 3,
+      "wallpaperCount": 1,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2026-02-06.jpg"
       ]
     }
   ]
