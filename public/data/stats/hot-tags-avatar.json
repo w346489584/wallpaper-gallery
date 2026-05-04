@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-05-03T18:30:11.676Z",
+  "generatedAt": "2026-05-04T19:05:08.166Z",
   "series": "avatar",
   "total": 469,
   "tags": [
     {
       "tag": "人像",
-      "score": 582,
+      "score": 580,
       "views": 433,
       "downloads": 223,
       "wallpaperCount": 150,
@@ -30,14 +30,14 @@
           "cdnTag": "v1.1.11"
         },
         {
-          "thumbnail": "/thumbnail/avatar/人像/氛围感/逆光女生.webp",
-          "cdnTag": "v1.1.11"
+          "thumbnail": "/thumbnail/avatar/人像/背影/车窗边夕阳下的少年背影.webp",
+          "cdnTag": "v1.1.4"
         }
       ]
     },
     {
       "tag": "动漫",
-      "score": 283,
+      "score": 281,
       "views": 279,
       "downloads": 102,
       "wallpaperCount": 91,
@@ -69,7 +69,7 @@
     },
     {
       "tag": "氛围感",
-      "score": 273,
+      "score": 272,
       "views": 222,
       "downloads": 117,
       "wallpaperCount": 61,
@@ -197,7 +197,7 @@
     },
     {
       "tag": "IP形象",
-      "score": 137,
+      "score": 136,
       "views": 143,
       "downloads": 49,
       "wallpaperCount": 43,
@@ -229,7 +229,7 @@
     },
     {
       "tag": "插画",
-      "score": 135,
+      "score": 134,
       "views": 116,
       "downloads": 60,
       "wallpaperCount": 42,
@@ -261,7 +261,7 @@
     },
     {
       "tag": "背影",
-      "score": 101,
+      "score": 100,
       "views": 67,
       "downloads": 32,
       "wallpaperCount": 28,
@@ -324,38 +324,6 @@
       ]
     },
     {
-      "tag": "二次元",
-      "score": 83,
-      "views": 69,
-      "downloads": 36,
-      "wallpaperCount": 24,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/插画/二次元/银发蓝瞳男孩比耶蓝天背景.webp",
-          "cdnTag": "v1.1.4"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/插画/二次元/image_氛围感男头话题_热门头像话题_男..._13.webp",
-          "cdnTag": "v1.2.33"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/插画/二次元/红包祝福.webp",
-          "cdnTag": "v1.1.22"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/插画/二次元/水彩少女.webp",
-          "cdnTag": "v1.1.11"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/插画/二次元/紫衣少女.webp",
-          "cdnTag": "v1.1.29"
-        }
-      ]
-    },
-    {
       "tag": "少女",
       "score": 83,
       "views": 45,
@@ -388,8 +356,40 @@
       ]
     },
     {
+      "tag": "二次元",
+      "score": 82,
+      "views": 69,
+      "downloads": 36,
+      "wallpaperCount": 24,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/插画/二次元/银发蓝瞳男孩比耶蓝天背景.webp",
+          "cdnTag": "v1.1.4"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/插画/二次元/image_氛围感男头话题_热门头像话题_男..._13.webp",
+          "cdnTag": "v1.2.33"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/插画/二次元/红包祝福.webp",
+          "cdnTag": "v1.1.22"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/插画/二次元/水彩少女.webp",
+          "cdnTag": "v1.1.11"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/插画/二次元/紫衣少女.webp",
+          "cdnTag": "v1.1.29"
+        }
+      ]
+    },
+    {
       "tag": "水豚噜噜",
-      "score": 79,
+      "score": 78,
       "views": 75,
       "downloads": 30,
       "wallpaperCount": 17,
@@ -533,7 +533,7 @@
     },
     {
       "tag": "表情包",
-      "score": 62,
+      "score": 61,
       "views": 73,
       "downloads": 20,
       "wallpaperCount": 29,
@@ -853,7 +853,7 @@
     },
     {
       "tag": "银发蓝瞳男孩比耶蓝天背景",
-      "score": 32,
+      "score": 31,
       "views": 26,
       "downloads": 17,
       "wallpaperCount": 1,
