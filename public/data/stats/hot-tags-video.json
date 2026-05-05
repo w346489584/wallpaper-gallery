@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-05-04T19:05:08.168Z",
+  "generatedAt": "2026-05-05T18:54:17.866Z",
   "series": "video",
   "total": 25,
   "tags": [
     {
       "tag": "desktop",
-      "score": 146,
-      "views": 160,
-      "downloads": 6,
+      "score": 150,
+      "views": 163,
+      "downloads": 7,
       "wallpaperCount": 6,
       "series": [
         "video"
@@ -37,9 +37,9 @@
     },
     {
       "tag": "动漫",
-      "score": 74,
-      "views": 81,
-      "downloads": 3,
+      "score": 78,
+      "views": 84,
+      "downloads": 4,
       "wallpaperCount": 2,
       "series": [
         "video"
@@ -57,9 +57,9 @@
     },
     {
       "tag": "彩瞳少女特写",
-      "score": 39,
-      "views": 41,
-      "downloads": 2,
+      "score": 43,
+      "views": 44,
+      "downloads": 3,
       "wallpaperCount": 1,
       "series": [
         "video"
@@ -73,9 +73,9 @@
     },
     {
       "tag": "碎光倒影",
-      "score": 39,
-      "views": 41,
-      "downloads": 2,
+      "score": 43,
+      "views": 44,
+      "downloads": 3,
       "wallpaperCount": 1,
       "series": [
         "video"
