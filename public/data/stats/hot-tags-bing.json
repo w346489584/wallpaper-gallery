@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-08T18:53:05.746Z",
+  "generatedAt": "2026-05-09T18:32:16.896Z",
   "series": "bing",
   "total": 280,
   "tags": [
@@ -73,7 +73,7 @@
     },
     {
       "tag": "2025 11",
-      "score": 42,
+      "score": 41,
       "views": 43,
       "downloads": 23,
       "wallpaperCount": 16,
@@ -82,8 +82,8 @@
       ],
       "topWallpapers": [
         "bing-2025-11-24.jpg",
-        "bing-2025-11-23.jpg",
         "bing-2025-11-11.jpg",
+        "bing-2025-11-23.jpg",
         "bing-2025-11-12.jpg",
         "bing-2025-11-13.jpg"
       ]
