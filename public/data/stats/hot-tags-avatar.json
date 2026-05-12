@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-11T19:16:35.971Z",
+  "generatedAt": "2026-05-12T19:18:42.879Z",
   "series": "avatar",
   "total": 475,
   "tags": [
@@ -101,9 +101,9 @@
     },
     {
       "tag": "萌宠",
-      "score": 184,
-      "views": 161,
-      "downloads": 89,
+      "score": 188,
+      "views": 163,
+      "downloads": 91,
       "wallpaperCount": 33,
       "series": [
         "avatar"
@@ -165,9 +165,9 @@
     },
     {
       "tag": "猫咪",
-      "score": 149,
-      "views": 132,
-      "downloads": 73,
+      "score": 151,
+      "views": 133,
+      "downloads": 74,
       "wallpaperCount": 19,
       "series": [
         "avatar"
@@ -501,9 +501,9 @@
     },
     {
       "tag": "搞怪",
-      "score": 65,
-      "views": 79,
-      "downloads": 23,
+      "score": 67,
+      "views": 80,
+      "downloads": 24,
       "wallpaperCount": 32,
       "series": [
         "avatar"
@@ -533,9 +533,9 @@
     },
     {
       "tag": "表情包",
-      "score": 57,
-      "views": 74,
-      "downloads": 20,
+      "score": 59,
+      "views": 75,
+      "downloads": 21,
       "wallpaperCount": 30,
       "series": [
         "avatar"
@@ -788,6 +788,38 @@
       ]
     },
     {
+      "tag": "狗狗",
+      "score": 35,
+      "views": 29,
+      "downloads": 16,
+      "wallpaperCount": 13,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/微信图片_2026-01-23_165009_180.webp",
+          "cdnTag": "v1.1.53"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/655.webp",
+          "cdnTag": "v1.1.96"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/image_氛围感男头话题_热门头像话题_男..._6.webp",
+          "cdnTag": "v1.2.33"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/柯基_墨镜酷狗.webp",
+          "cdnTag": "v1.1.11"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/可爱柯基.webp",
+          "cdnTag": "v1.1.24"
+        }
+      ]
+    },
+    {
       "tag": "微笑",
       "score": 35,
       "views": 18,
@@ -848,38 +880,6 @@
         {
           "thumbnail": "/thumbnail/avatar/动漫/猫和老鼠/杰瑞戴熊帽子偷看.webp",
           "cdnTag": "v1.1.11"
-        }
-      ]
-    },
-    {
-      "tag": "狗狗",
-      "score": 33,
-      "views": 28,
-      "downloads": 15,
-      "wallpaperCount": 13,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/微信图片_2026-01-23_165009_180.webp",
-          "cdnTag": "v1.1.53"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/655.webp",
-          "cdnTag": "v1.1.96"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/image_氛围感男头话题_热门头像话题_男..._6.webp",
-          "cdnTag": "v1.2.33"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/柯基_墨镜酷狗.webp",
-          "cdnTag": "v1.1.11"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/萌宠/狗狗/654.webp",
-          "cdnTag": "v1.1.96"
         }
       ]
     },
