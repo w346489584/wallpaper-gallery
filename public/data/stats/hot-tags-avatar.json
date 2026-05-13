@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-12T19:18:42.879Z",
+  "generatedAt": "2026-05-13T19:19:07.264Z",
   "series": "avatar",
   "total": 475,
   "tags": [
@@ -101,7 +101,7 @@
     },
     {
       "tag": "萌宠",
-      "score": 188,
+      "score": 186,
       "views": 163,
       "downloads": 91,
       "wallpaperCount": 33,
@@ -165,7 +165,7 @@
     },
     {
       "tag": "猫咪",
-      "score": 151,
+      "score": 149,
       "views": 133,
       "downloads": 74,
       "wallpaperCount": 19,
@@ -229,7 +229,7 @@
     },
     {
       "tag": "IP形象",
-      "score": 135,
+      "score": 134,
       "views": 146,
       "downloads": 52,
       "wallpaperCount": 43,
@@ -246,16 +246,16 @@
           "cdnTag": "v1.2.8"
         },
         {
-          "thumbnail": "/thumbnail/avatar/IP形象/水豚噜噜/冷脸持刀气场全开.webp",
-          "cdnTag": "v1.1.4"
-        },
-        {
           "thumbnail": "/thumbnail/avatar/IP形象/水豚噜噜/深夜自习专注看书.webp",
           "cdnTag": "v1.1.4"
         },
         {
           "thumbnail": "/thumbnail/avatar/IP形象/水豚噜噜/比耶微笑.webp",
           "cdnTag": "v1.1.13"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/IP形象/水豚噜噜/牛马水豚.webp",
+          "cdnTag": "v1.1.24"
         }
       ]
     },
@@ -421,7 +421,7 @@
     },
     {
       "tag": "水豚噜噜",
-      "score": 75,
+      "score": 74,
       "views": 76,
       "downloads": 31,
       "wallpaperCount": 17,
@@ -434,10 +434,6 @@
           "cdnTag": "v1.2.8"
         },
         {
-          "thumbnail": "/thumbnail/avatar/IP形象/水豚噜噜/冷脸持刀气场全开.webp",
-          "cdnTag": "v1.1.4"
-        },
-        {
           "thumbnail": "/thumbnail/avatar/IP形象/水豚噜噜/深夜自习专注看书.webp",
           "cdnTag": "v1.1.4"
         },
@@ -448,6 +444,10 @@
         {
           "thumbnail": "/thumbnail/avatar/IP形象/水豚噜噜/牛马水豚.webp",
           "cdnTag": "v1.1.24"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/IP形象/水豚噜噜/举橙握刀嚣张登场.webp",
+          "cdnTag": "v1.1.4"
         }
       ]
     },
@@ -484,22 +484,6 @@
       ]
     },
     {
-      "tag": "戴耳机",
-      "score": 67,
-      "views": 56,
-      "downloads": 35,
-      "wallpaperCount": 1,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/萌宠/猫咪/戴耳机.webp",
-          "cdnTag": "v1.1.11"
-        }
-      ]
-    },
-    {
       "tag": "搞怪",
       "score": 67,
       "views": 80,
@@ -528,6 +512,22 @@
         {
           "thumbnail": "/thumbnail/avatar/萌宠/猫咪/微信图片_20260126155106_62_1186.webp",
           "cdnTag": "v1.1.53"
+        }
+      ]
+    },
+    {
+      "tag": "戴耳机",
+      "score": 66,
+      "views": 56,
+      "downloads": 35,
+      "wallpaperCount": 1,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/萌宠/猫咪/戴耳机.webp",
+          "cdnTag": "v1.1.11"
         }
       ]
     },
