@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-05-16T18:32:52.009Z",
+  "generatedAt": "2026-05-17T18:36:12.565Z",
   "series": "avatar",
   "total": 475,
   "tags": [
     {
       "tag": "人像",
-      "score": 549,
+      "score": 547,
       "views": 437,
       "downloads": 223,
       "wallpaperCount": 150,
@@ -69,7 +69,7 @@
     },
     {
       "tag": "氛围感",
-      "score": 258,
+      "score": 257,
       "views": 224,
       "downloads": 117,
       "wallpaperCount": 61,
@@ -101,7 +101,7 @@
     },
     {
       "tag": "萌宠",
-      "score": 185,
+      "score": 184,
       "views": 165,
       "downloads": 91,
       "wallpaperCount": 33,
@@ -165,7 +165,7 @@
     },
     {
       "tag": "猫咪",
-      "score": 148,
+      "score": 147,
       "views": 135,
       "downloads": 74,
       "wallpaperCount": 19,
@@ -261,7 +261,7 @@
     },
     {
       "tag": "背影",
-      "score": 94,
+      "score": 93,
       "views": 68,
       "downloads": 32,
       "wallpaperCount": 28,
@@ -282,12 +282,12 @@
           "cdnTag": "v1.2.34"
         },
         {
-          "thumbnail": "/thumbnail/avatar/人像/背影/image_向往自由的女生头像话题_氛围感头..._0.webp",
-          "cdnTag": "v1.2.34"
-        },
-        {
           "thumbnail": "/thumbnail/avatar/人像/背影/image_氛围感男头话题_热门头像话题_男..._3.webp",
           "cdnTag": "v1.2.33"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/人像/背影/image_向往自由的女生头像话题_氛围感头..._0.webp",
+          "cdnTag": "v1.2.34"
         }
       ]
     },
@@ -485,7 +485,7 @@
     },
     {
       "tag": "戴耳机",
-      "score": 66,
+      "score": 65,
       "views": 57,
       "downloads": 35,
       "wallpaperCount": 1,
@@ -1021,7 +1021,7 @@
     },
     {
       "tag": "柔光金发女生",
-      "score": 26,
+      "score": 25,
       "views": 30,
       "downloads": 11,
       "wallpaperCount": 1,
