@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-05-18T19:12:43.684Z",
+  "generatedAt": "2026-05-19T19:26:56.105Z",
   "series": "bing",
   "total": 274,
   "tags": [
     {
       "tag": "2026 01",
-      "score": 280,
+      "score": 278,
       "views": 373,
       "downloads": 100,
       "wallpaperCount": 31,
@@ -22,7 +22,7 @@
     },
     {
       "tag": "2026 03",
-      "score": 206,
+      "score": 205,
       "views": 170,
       "downloads": 63,
       "wallpaperCount": 25,
@@ -164,7 +164,7 @@
     },
     {
       "tag": "小村庄，大视野",
-      "score": 19,
+      "score": 18,
       "views": 23,
       "downloads": 7,
       "wallpaperCount": 1,
@@ -353,19 +353,6 @@
       ]
     },
     {
-      "tag": "威尼斯的灵魂",
-      "score": 12,
-      "views": 20,
-      "downloads": 3,
-      "wallpaperCount": 1,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2026-01-02.jpg"
-      ]
-    },
-    {
       "tag": "春天的形状",
       "score": 12,
       "views": 11,
@@ -376,23 +363,6 @@
       ],
       "topWallpapers": [
         "bing-2026-03-24.jpg"
-      ]
-    },
-    {
-      "tag": "2025 02",
-      "score": 11,
-      "views": 21,
-      "downloads": 19,
-      "wallpaperCount": 10,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2025-02-23.jpg",
-        "bing-2025-02-04.jpg",
-        "bing-2025-02-06.jpg",
-        "bing-2025-02-08.jpg",
-        "bing-2025-02-09.jpg"
       ]
     },
     {
@@ -413,6 +383,19 @@
       ]
     },
     {
+      "tag": "威尼斯的灵魂",
+      "score": 11,
+      "views": 20,
+      "downloads": 3,
+      "wallpaperCount": 1,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2026-01-02.jpg"
+      ]
+    },
+    {
       "tag": "春日绯梦",
       "score": 11,
       "views": 13,
@@ -423,6 +406,23 @@
       ],
       "topWallpapers": [
         "bing-2026-03-20.jpg"
+      ]
+    },
+    {
+      "tag": "2025 02",
+      "score": 10,
+      "views": 21,
+      "downloads": 19,
+      "wallpaperCount": 10,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2025-02-23.jpg",
+        "bing-2025-02-04.jpg",
+        "bing-2025-02-06.jpg",
+        "bing-2025-02-08.jpg",
+        "bing-2025-02-09.jpg"
       ]
     },
     {
@@ -486,19 +486,6 @@
       ]
     },
     {
-      "tag": "一个美好的春天",
-      "score": 9,
-      "views": 6,
-      "downloads": 3,
-      "wallpaperCount": 1,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2026-03-11.jpg"
-      ]
-    },
-    {
       "tag": "巴伐利亚的瑰宝",
       "score": 8,
       "views": 7,
@@ -522,6 +509,19 @@
       ],
       "topWallpapers": [
         "bing-2026-01-24.jpg"
+      ]
+    },
+    {
+      "tag": "一个美好的春天",
+      "score": 8,
+      "views": 6,
+      "downloads": 3,
+      "wallpaperCount": 1,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2026-03-11.jpg"
       ]
     },
     {
