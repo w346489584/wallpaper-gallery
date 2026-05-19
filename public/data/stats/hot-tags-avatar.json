@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-05-18T19:12:43.661Z",
+  "generatedAt": "2026-05-19T19:26:56.087Z",
   "series": "avatar",
   "total": 484,
   "tags": [
     {
       "tag": "人像",
-      "score": 551,
+      "score": 549,
       "views": 441,
       "downloads": 225,
       "wallpaperCount": 150,
@@ -30,14 +30,14 @@
           "cdnTag": "v1.1.11"
         },
         {
-          "thumbnail": "/thumbnail/avatar/人像/背影/车窗边夕阳下的少年背影.webp",
-          "cdnTag": "v1.1.4"
+          "thumbnail": "/thumbnail/avatar/人像/氛围感/逆光女生.webp",
+          "cdnTag": "v1.1.11"
         }
       ]
     },
     {
       "tag": "动漫",
-      "score": 325,
+      "score": 323,
       "views": 318,
       "downloads": 133,
       "wallpaperCount": 97,
@@ -69,7 +69,7 @@
     },
     {
       "tag": "氛围感",
-      "score": 257,
+      "score": 256,
       "views": 225,
       "downloads": 117,
       "wallpaperCount": 61,
@@ -101,7 +101,7 @@
     },
     {
       "tag": "萌宠",
-      "score": 190,
+      "score": 188,
       "views": 171,
       "downloads": 94,
       "wallpaperCount": 34,
@@ -165,7 +165,7 @@
     },
     {
       "tag": "插画",
-      "score": 155,
+      "score": 154,
       "views": 130,
       "downloads": 72,
       "wallpaperCount": 44,
@@ -197,7 +197,7 @@
     },
     {
       "tag": "猫咪",
-      "score": 153,
+      "score": 151,
       "views": 141,
       "downloads": 77,
       "wallpaperCount": 20,
@@ -261,7 +261,7 @@
     },
     {
       "tag": "背影",
-      "score": 97,
+      "score": 96,
       "views": 71,
       "downloads": 34,
       "wallpaperCount": 28,
@@ -293,7 +293,7 @@
     },
     {
       "tag": "二次元",
-      "score": 93,
+      "score": 92,
       "views": 75,
       "downloads": 42,
       "wallpaperCount": 24,
@@ -389,7 +389,7 @@
     },
     {
       "tag": "蜡笔小新",
-      "score": 76,
+      "score": 74,
       "views": 75,
       "downloads": 33,
       "wallpaperCount": 18,
@@ -453,7 +453,7 @@
     },
     {
       "tag": "卡通",
-      "score": 71,
+      "score": 70,
       "views": 70,
       "downloads": 20,
       "wallpaperCount": 16,
@@ -485,7 +485,7 @@
     },
     {
       "tag": "戴耳机",
-      "score": 67,
+      "score": 66,
       "views": 58,
       "downloads": 36,
       "wallpaperCount": 1,
@@ -496,38 +496,6 @@
         {
           "thumbnail": "/thumbnail/avatar/萌宠/猫咪/戴耳机.webp",
           "cdnTag": "v1.1.11"
-        }
-      ]
-    },
-    {
-      "tag": "搞怪",
-      "score": 65,
-      "views": 81,
-      "downloads": 24,
-      "wallpaperCount": 33,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/表情包/搞怪/线条兔_墨镜酷酷.webp",
-          "cdnTag": "v1.1.11"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/表情包/搞怪/戴墨镜帽子的Q版男孩.webp",
-          "cdnTag": "v1.1.4"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/蜡笔小新/微信图片_2026-03-27_135058_509.webp",
-          "cdnTag": "v1.2.57"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/表情包/搞怪/微信图片_20260310202259_665_4.webp",
-          "cdnTag": "v1.2.8"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/萌宠/猫咪/微信图片_20260126155106_62_1186.webp",
-          "cdnTag": "v1.1.53"
         }
       ]
     },
@@ -564,11 +532,11 @@
       ]
     },
     {
-      "tag": "表情包",
-      "score": 58,
-      "views": 76,
-      "downloads": 21,
-      "wallpaperCount": 31,
+      "tag": "搞怪",
+      "score": 64,
+      "views": 81,
+      "downloads": 24,
+      "wallpaperCount": 33,
       "series": [
         "avatar"
       ],
@@ -578,19 +546,19 @@
           "cdnTag": "v1.1.11"
         },
         {
-          "thumbnail": "/thumbnail/avatar/动漫/通用/image_高级头像话题_趣味头像话题_头像..._2.webp",
-          "cdnTag": "v1.2.33"
-        },
-        {
           "thumbnail": "/thumbnail/avatar/表情包/搞怪/戴墨镜帽子的Q版男孩.webp",
           "cdnTag": "v1.1.4"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/蜡笔小新/微信图片_2026-03-27_135058_509.webp",
+          "cdnTag": "v1.2.57"
         },
         {
           "thumbnail": "/thumbnail/avatar/表情包/搞怪/微信图片_20260310202259_665_4.webp",
           "cdnTag": "v1.2.8"
         },
         {
-          "thumbnail": "/thumbnail/avatar/表情包/搞怪/微信图片_20260126155109_64_1186.webp",
+          "thumbnail": "/thumbnail/avatar/萌宠/猫咪/微信图片_20260126155106_62_1186.webp",
           "cdnTag": "v1.1.53"
         }
       ]
@@ -624,6 +592,38 @@
         {
           "thumbnail": "/thumbnail/avatar/动漫/哆啦A梦/落叶奶茶惬意.webp",
           "cdnTag": "v1.1.11"
+        }
+      ]
+    },
+    {
+      "tag": "表情包",
+      "score": 57,
+      "views": 76,
+      "downloads": 21,
+      "wallpaperCount": 31,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/表情包/搞怪/线条兔_墨镜酷酷.webp",
+          "cdnTag": "v1.1.11"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/通用/image_高级头像话题_趣味头像话题_头像..._2.webp",
+          "cdnTag": "v1.2.33"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/表情包/搞怪/戴墨镜帽子的Q版男孩.webp",
+          "cdnTag": "v1.1.4"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/表情包/搞怪/微信图片_20260310202259_665_4.webp",
+          "cdnTag": "v1.2.8"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/表情包/搞怪/微信图片_20260126155109_64_1186.webp",
+          "cdnTag": "v1.1.53"
         }
       ]
     },
@@ -884,22 +884,6 @@
       ]
     },
     {
-      "tag": "银发蓝瞳男孩比耶蓝天背景",
-      "score": 32,
-      "views": 28,
-      "downloads": 18,
-      "wallpaperCount": 1,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/插画/二次元/银发蓝瞳男孩比耶蓝天背景.webp",
-          "cdnTag": "v1.1.4"
-        }
-      ]
-    },
-    {
       "tag": "海贼王",
       "score": 32,
       "views": 32,
@@ -932,8 +916,24 @@
       ]
     },
     {
+      "tag": "银发蓝瞳男孩比耶蓝天背景",
+      "score": 31,
+      "views": 28,
+      "downloads": 18,
+      "wallpaperCount": 1,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/插画/二次元/银发蓝瞳男孩比耶蓝天背景.webp",
+          "cdnTag": "v1.1.4"
+        }
+      ]
+    },
+    {
       "tag": "侧脸",
-      "score": 29,
+      "score": 28,
       "views": 20,
       "downloads": 11,
       "wallpaperCount": 7,
@@ -1056,22 +1056,6 @@
       ]
     },
     {
-      "tag": "戴耳机麦当劳外卖",
-      "score": 25,
-      "views": 34,
-      "downloads": 10,
-      "wallpaperCount": 1,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/蜡笔小新/戴耳机麦当劳外卖.webp",
-          "cdnTag": "v1.1.13"
-        }
-      ]
-    },
-    {
       "tag": "自拍",
       "score": 25,
       "views": 17,
@@ -1100,6 +1084,22 @@
         {
           "thumbnail": "/thumbnail/avatar/萌宠/猫咪/微信图片_2026-02-05_111907_016.webp",
           "cdnTag": "v1.1.74"
+        }
+      ]
+    },
+    {
+      "tag": "戴耳机麦当劳外卖",
+      "score": 24,
+      "views": 34,
+      "downloads": 10,
+      "wallpaperCount": 1,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/蜡笔小新/戴耳机麦当劳外卖.webp",
+          "cdnTag": "v1.1.13"
         }
       ]
     },
