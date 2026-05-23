@@ -1,14 +1,14 @@
 {
-  "generatedAt": "2026-05-22T19:13:52.923Z",
+  "generatedAt": "2026-05-23T18:35:01.188Z",
   "series": "desktop",
-  "total": 781,
+  "total": 780,
   "tags": [
     {
       "tag": "风景",
-      "score": 4446,
-      "views": 4056,
-      "downloads": 1745,
-      "wallpaperCount": 82,
+      "score": 4453,
+      "views": 4082,
+      "downloads": 1756,
+      "wallpaperCount": 83,
       "series": [
         "desktop"
       ],
@@ -26,20 +26,20 @@
           "cdnTag": "v1.1.4"
         },
         {
-          "thumbnail": "/thumbnail/desktop/风景/海滨/房屋-树木-海边.webp",
-          "cdnTag": "v1.2.24"
-        },
-        {
           "thumbnail": "/thumbnail/desktop/风景/雪山/雪山湖泊晚霞.webp",
           "cdnTag": "v1.1.4"
+        },
+        {
+          "thumbnail": "/thumbnail/desktop/风景/海滨/房屋-树木-海边.webp",
+          "cdnTag": "v1.2.24"
         }
       ]
     },
     {
       "tag": "人像",
-      "score": 3184,
-      "views": 3779,
-      "downloads": 934,
+      "score": 3182,
+      "views": 3799,
+      "downloads": 940,
       "wallpaperCount": 100,
       "series": [
         "desktop"
@@ -58,20 +58,20 @@
           "cdnTag": "v1.2.73"
         },
         {
-          "thumbnail": "/thumbnail/desktop/人像/魅力/2026040620060.webp",
+          "thumbnail": "/thumbnail/desktop/人像/魅力/20260408171457.webp",
           "cdnTag": "v1.2.59"
         },
         {
-          "thumbnail": "/thumbnail/desktop/人像/魅力/20260408171457.webp",
+          "thumbnail": "/thumbnail/desktop/人像/魅力/2026040620060.webp",
           "cdnTag": "v1.2.59"
         }
       ]
     },
     {
       "tag": "动漫",
-      "score": 2852,
-      "views": 3260,
-      "downloads": 1103,
+      "score": 2861,
+      "views": 3288,
+      "downloads": 1112,
       "wallpaperCount": 126,
       "series": [
         "desktop"
@@ -101,9 +101,9 @@
     },
     {
       "tag": "插画",
-      "score": 2740,
-      "views": 2896,
-      "downloads": 967,
+      "score": 2737,
+      "views": 2912,
+      "downloads": 973,
       "wallpaperCount": 125,
       "series": [
         "desktop"
@@ -133,9 +133,9 @@
     },
     {
       "tag": "魅力",
-      "score": 1688,
-      "views": 2018,
-      "downloads": 449,
+      "score": 1692,
+      "views": 2032,
+      "downloads": 454,
       "wallpaperCount": 31,
       "series": [
         "desktop"
@@ -154,19 +154,19 @@
           "cdnTag": "v1.2.73"
         },
         {
-          "thumbnail": "/thumbnail/desktop/人像/魅力/2026040620060.webp",
+          "thumbnail": "/thumbnail/desktop/人像/魅力/20260408171457.webp",
           "cdnTag": "v1.2.59"
         },
         {
-          "thumbnail": "/thumbnail/desktop/人像/魅力/20260408171457.webp",
+          "thumbnail": "/thumbnail/desktop/人像/魅力/2026040620060.webp",
           "cdnTag": "v1.2.59"
         }
       ]
     },
     {
       "tag": "二次元",
-      "score": 1323,
-      "views": 1522,
+      "score": 1321,
+      "views": 1534,
       "downloads": 467,
       "wallpaperCount": 69,
       "series": [
@@ -197,10 +197,10 @@
     },
     {
       "tag": "日落",
-      "score": 988,
-      "views": 792,
-      "downloads": 352,
-      "wallpaperCount": 21,
+      "score": 1003,
+      "views": 805,
+      "downloads": 359,
+      "wallpaperCount": 22,
       "series": [
         "desktop"
       ],
@@ -222,16 +222,16 @@
           "cdnTag": "v1.2.59"
         },
         {
-          "thumbnail": "/thumbnail/desktop/风景/日落/倒影-夕阳-宁静.webp",
-          "cdnTag": "v1.1.52"
+          "thumbnail": "/thumbnail/desktop/风景/日落/层峦-山脉-日落.webp",
+          "cdnTag": "v1.2.41"
         }
       ]
     },
     {
       "tag": "清新",
-      "score": 982,
-      "views": 1031,
-      "downloads": 279,
+      "score": 987,
+      "views": 1041,
+      "downloads": 282,
       "wallpaperCount": 31,
       "series": [
         "desktop"
@@ -261,8 +261,8 @@
     },
     {
       "tag": "雪山",
-      "score": 965,
-      "views": 946,
+      "score": 961,
+      "views": 948,
       "downloads": 417,
       "wallpaperCount": 16,
       "series": [
@@ -293,8 +293,8 @@
     },
     {
       "tag": "国风",
-      "score": 874,
-      "views": 904,
+      "score": 866,
+      "views": 906,
       "downloads": 266,
       "wallpaperCount": 43,
       "series": [
@@ -325,10 +325,10 @@
     },
     {
       "tag": "海滨",
-      "score": 752,
-      "views": 577,
-      "downloads": 259,
-      "wallpaperCount": 13,
+      "score": 760,
+      "views": 588,
+      "downloads": 264,
+      "wallpaperCount": 14,
       "series": [
         "desktop"
       ],
@@ -357,9 +357,9 @@
     },
     {
       "tag": "场景",
-      "score": 739,
-      "views": 798,
-      "downloads": 268,
+      "score": 740,
+      "views": 802,
+      "downloads": 270,
       "wallpaperCount": 29,
       "series": [
         "desktop"
@@ -390,8 +390,8 @@
     {
       "tag": "星空",
       "score": 710,
-      "views": 670,
-      "downloads": 286,
+      "views": 675,
+      "downloads": 287,
       "wallpaperCount": 12,
       "series": [
         "desktop"
@@ -421,9 +421,9 @@
     },
     {
       "tag": "文字",
-      "score": 661,
-      "views": 752,
-      "downloads": 254,
+      "score": 658,
+      "views": 755,
+      "downloads": 255,
       "wallpaperCount": 28,
       "series": [
         "desktop"
@@ -453,9 +453,9 @@
     },
     {
       "tag": "夜景",
-      "score": 643,
-      "views": 632,
-      "downloads": 252,
+      "score": 642,
+      "views": 636,
+      "downloads": 254,
       "wallpaperCount": 10,
       "series": [
         "desktop"
@@ -485,9 +485,9 @@
     },
     {
       "tag": "政治",
-      "score": 540,
-      "views": 549,
-      "downloads": 236,
+      "score": 541,
+      "views": 553,
+      "downloads": 237,
       "wallpaperCount": 10,
       "series": [
         "desktop"
@@ -517,9 +517,9 @@
     },
     {
       "tag": "湖泊",
-      "score": 520,
-      "views": 468,
-      "downloads": 188,
+      "score": 521,
+      "views": 470,
+      "downloads": 189,
       "wallpaperCount": 13,
       "series": [
         "desktop"
@@ -549,9 +549,9 @@
     },
     {
       "tag": "花卉",
-      "score": 508,
-      "views": 389,
-      "downloads": 162,
+      "score": 517,
+      "views": 396,
+      "downloads": 166,
       "wallpaperCount": 10,
       "series": [
         "desktop"
@@ -581,8 +581,8 @@
     },
     {
       "tag": "IP形象",
-      "score": 490,
-      "views": 456,
+      "score": 484,
+      "views": 459,
       "downloads": 192,
       "wallpaperCount": 21,
       "series": [
@@ -612,42 +612,10 @@
       ]
     },
     {
-      "tag": "天空",
-      "score": 469,
-      "views": 472,
-      "downloads": 226,
-      "wallpaperCount": 6,
-      "series": [
-        "desktop"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/desktop/风景/天空/云海-城堡-天空.webp",
-          "cdnTag": "v1.1.4"
-        },
-        {
-          "thumbnail": "/thumbnail/desktop/风景/天空/树影天空_夏日云海_宁静.webp",
-          "cdnTag": "v1.1.32"
-        },
-        {
-          "thumbnail": "/thumbnail/desktop/风景/天空/云端.webp",
-          "cdnTag": "v1.1.4"
-        },
-        {
-          "thumbnail": "/thumbnail/desktop/风景/天空/山-山景.webp",
-          "cdnTag": "v1.1.27"
-        },
-        {
-          "thumbnail": "/thumbnail/desktop/风景/天空/image_风景壁纸话题_每日更新壁纸话题_..._7.webp",
-          "cdnTag": "v1.2.35"
-        }
-      ]
-    },
-    {
       "tag": "蜡笔小新",
-      "score": 468,
-      "views": 493,
-      "downloads": 229,
+      "score": 473,
+      "views": 500,
+      "downloads": 233,
       "wallpaperCount": 15,
       "series": [
         "desktop"
@@ -676,10 +644,42 @@
       ]
     },
     {
+      "tag": "天空",
+      "score": 466,
+      "views": 472,
+      "downloads": 226,
+      "wallpaperCount": 6,
+      "series": [
+        "desktop"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/desktop/风景/天空/云海-城堡-天空.webp",
+          "cdnTag": "v1.1.4"
+        },
+        {
+          "thumbnail": "/thumbnail/desktop/风景/天空/树影天空_夏日云海_宁静.webp",
+          "cdnTag": "v1.1.32"
+        },
+        {
+          "thumbnail": "/thumbnail/desktop/风景/天空/山-山景.webp",
+          "cdnTag": "v1.1.27"
+        },
+        {
+          "thumbnail": "/thumbnail/desktop/风景/天空/云端.webp",
+          "cdnTag": "v1.1.4"
+        },
+        {
+          "thumbnail": "/thumbnail/desktop/风景/天空/image_风景壁纸话题_每日更新壁纸话题_..._7.webp",
+          "cdnTag": "v1.2.35"
+        }
+      ]
+    },
+    {
       "tag": "创意",
-      "score": 445,
-      "views": 476,
-      "downloads": 168,
+      "score": 449,
+      "views": 482,
+      "downloads": 171,
       "wallpaperCount": 19,
       "series": [
         "desktop"
@@ -709,9 +709,9 @@
     },
     {
       "tag": "卡通",
-      "score": 439,
-      "views": 363,
-      "downloads": 136,
+      "score": 436,
+      "views": 365,
+      "downloads": 137,
       "wallpaperCount": 19,
       "series": [
         "desktop"
@@ -741,10 +741,10 @@
     },
     {
       "tag": "少女",
-      "score": 403,
-      "views": 400,
-      "downloads": 116,
-      "wallpaperCount": 14,
+      "score": 418,
+      "views": 414,
+      "downloads": 121,
+      "wallpaperCount": 15,
       "series": [
         "desktop"
       ],
@@ -773,8 +773,8 @@
     },
     {
       "tag": "优雅",
-      "score": 378,
-      "views": 587,
+      "score": 376,
+      "views": 590,
       "downloads": 122,
       "wallpaperCount": 8,
       "series": [
@@ -805,7 +805,7 @@
     },
     {
       "tag": "小屋",
-      "score": 374,
+      "score": 372,
       "views": 284,
       "downloads": 114,
       "wallpaperCount": 3,
@@ -829,9 +829,9 @@
     },
     {
       "tag": "萌宠",
-      "score": 370,
-      "views": 290,
-      "downloads": 142,
+      "score": 371,
+      "views": 291,
+      "downloads": 143,
       "wallpaperCount": 11,
       "series": [
         "desktop"
@@ -861,9 +861,9 @@
     },
     {
       "tag": "氛围感",
-      "score": 370,
-      "views": 464,
-      "downloads": 135,
+      "score": 371,
+      "views": 466,
+      "downloads": 136,
       "wallpaperCount": 19,
       "series": [
         "desktop"
@@ -892,8 +892,28 @@
       ]
     },
     {
+      "tag": "丝袜",
+      "score": 330,
+      "views": 450,
+      "downloads": 77,
+      "wallpaperCount": 2,
+      "series": [
+        "desktop"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/desktop/人像/魅力/girl.webp",
+          "cdnTag": "v1.2.39"
+        },
+        {
+          "thumbnail": "/thumbnail/desktop/人像/魅力/丝袜-壁纸-室内.webp",
+          "cdnTag": "v1.1.9"
+        }
+      ]
+    },
+    {
       "tag": "云海",
-      "score": 329,
+      "score": 328,
       "views": 317,
       "downloads": 170,
       "wallpaperCount": 3,
@@ -916,30 +936,10 @@
       ]
     },
     {
-      "tag": "丝袜",
-      "score": 329,
-      "views": 447,
-      "downloads": 76,
-      "wallpaperCount": 2,
-      "series": [
-        "desktop"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/desktop/人像/魅力/girl.webp",
-          "cdnTag": "v1.2.39"
-        },
-        {
-          "thumbnail": "/thumbnail/desktop/人像/魅力/丝袜-壁纸-室内.webp",
-          "cdnTag": "v1.1.9"
-        }
-      ]
-    },
-    {
       "tag": "地球",
       "score": 308,
-      "views": 360,
-      "downloads": 148,
+      "views": 362,
+      "downloads": 149,
       "wallpaperCount": 1,
       "series": [
         "desktop"
@@ -954,8 +954,8 @@
     {
       "tag": "云层",
       "score": 308,
-      "views": 360,
-      "downloads": 148,
+      "views": 362,
+      "downloads": 149,
       "wallpaperCount": 1,
       "series": [
         "desktop"
@@ -969,9 +969,9 @@
     },
     {
       "tag": "猫咪",
-      "score": 275,
-      "views": 230,
-      "downloads": 112,
+      "score": 276,
+      "views": 231,
+      "downloads": 113,
       "wallpaperCount": 8,
       "series": [
         "desktop"
@@ -1001,8 +1001,8 @@
     },
     {
       "tag": "线条小狗",
-      "score": 270,
-      "views": 258,
+      "score": 268,
+      "views": 261,
       "downloads": 125,
       "wallpaperCount": 11,
       "series": [
@@ -1026,15 +1026,15 @@
           "cdnTag": "v1.1.9"
         },
         {
-          "thumbnail": "/thumbnail/desktop/IP形象/线条小狗/做自己的太阳-努力前行.webp",
-          "cdnTag": "v1.1.13"
+          "thumbnail": "/thumbnail/desktop/IP形象/线条小狗/西瓜泳池小狗夏日场景.webp",
+          "cdnTag": "v1.1.4"
         }
       ]
     },
     {
       "tag": "山脉",
-      "score": 265,
-      "views": 229,
+      "score": 263,
+      "views": 230,
       "downloads": 96,
       "wallpaperCount": 5,
       "series": [
@@ -1065,7 +1065,7 @@
     },
     {
       "tag": "自然",
-      "score": 261,
+      "score": 260,
       "views": 197,
       "downloads": 79,
       "wallpaperCount": 10,
@@ -1096,26 +1096,10 @@
       ]
     },
     {
-      "tag": "城堡",
-      "score": 256,
-      "views": 261,
-      "downloads": 136,
-      "wallpaperCount": 1,
-      "series": [
-        "desktop"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/desktop/风景/天空/云海-城堡-天空.webp",
-          "cdnTag": "v1.1.4"
-        }
-      ]
-    },
-    {
       "tag": "光影",
-      "score": 256,
-      "views": 300,
-      "downloads": 89,
+      "score": 257,
+      "views": 303,
+      "downloads": 90,
       "wallpaperCount": 6,
       "series": [
         "desktop"
@@ -1144,8 +1128,24 @@
       ]
     },
     {
+      "tag": "城堡",
+      "score": 255,
+      "views": 261,
+      "downloads": 136,
+      "wallpaperCount": 1,
+      "series": [
+        "desktop"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/desktop/风景/天空/云海-城堡-天空.webp",
+          "cdnTag": "v1.1.4"
+        }
+      ]
+    },
+    {
       "tag": "中国风",
-      "score": 242,
+      "score": 241,
       "views": 255,
       "downloads": 99,
       "wallpaperCount": 4,
@@ -1172,34 +1172,30 @@
       ]
     },
     {
-      "tag": "游戏",
-      "score": 225,
-      "views": 347,
-      "downloads": 82,
-      "wallpaperCount": 10,
+      "tag": "晨曦",
+      "score": 222,
+      "views": 210,
+      "downloads": 112,
+      "wallpaperCount": 4,
       "series": [
         "desktop"
       ],
       "topWallpapers": [
         {
-          "thumbnail": "/thumbnail/desktop/游戏/崩坏/星穹铁道_紫色花海.webp",
+          "thumbnail": "/thumbnail/desktop/风景/雪山/雪山之巅_晨曦.webp",
+          "cdnTag": "v1.1.9"
+        },
+        {
+          "thumbnail": "/thumbnail/desktop/风景/雪山/严寒-冬日-冰挂.webp",
+          "cdnTag": "v1.1.98"
+        },
+        {
+          "thumbnail": "/thumbnail/desktop/IP形象/水豚噜噜/山顶日出壁纸.webp",
           "cdnTag": "v1.1.4"
         },
         {
-          "thumbnail": "/thumbnail/desktop/游戏/艾尔登法环/蘑菇人对战.webp",
-          "cdnTag": "v1.1.4"
-        },
-        {
-          "thumbnail": "/thumbnail/desktop/游戏/通用/愤怒的小鸟.webp",
-          "cdnTag": "v1.1.4"
-        },
-        {
-          "thumbnail": "/thumbnail/desktop/游戏/原神/雷电将军.webp",
-          "cdnTag": "v1.1.4"
-        },
-        {
-          "thumbnail": "/thumbnail/desktop/游戏/英雄联盟/金克斯_爆爆.webp",
-          "cdnTag": "v1.1.4"
+          "thumbnail": "/thumbnail/desktop/风景/湖泊/倒影-壁纸-宁静.webp",
+          "cdnTag": "v1.1.52"
         }
       ]
     }
