@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-05-23T18:35:01.369Z",
+  "generatedAt": "2026-05-24T18:40:51.967Z",
   "series": "video",
   "total": 25,
   "tags": [
     {
       "tag": "desktop",
-      "score": 240,
-      "views": 276,
-      "downloads": 22,
+      "score": 242,
+      "views": 279,
+      "downloads": 23,
       "wallpaperCount": 6,
       "series": [
         "video"
@@ -37,8 +37,8 @@
     },
     {
       "tag": "动漫",
-      "score": 104,
-      "views": 124,
+      "score": 103,
+      "views": 125,
       "downloads": 8,
       "wallpaperCount": 2,
       "series": [
@@ -57,9 +57,9 @@
     },
     {
       "tag": "风景",
-      "score": 81,
-      "views": 83,
-      "downloads": 11,
+      "score": 84,
+      "views": 84,
+      "downloads": 12,
       "wallpaperCount": 2,
       "series": [
         "video"
@@ -76,41 +76,9 @@
       ]
     },
     {
-      "tag": "彩瞳少女特写",
-      "score": 55,
-      "views": 66,
-      "downloads": 4,
-      "wallpaperCount": 1,
-      "series": [
-        "video"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/video/desktop/动漫/彩瞳少女特写_碎光倒影.png",
-          "cdnTag": "v1.1.30"
-        }
-      ]
-    },
-    {
-      "tag": "碎光倒影",
-      "score": 55,
-      "views": 66,
-      "downloads": 4,
-      "wallpaperCount": 1,
-      "series": [
-        "video"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/video/desktop/动漫/彩瞳少女特写_碎光倒影.png",
-          "cdnTag": "v1.1.30"
-        }
-      ]
-    },
-    {
       "tag": "IP形象",
       "score": 55,
-      "views": 69,
+      "views": 70,
       "downloads": 3,
       "wallpaperCount": 2,
       "series": [
@@ -128,9 +96,41 @@
       ]
     },
     {
+      "tag": "彩瞳少女特写",
+      "score": 54,
+      "views": 66,
+      "downloads": 4,
+      "wallpaperCount": 1,
+      "series": [
+        "video"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/video/desktop/动漫/彩瞳少女特写_碎光倒影.png",
+          "cdnTag": "v1.1.30"
+        }
+      ]
+    },
+    {
+      "tag": "碎光倒影",
+      "score": 54,
+      "views": 66,
+      "downloads": 4,
+      "wallpaperCount": 1,
+      "series": [
+        "video"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/video/desktop/动漫/彩瞳少女特写_碎光倒影.png",
+          "cdnTag": "v1.1.30"
+        }
+      ]
+    },
+    {
       "tag": "晨光飞鸟",
       "score": 49,
-      "views": 58,
+      "views": 59,
       "downloads": 4,
       "wallpaperCount": 1,
       "series": [
@@ -146,7 +146,7 @@
     {
       "tag": "窗边白发少女",
       "score": 49,
-      "views": 58,
+      "views": 59,
       "downloads": 4,
       "wallpaperCount": 1,
       "series": [
@@ -161,9 +161,9 @@
     },
     {
       "tag": "晴空云朵笑脸",
-      "score": 44,
-      "views": 45,
-      "downloads": 6,
+      "score": 47,
+      "views": 46,
+      "downloads": 7,
       "wallpaperCount": 1,
       "series": [
         "video"
@@ -177,9 +177,9 @@
     },
     {
       "tag": "屋顶阳光",
-      "score": 44,
-      "views": 45,
-      "downloads": 6,
+      "score": 47,
+      "views": 46,
+      "downloads": 7,
       "wallpaperCount": 1,
       "series": [
         "video"
@@ -194,7 +194,7 @@
     {
       "tag": "聚光帅舞",
       "score": 39,
-      "views": 46,
+      "views": 47,
       "downloads": 3,
       "wallpaperCount": 1,
       "series": [
@@ -210,7 +210,7 @@
     {
       "tag": "水豚噜噜",
       "score": 39,
-      "views": 46,
+      "views": 47,
       "downloads": 3,
       "wallpaperCount": 1,
       "series": [
