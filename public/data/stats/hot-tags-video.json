@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-05-28T19:53:59.659Z",
+  "generatedAt": "2026-05-29T19:54:03.158Z",
   "series": "video",
   "total": 25,
   "tags": [
     {
       "tag": "desktop",
       "score": 261,
-      "views": 303,
+      "views": 304,
       "downloads": 28,
       "wallpaperCount": 6,
       "series": [
@@ -57,8 +57,8 @@
     },
     {
       "tag": "风景",
-      "score": 90,
-      "views": 92,
+      "score": 91,
+      "views": 93,
       "downloads": 14,
       "wallpaperCount": 2,
       "series": [
@@ -77,7 +77,7 @@
     },
     {
       "tag": "IP形象",
-      "score": 64,
+      "score": 63,
       "views": 79,
       "downloads": 5,
       "wallpaperCount": 2,
@@ -193,7 +193,7 @@
     },
     {
       "tag": "聚光帅舞",
-      "score": 45,
+      "score": 44,
       "views": 54,
       "downloads": 4,
       "wallpaperCount": 1,
@@ -209,7 +209,7 @@
     },
     {
       "tag": "水豚噜噜",
-      "score": 45,
+      "score": 44,
       "views": 54,
       "downloads": 4,
       "wallpaperCount": 1,
@@ -225,8 +225,8 @@
     },
     {
       "tag": "雨滴玻璃",
-      "score": 38,
-      "views": 42,
+      "score": 39,
+      "views": 43,
       "downloads": 5,
       "wallpaperCount": 1,
       "series": [
@@ -241,8 +241,8 @@
     },
     {
       "tag": "紫色光影",
-      "score": 38,
-      "views": 42,
+      "score": 39,
+      "views": 43,
       "downloads": 5,
       "wallpaperCount": 1,
       "series": [
@@ -258,7 +258,7 @@
     {
       "tag": "国庆专属动态背景视频",
       "score": 33,
-      "views": 43,
+      "views": 44,
       "downloads": 0,
       "wallpaperCount": 1,
       "series": [
@@ -274,7 +274,7 @@
     {
       "tag": "节日",
       "score": 33,
-      "views": 43,
+      "views": 44,
       "downloads": 0,
       "wallpaperCount": 1,
       "series": [
@@ -290,7 +290,7 @@
     {
       "tag": "朋友圈背景",
       "score": 33,
-      "views": 43,
+      "views": 44,
       "downloads": 0,
       "wallpaperCount": 1,
       "series": [
@@ -306,7 +306,7 @@
     {
       "tag": "我在这里告白祖国",
       "score": 33,
-      "views": 43,
+      "views": 44,
       "downloads": 0,
       "wallpaperCount": 1,
       "series": [
@@ -322,7 +322,7 @@
     {
       "tag": "social cover",
       "score": 33,
-      "views": 43,
+      "views": 44,
       "downloads": 0,
       "wallpaperCount": 1,
       "series": [
@@ -338,7 +338,7 @@
     {
       "tag": "柴犬",
       "score": 21,
-      "views": 31,
+      "views": 32,
       "downloads": 0,
       "wallpaperCount": 1,
       "series": [
@@ -354,7 +354,7 @@
     {
       "tag": "萌宠",
       "score": 21,
-      "views": 31,
+      "views": 32,
       "downloads": 0,
       "wallpaperCount": 1,
       "series": [
@@ -370,7 +370,7 @@
     {
       "tag": "贴脸卖萌",
       "score": 21,
-      "views": 31,
+      "views": 32,
       "downloads": 0,
       "wallpaperCount": 1,
       "series": [
@@ -386,7 +386,7 @@
     {
       "tag": "mobile",
       "score": 21,
-      "views": 31,
+      "views": 32,
       "downloads": 0,
       "wallpaperCount": 1,
       "series": [
