@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-07T18:50:29.240Z",
+  "generatedAt": "2026-06-08T19:40:00.703Z",
   "series": "avatar",
   "total": 486,
   "tags": [
     {
       "tag": "人像",
-      "score": 509,
+      "score": 507,
       "views": 456,
       "downloads": 232,
       "wallpaperCount": 150,
@@ -37,7 +37,7 @@
     },
     {
       "tag": "动漫",
-      "score": 323,
+      "score": 321,
       "views": 336,
       "downloads": 141,
       "wallpaperCount": 99,
@@ -133,7 +133,7 @@
     },
     {
       "tag": "甜妹",
-      "score": 150,
+      "score": 149,
       "views": 112,
       "downloads": 63,
       "wallpaperCount": 52,
@@ -165,7 +165,7 @@
     },
     {
       "tag": "插画",
-      "score": 149,
+      "score": 148,
       "views": 139,
       "downloads": 77,
       "wallpaperCount": 45,
@@ -229,7 +229,7 @@
     },
     {
       "tag": "IP形象",
-      "score": 136,
+      "score": 132,
       "views": 157,
       "downloads": 58,
       "wallpaperCount": 44,
@@ -261,7 +261,7 @@
     },
     {
       "tag": "背影",
-      "score": 88,
+      "score": 87,
       "views": 75,
       "downloads": 35,
       "wallpaperCount": 28,
@@ -293,7 +293,7 @@
     },
     {
       "tag": "二次元",
-      "score": 85,
+      "score": 84,
       "views": 80,
       "downloads": 43,
       "wallpaperCount": 24,
@@ -357,7 +357,7 @@
     },
     {
       "tag": "水豚噜噜",
-      "score": 72,
+      "score": 71,
       "views": 82,
       "downloads": 33,
       "wallpaperCount": 17,
@@ -421,7 +421,7 @@
     },
     {
       "tag": "少女",
-      "score": 71,
+      "score": 70,
       "views": 53,
       "downloads": 28,
       "wallpaperCount": 23,
@@ -453,7 +453,7 @@
     },
     {
       "tag": "卡通",
-      "score": 71,
+      "score": 66,
       "views": 75,
       "downloads": 23,
       "wallpaperCount": 17,
@@ -516,8 +516,24 @@
       ]
     },
     {
+      "tag": "戴耳机",
+      "score": 61,
+      "views": 58,
+      "downloads": 36,
+      "wallpaperCount": 1,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/萌宠/猫咪/戴耳机.webp",
+          "cdnTag": "v1.1.11"
+        }
+      ]
+    },
+    {
       "tag": "搞怪",
-      "score": 62,
+      "score": 61,
       "views": 84,
       "downloads": 25,
       "wallpaperCount": 33,
@@ -548,24 +564,8 @@
       ]
     },
     {
-      "tag": "戴耳机",
-      "score": 61,
-      "views": 58,
-      "downloads": 36,
-      "wallpaperCount": 1,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/萌宠/猫咪/戴耳机.webp",
-          "cdnTag": "v1.1.11"
-        }
-      ]
-    },
-    {
       "tag": "哆啦A梦",
-      "score": 54,
+      "score": 53,
       "views": 61,
       "downloads": 25,
       "wallpaperCount": 11,
@@ -597,7 +597,7 @@
     },
     {
       "tag": "表情包",
-      "score": 54,
+      "score": 53,
       "views": 77,
       "downloads": 22,
       "wallpaperCount": 31,
@@ -629,7 +629,7 @@
     },
     {
       "tag": "可爱",
-      "score": 51,
+      "score": 49,
       "views": 46,
       "downloads": 18,
       "wallpaperCount": 14,
@@ -756,38 +756,6 @@
       ]
     },
     {
-      "tag": "猫和老鼠",
-      "score": 34,
-      "views": 37,
-      "downloads": 17,
-      "wallpaperCount": 10,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/猫和老鼠/汤姆捂脸.webp",
-          "cdnTag": "v1.1.26"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/猫和老鼠/微信图片_20260120161539_485_4.webp",
-          "cdnTag": "v1.1.42"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/猫和老鼠/微信图片_20260120161541_489_4.webp",
-          "cdnTag": "v1.1.42"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/猫和老鼠/杰瑞_愤怒办公_猫和老鼠.webp",
-          "cdnTag": "v1.1.11"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/猫和老鼠/杰瑞大笑.webp",
-          "cdnTag": "v1.1.26"
-        }
-      ]
-    },
-    {
       "tag": "卡通简笔画",
       "score": 34,
       "views": 45,
@@ -816,6 +784,38 @@
         {
           "thumbnail": "/thumbnail/avatar/人像/卡通简笔画/黄夹女孩捧福字.webp",
           "cdnTag": "v1.1.11"
+        }
+      ]
+    },
+    {
+      "tag": "猫和老鼠",
+      "score": 33,
+      "views": 37,
+      "downloads": 17,
+      "wallpaperCount": 10,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/猫和老鼠/汤姆捂脸.webp",
+          "cdnTag": "v1.1.26"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/猫和老鼠/微信图片_20260120161541_489_4.webp",
+          "cdnTag": "v1.1.42"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/猫和老鼠/微信图片_20260120161539_485_4.webp",
+          "cdnTag": "v1.1.42"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/猫和老鼠/杰瑞_愤怒办公_猫和老鼠.webp",
+          "cdnTag": "v1.1.11"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/猫和老鼠/杰瑞大笑.webp",
+          "cdnTag": "v1.1.26"
         }
       ]
     },
@@ -965,7 +965,7 @@
     },
     {
       "tag": "Q版",
-      "score": 28,
+      "score": 27,
       "views": 27,
       "downloads": 10,
       "wallpaperCount": 2,
@@ -1036,22 +1036,6 @@
         {
           "thumbnail": "/thumbnail/avatar/通用/微信图片_2026-01-23_165101_406.webp",
           "cdnTag": "v1.1.53"
-        }
-      ]
-    },
-    {
-      "tag": "蜜蜂",
-      "score": 24,
-      "views": 23,
-      "downloads": 8,
-      "wallpaperCount": 1,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/IP形象/通用/微信图片_20260310202255_660_4.webp",
-          "cdnTag": "v1.2.8"
         }
       ]
     },
@@ -1136,8 +1120,24 @@
       ]
     },
     {
+      "tag": "蜜蜂",
+      "score": 23,
+      "views": 23,
+      "downloads": 8,
+      "wallpaperCount": 1,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/IP形象/通用/微信图片_20260310202255_660_4.webp",
+          "cdnTag": "v1.2.8"
+        }
+      ]
+    },
+    {
       "tag": "小八",
-      "score": 22,
+      "score": 21,
       "views": 26,
       "downloads": 10,
       "wallpaperCount": 13,
