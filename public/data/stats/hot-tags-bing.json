@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-12T19:31:30.183Z",
+  "generatedAt": "2026-06-13T18:53:24.371Z",
   "series": "bing",
   "total": 266,
   "tags": [
     {
       "tag": "2026 01",
-      "score": 252,
+      "score": 250,
       "views": 375,
       "downloads": 102,
       "wallpaperCount": 31,
@@ -22,7 +22,7 @@
     },
     {
       "tag": "2026 03",
-      "score": 180,
+      "score": 178,
       "views": 170,
       "downloads": 63,
       "wallpaperCount": 25,
@@ -34,7 +34,7 @@
         "bing-2026-03-18.jpg",
         "bing-2026-03-01.jpg",
         "bing-2026-03-23.jpg",
-        "bing-2026-03-24.jpg"
+        "bing-2026-03-14.jpg"
       ]
     },
     {
@@ -73,7 +73,7 @@
     },
     {
       "tag": "2025 11",
-      "score": 36,
+      "score": 35,
       "views": 44,
       "downloads": 23,
       "wallpaperCount": 16,
@@ -177,7 +177,7 @@
     },
     {
       "tag": "2025 03",
-      "score": 16,
+      "score": 15,
       "views": 29,
       "downloads": 23,
       "wallpaperCount": 13,
@@ -289,7 +289,7 @@
     },
     {
       "tag": "每一步，都是传承",
-      "score": 13,
+      "score": 12,
       "views": 12,
       "downloads": 5,
       "wallpaperCount": 1,
@@ -311,19 +311,6 @@
       ],
       "topWallpapers": [
         "bing-2026-03-14.jpg"
-      ]
-    },
-    {
-      "tag": "春天的形状",
-      "score": 11,
-      "views": 11,
-      "downloads": 3,
-      "wallpaperCount": 1,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2026-03-24.jpg"
       ]
     },
     {
@@ -413,6 +400,19 @@
       ]
     },
     {
+      "tag": "春天的形状",
+      "score": 10,
+      "views": 11,
+      "downloads": 3,
+      "wallpaperCount": 1,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2026-03-24.jpg"
+      ]
+    },
+    {
       "tag": "春日绯梦",
       "score": 10,
       "views": 13,
@@ -473,19 +473,6 @@
       ]
     },
     {
-      "tag": "巴伐利亚的瑰宝",
-      "score": 8,
-      "views": 7,
-      "downloads": 4,
-      "wallpaperCount": 1,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2026-01-26.jpg"
-      ]
-    },
-    {
       "tag": "治愈、宁静且充满希望",
       "score": 8,
       "views": 5,
@@ -526,6 +513,19 @@
         "bing-2025-09-02.jpg",
         "bing-2025-09-14.jpg",
         "bing-2025-09-16.jpg"
+      ]
+    },
+    {
+      "tag": "巴伐利亚的瑰宝",
+      "score": 7,
+      "views": 7,
+      "downloads": 4,
+      "wallpaperCount": 1,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2026-01-26.jpg"
       ]
     },
     {
