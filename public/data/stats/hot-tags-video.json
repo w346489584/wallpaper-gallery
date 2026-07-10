@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-07-09T19:08:08.186Z",
+  "generatedAt": "2026-07-10T19:04:41.983Z",
   "series": "video",
   "total": 25,
   "tags": [
     {
       "tag": "desktop",
       "score": 377,
-      "views": 549,
+      "views": 550,
       "downloads": 63,
       "wallpaperCount": 6,
       "series": [
@@ -38,7 +38,7 @@
     {
       "tag": "动漫",
       "score": 139,
-      "views": 221,
+      "views": 222,
       "downloads": 17,
       "wallpaperCount": 2,
       "series": [
@@ -130,7 +130,7 @@
     {
       "tag": "彩瞳少女特写",
       "score": 83,
-      "views": 126,
+      "views": 127,
       "downloads": 12,
       "wallpaperCount": 1,
       "series": [
@@ -146,7 +146,7 @@
     {
       "tag": "碎光倒影",
       "score": 83,
-      "views": 126,
+      "views": 127,
       "downloads": 12,
       "wallpaperCount": 1,
       "series": [
@@ -369,7 +369,7 @@
     },
     {
       "tag": "柴犬",
-      "score": 21,
+      "score": 20,
       "views": 37,
       "downloads": 1,
       "wallpaperCount": 1,
@@ -385,7 +385,7 @@
     },
     {
       "tag": "萌宠",
-      "score": 21,
+      "score": 20,
       "views": 37,
       "downloads": 1,
       "wallpaperCount": 1,
@@ -401,7 +401,7 @@
     },
     {
       "tag": "贴脸卖萌",
-      "score": 21,
+      "score": 20,
       "views": 37,
       "downloads": 1,
       "wallpaperCount": 1,
@@ -417,7 +417,7 @@
     },
     {
       "tag": "mobile",
-      "score": 21,
+      "score": 20,
       "views": 37,
       "downloads": 1,
       "wallpaperCount": 1,
