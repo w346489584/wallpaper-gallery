@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-14T18:41:31.973Z",
+  "generatedAt": "2026-07-15T18:39:29.393Z",
   "series": "avatar",
   "total": 504,
   "tags": [
@@ -37,7 +37,7 @@
     },
     {
       "tag": "动漫",
-      "score": 354,
+      "score": 351,
       "views": 367,
       "downloads": 204,
       "wallpaperCount": 100,
@@ -54,11 +54,11 @@
           "cdnTag": "v1.1.42"
         },
         {
-          "thumbnail": "/thumbnail/avatar/动漫/哆啦A梦/办公电脑前皱眉.webp",
+          "thumbnail": "/thumbnail/avatar/动漫/蜡笔小新/戴耳机麦当劳外卖.webp",
           "cdnTag": "v1.1.13"
         },
         {
-          "thumbnail": "/thumbnail/avatar/动漫/蜡笔小新/戴耳机麦当劳外卖.webp",
+          "thumbnail": "/thumbnail/avatar/动漫/哆啦A梦/办公电脑前皱眉.webp",
           "cdnTag": "v1.1.13"
         },
         {
@@ -100,38 +100,6 @@
       ]
     },
     {
-      "tag": "插画",
-      "score": 175,
-      "views": 159,
-      "downloads": 116,
-      "wallpaperCount": 47,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/小王子/微信图片_20260120161545_493_4.webp",
-          "cdnTag": "v1.1.42"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/插画/二次元/银发蓝瞳男孩比耶蓝天背景.webp",
-          "cdnTag": "v1.1.4"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/插画/创意/微信图片_2026-04-11_145936_667.webp",
-          "cdnTag": "v1.2.57"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/插画/创意/登山少年眺望远方山景.webp",
-          "cdnTag": "v1.1.4"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/插画/二次元/640 (4).webp",
-          "cdnTag": "v1.2.57"
-        }
-      ]
-    },
-    {
       "tag": "萌宠",
       "score": 175,
       "views": 192,
@@ -160,6 +128,38 @@
         {
           "thumbnail": "/thumbnail/avatar/萌宠/狗狗/微信图片_2026-01-23_165009_180.webp",
           "cdnTag": "v1.1.53"
+        }
+      ]
+    },
+    {
+      "tag": "插画",
+      "score": 174,
+      "views": 159,
+      "downloads": 116,
+      "wallpaperCount": 47,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/小王子/微信图片_20260120161545_493_4.webp",
+          "cdnTag": "v1.1.42"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/插画/二次元/银发蓝瞳男孩比耶蓝天背景.webp",
+          "cdnTag": "v1.1.4"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/插画/创意/微信图片_2026-04-11_145936_667.webp",
+          "cdnTag": "v1.2.57"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/插画/创意/登山少年眺望远方山景.webp",
+          "cdnTag": "v1.1.4"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/插画/二次元/640 (4).webp",
+          "cdnTag": "v1.2.57"
         }
       ]
     },
@@ -357,7 +357,7 @@
     },
     {
       "tag": "少年",
-      "score": 71,
+      "score": 70,
       "views": 38,
       "downloads": 41,
       "wallpaperCount": 9,
@@ -517,7 +517,7 @@
     },
     {
       "tag": "清新",
-      "score": 61,
+      "score": 60,
       "views": 35,
       "downloads": 36,
       "wallpaperCount": 11,
@@ -549,7 +549,7 @@
     },
     {
       "tag": "治愈",
-      "score": 59,
+      "score": 58,
       "views": 26,
       "downloads": 44,
       "wallpaperCount": 4,
@@ -689,7 +689,7 @@
     },
     {
       "tag": "哆啦A梦",
-      "score": 50,
+      "score": 49,
       "views": 63,
       "downloads": 27,
       "wallpaperCount": 11,
@@ -721,7 +721,7 @@
     },
     {
       "tag": "玫瑰",
-      "score": 43,
+      "score": 42,
       "views": 24,
       "downloads": 35,
       "wallpaperCount": 6,
@@ -747,38 +747,6 @@
         },
         {
           "thumbnail": "/thumbnail/avatar/动漫/小王子/微信图片_20260120161546_494_4.webp",
-          "cdnTag": "v1.1.42"
-        }
-      ]
-    },
-    {
-      "tag": "小王子",
-      "score": 42,
-      "views": 19,
-      "downloads": 36,
-      "wallpaperCount": 5,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/小王子/微信图片_20260120161545_493_4.webp",
-          "cdnTag": "v1.1.42"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/小王子/微信图片_20260120161544_492_4.webp",
-          "cdnTag": "v1.1.42"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/小王子/微信图片_20260120161546_495_4.webp",
-          "cdnTag": "v1.1.42"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/小王子/微信图片_20260120161546_494_4.webp",
-          "cdnTag": "v1.1.42"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/小王子/微信图片_20260120161547_496_4.webp",
           "cdnTag": "v1.1.42"
         }
       ]
@@ -816,8 +784,40 @@
       ]
     },
     {
+      "tag": "小王子",
+      "score": 41,
+      "views": 19,
+      "downloads": 36,
+      "wallpaperCount": 5,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/小王子/微信图片_20260120161545_493_4.webp",
+          "cdnTag": "v1.1.42"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/小王子/微信图片_20260120161544_492_4.webp",
+          "cdnTag": "v1.1.42"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/小王子/微信图片_20260120161546_495_4.webp",
+          "cdnTag": "v1.1.42"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/小王子/微信图片_20260120161546_494_4.webp",
+          "cdnTag": "v1.1.42"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/小王子/微信图片_20260120161547_496_4.webp",
+          "cdnTag": "v1.1.42"
+        }
+      ]
+    },
+    {
       "tag": "饮品",
-      "score": 39,
+      "score": 38,
       "views": 10,
       "downloads": 25,
       "wallpaperCount": 1,
@@ -833,7 +833,7 @@
     },
     {
       "tag": "星空",
-      "score": 38,
+      "score": 37,
       "views": 14,
       "downloads": 31,
       "wallpaperCount": 3,
@@ -1172,18 +1172,18 @@
       ]
     },
     {
-      "tag": "办公电脑前皱眉",
+      "tag": "蜜蜂",
       "score": 23,
       "views": 25,
-      "downloads": 16,
+      "downloads": 10,
       "wallpaperCount": 1,
       "series": [
         "avatar"
       ],
       "topWallpapers": [
         {
-          "thumbnail": "/thumbnail/avatar/动漫/哆啦A梦/办公电脑前皱眉.webp",
-          "cdnTag": "v1.1.13"
+          "thumbnail": "/thumbnail/avatar/IP形象/通用/微信图片_20260310202255_660_4.webp",
+          "cdnTag": "v1.2.8"
         }
       ]
     }

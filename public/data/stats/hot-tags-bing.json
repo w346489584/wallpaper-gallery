@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-07-14T18:41:31.989Z",
+  "generatedAt": "2026-07-15T18:39:29.410Z",
   "series": "bing",
-  "total": 254,
+  "total": 253,
   "tags": [
     {
       "tag": "2026 01",
-      "score": 227,
-      "views": 378,
-      "downloads": 104,
+      "score": 228,
+      "views": 379,
+      "downloads": 105,
       "wallpaperCount": 31,
       "series": [
         "bing"
@@ -22,43 +22,43 @@
     },
     {
       "tag": "2026 03",
-      "score": 157,
-      "views": 177,
-      "downloads": 65,
+      "score": 166,
+      "views": 184,
+      "downloads": 69,
       "wallpaperCount": 25,
       "series": [
         "bing"
       ],
       "topWallpapers": [
         "bing-2026-03-02.jpg",
-        "bing-2026-03-18.jpg",
         "bing-2026-03-01.jpg",
+        "bing-2026-03-18.jpg",
         "bing-2026-03-14.jpg",
         "bing-2026-03-23.jpg"
       ]
     },
     {
       "tag": "2025 12",
-      "score": 75,
-      "views": 106,
-      "downloads": 49,
+      "score": 77,
+      "views": 108,
+      "downloads": 51,
       "wallpaperCount": 28,
       "series": [
         "bing"
       ],
       "topWallpapers": [
         "bing-2025-12-31.jpg",
+        "bing-2025-12-07.jpg",
         "bing-2025-12-01.jpg",
         "bing-2025-12-30.jpg",
-        "bing-2025-12-19.jpg",
-        "bing-2025-12-07.jpg"
+        "bing-2025-12-19.jpg"
       ]
     },
     {
       "tag": "2026 02",
-      "score": 56,
-      "views": 76,
-      "downloads": 26,
+      "score": 58,
+      "views": 78,
+      "downloads": 27,
       "wallpaperCount": 18,
       "series": [
         "bing"
@@ -68,7 +68,7 @@
         "bing-2026-02-06.jpg",
         "bing-2026-02-25.jpg",
         "bing-2026-02-08.jpg",
-        "bing-2026-02-28.jpg"
+        "bing-2026-02-26.jpg"
       ]
     },
     {
@@ -124,9 +124,9 @@
     },
     {
       "tag": "传奇故事前的篇章",
-      "score": 21,
-      "views": 35,
-      "downloads": 10,
+      "score": 22,
+      "views": 36,
+      "downloads": 11,
       "wallpaperCount": 1,
       "series": [
         "bing"
@@ -179,6 +179,19 @@
       ]
     },
     {
+      "tag": "漂浮的传承",
+      "score": 15,
+      "views": 16,
+      "downloads": 7,
+      "wallpaperCount": 1,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2026-03-02.jpg"
+      ]
+    },
+    {
       "tag": "当水划出界线",
       "score": 15,
       "views": 16,
@@ -223,19 +236,6 @@
       ]
     },
     {
-      "tag": "漂浮的传承",
-      "score": 13,
-      "views": 15,
-      "downloads": 6,
-      "wallpaperCount": 1,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2026-03-02.jpg"
-      ]
-    },
-    {
       "tag": "努克的慵懒时光",
       "score": 12,
       "views": 23,
@@ -262,6 +262,19 @@
       ]
     },
     {
+      "tag": "每一步，都是传承",
+      "score": 12,
+      "views": 14,
+      "downloads": 5,
+      "wallpaperCount": 1,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2026-03-01.jpg"
+      ]
+    },
+    {
       "tag": "城市花开",
       "score": 12,
       "views": 13,
@@ -285,19 +298,6 @@
       ],
       "topWallpapers": [
         "bing-2026-01-10.jpg"
-      ]
-    },
-    {
-      "tag": "每一步，都是传承",
-      "score": 11,
-      "views": 13,
-      "downloads": 5,
-      "wallpaperCount": 1,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2026-03-01.jpg"
       ]
     },
     {
@@ -358,6 +358,32 @@
       ],
       "topWallpapers": [
         "bing-2026-01-19.jpg"
+      ]
+    },
+    {
+      "tag": "治愈、宁静且充满希望",
+      "score": 9,
+      "views": 6,
+      "downloads": 5,
+      "wallpaperCount": 1,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2026-03-07.jpg"
+      ]
+    },
+    {
+      "tag": "古老岩石，现代灯光",
+      "score": 9,
+      "views": 11,
+      "downloads": 4,
+      "wallpaperCount": 1,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2026-03-05.jpg"
       ]
     },
     {
@@ -516,33 +542,7 @@
       ]
     },
     {
-      "tag": "治愈、宁静且充满希望",
-      "score": 7,
-      "views": 5,
-      "downloads": 4,
-      "wallpaperCount": 1,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2026-03-07.jpg"
-      ]
-    },
-    {
-      "tag": "古老岩石，现代灯光",
-      "score": 7,
-      "views": 9,
-      "downloads": 3,
-      "wallpaperCount": 1,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2026-03-05.jpg"
-      ]
-    },
-    {
-      "tag": "混凝土中铸造的波浪",
+      "tag": "一个美好的春天",
       "score": 7,
       "views": 7,
       "downloads": 3,
@@ -551,7 +551,7 @@
         "bing"
       ],
       "topWallpapers": [
-        "bing-2026-03-06.jpg"
+        "bing-2026-03-11.jpg"
       ]
     },
     {
