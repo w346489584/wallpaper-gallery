@@ -1302,6 +1302,13 @@
     "collects": 0
   },
   {
+    "image_id": "bing-2026-07-12.jpg",
+    "views": 3,
+    "downloads": 1,
+    "likes": 0,
+    "collects": 0
+  },
+  {
     "image_id": "微信图片_20260204205138_607_4.jpg",
     "views": 3,
     "downloads": 0,
@@ -2345,13 +2352,6 @@
     "collects": 0
   },
   {
-    "image_id": "bing-2026-07-12.jpg",
-    "views": 2,
-    "downloads": 1,
-    "likes": 0,
-    "collects": 0
-  },
-  {
     "image_id": "微信图片_20260120161635_519_4.jpg",
     "views": 2,
     "downloads": 0,
@@ -2374,6 +2374,27 @@
   },
   {
     "image_id": "bing-2026-07-10.jpg",
+    "views": 2,
+    "downloads": 0,
+    "likes": 0,
+    "collects": 0
+  },
+  {
+    "image_id": "bing-2026-07-13.jpg",
+    "views": 2,
+    "downloads": 0,
+    "likes": 0,
+    "collects": 0
+  },
+  {
+    "image_id": "bing-2026-07-15.jpg",
+    "views": 2,
+    "downloads": 0,
+    "likes": 0,
+    "collects": 0
+  },
+  {
+    "image_id": "bing-2026-07-16.jpg",
     "views": 2,
     "downloads": 0,
     "likes": 0,
@@ -2940,20 +2961,6 @@
     "collects": 0
   },
   {
-    "image_id": "bing-2024-03-02.jpg",
-    "views": 1,
-    "downloads": 1,
-    "likes": 0,
-    "collects": 0
-  },
-  {
-    "image_id": "bing-2024-03-03.jpg",
-    "views": 1,
-    "downloads": 1,
-    "likes": 0,
-    "collects": 0
-  },
-  {
     "image_id": "bing-2024-03-04.jpg",
     "views": 1,
     "downloads": 1,
@@ -3137,20 +3144,6 @@
   },
   {
     "image_id": "bing-2024-03-31.jpg",
-    "views": 1,
-    "downloads": 1,
-    "likes": 0,
-    "collects": 0
-  },
-  {
-    "image_id": "bing-2024-04-02.jpg",
-    "views": 1,
-    "downloads": 1,
-    "likes": 0,
-    "collects": 0
-  },
-  {
-    "image_id": "bing-2024-04-03.jpg",
     "views": 1,
     "downloads": 1,
     "likes": 0,
@@ -3451,6 +3444,13 @@
     "collects": 0
   },
   {
+    "image_id": "bing-2026-07-18.jpg",
+    "views": 1,
+    "downloads": 1,
+    "likes": 0,
+    "collects": 0
+  },
+  {
     "image_id": "微信图片_20260204205145_616_4.jpg",
     "views": 1,
     "downloads": 0,
@@ -3472,7 +3472,7 @@
     "collects": 0
   },
   {
-    "image_id": "bing-2026-07-13.jpg",
+    "image_id": "bing-2026-07-14.jpg",
     "views": 1,
     "downloads": 0,
     "likes": 0,

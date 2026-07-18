@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-17T18:35:52.821Z",
+  "generatedAt": "2026-07-18T18:29:48.564Z",
   "series": "bing",
-  "total": 253,
+  "total": 251,
   "tags": [
     {
       "tag": "2026 01",
-      "score": 227,
+      "score": 226,
       "views": 379,
       "downloads": 105,
       "wallpaperCount": 31,
@@ -529,19 +529,6 @@
       ]
     },
     {
-      "tag": "巴伐利亚的瑰宝",
-      "score": 7,
-      "views": 7,
-      "downloads": 4,
-      "wallpaperCount": 1,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2026-01-26.jpg"
-      ]
-    },
-    {
       "tag": "一个美好的春天",
       "score": 7,
       "views": 7,
@@ -582,6 +569,19 @@
         "bing-2024-11-08.jpg",
         "bing-2024-11-10.jpg",
         "bing-2024-11-16.jpg"
+      ]
+    },
+    {
+      "tag": "雪中的故宫，中国北京",
+      "score": 6,
+      "views": 7,
+      "downloads": 5,
+      "wallpaperCount": 1,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2025-12-07.jpg"
       ]
     }
   ]
