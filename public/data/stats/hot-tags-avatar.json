@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-07-18T18:29:48.549Z",
+  "generatedAt": "2026-07-19T18:29:53.401Z",
   "series": "avatar",
   "total": 504,
   "tags": [
     {
       "tag": "人像",
-      "score": 428,
-      "views": 478,
+      "score": 429,
+      "views": 479,
       "downloads": 239,
       "wallpaperCount": 157,
       "series": [
@@ -69,8 +69,8 @@
     },
     {
       "tag": "氛围感",
-      "score": 205,
-      "views": 232,
+      "score": 206,
+      "views": 233,
       "downloads": 121,
       "wallpaperCount": 61,
       "series": [
@@ -100,8 +100,40 @@
       ]
     },
     {
+      "tag": "插画",
+      "score": 175,
+      "views": 162,
+      "downloads": 116,
+      "wallpaperCount": 47,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/动漫/小王子/微信图片_20260120161545_493_4.webp",
+          "cdnTag": "v1.1.42"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/插画/二次元/银发蓝瞳男孩比耶蓝天背景.webp",
+          "cdnTag": "v1.1.4"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/插画/创意/微信图片_2026-04-11_145936_667.webp",
+          "cdnTag": "v1.2.57"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/插画/创意/登山少年眺望远方山景.webp",
+          "cdnTag": "v1.1.4"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/插画/二次元/640 (4).webp",
+          "cdnTag": "v1.2.57"
+        }
+      ]
+    },
+    {
       "tag": "萌宠",
-      "score": 176,
+      "score": 175,
       "views": 194,
       "downloads": 113,
       "wallpaperCount": 35,
@@ -132,40 +164,8 @@
       ]
     },
     {
-      "tag": "插画",
-      "score": 174,
-      "views": 159,
-      "downloads": 116,
-      "wallpaperCount": 47,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/动漫/小王子/微信图片_20260120161545_493_4.webp",
-          "cdnTag": "v1.1.42"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/插画/二次元/银发蓝瞳男孩比耶蓝天背景.webp",
-          "cdnTag": "v1.1.4"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/插画/创意/微信图片_2026-04-11_145936_667.webp",
-          "cdnTag": "v1.2.57"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/插画/创意/登山少年眺望远方山景.webp",
-          "cdnTag": "v1.1.4"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/插画/二次元/640 (4).webp",
-          "cdnTag": "v1.2.57"
-        }
-      ]
-    },
-    {
       "tag": "猫咪",
-      "score": 142,
+      "score": 141,
       "views": 160,
       "downloads": 92,
       "wallpaperCount": 22,
@@ -294,7 +294,7 @@
     {
       "tag": "创意",
       "score": 74,
-      "views": 70,
+      "views": 71,
       "downloads": 45,
       "wallpaperCount": 20,
       "series": [
@@ -325,8 +325,8 @@
     },
     {
       "tag": "二次元",
-      "score": 72,
-      "views": 82,
+      "score": 73,
+      "views": 84,
       "downloads": 43,
       "wallpaperCount": 25,
       "series": [
@@ -350,8 +350,8 @@
           "cdnTag": "v1.1.22"
         },
         {
-          "thumbnail": "/thumbnail/avatar/插画/二次元/水彩少女.webp",
-          "cdnTag": "v1.1.11"
+          "thumbnail": "/thumbnail/avatar/插画/二次元/image_氛围感男头话题_热门头像话题_男..._12.webp",
+          "cdnTag": "v1.2.33"
         }
       ]
     },
@@ -485,8 +485,8 @@
     },
     {
       "tag": "清新",
-      "score": 60,
-      "views": 36,
+      "score": 61,
+      "views": 37,
       "downloads": 36,
       "wallpaperCount": 11,
       "series": [
@@ -502,12 +502,12 @@
           "cdnTag": "v1.1.42"
         },
         {
-          "thumbnail": "/thumbnail/avatar/人像/氛围感/微信图片_20260119095918_477_4.webp",
-          "cdnTag": "v1.1.42"
-        },
-        {
           "thumbnail": "/thumbnail/avatar/插画/二次元/image_氛围感男头话题_热门头像话题_男..._12.webp",
           "cdnTag": "v1.2.33"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/人像/氛围感/微信图片_20260119095918_477_4.webp",
+          "cdnTag": "v1.1.42"
         },
         {
           "thumbnail": "/thumbnail/avatar/人像/甜妹/656.webp",
@@ -984,6 +984,38 @@
       ]
     },
     {
+      "tag": "侧脸",
+      "score": 28,
+      "views": 23,
+      "downloads": 15,
+      "wallpaperCount": 7,
+      "series": [
+        "avatar"
+      ],
+      "topWallpapers": [
+        {
+          "thumbnail": "/thumbnail/avatar/人像/氛围感/659.webp",
+          "cdnTag": "v1.1.96"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/人像/背影/image_氛围感男头话题_热门头像话题_男..._4.webp",
+          "cdnTag": "v1.2.33"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/人像/氛围感/651.webp",
+          "cdnTag": "v1.1.96"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/人像/氛围感/660.webp",
+          "cdnTag": "v1.1.96"
+        },
+        {
+          "thumbnail": "/thumbnail/avatar/人像/背影/646.webp",
+          "cdnTag": "v1.1.96"
+        }
+      ]
+    },
+    {
       "tag": "卡通简笔画",
       "score": 28,
       "views": 46,
@@ -1018,7 +1050,7 @@
     {
       "tag": "银发蓝瞳男孩比耶蓝天背景",
       "score": 27,
-      "views": 30,
+      "views": 31,
       "downloads": 19,
       "wallpaperCount": 1,
       "series": [
@@ -1028,38 +1060,6 @@
         {
           "thumbnail": "/thumbnail/avatar/插画/二次元/银发蓝瞳男孩比耶蓝天背景.webp",
           "cdnTag": "v1.1.4"
-        }
-      ]
-    },
-    {
-      "tag": "侧脸",
-      "score": 27,
-      "views": 22,
-      "downloads": 15,
-      "wallpaperCount": 7,
-      "series": [
-        "avatar"
-      ],
-      "topWallpapers": [
-        {
-          "thumbnail": "/thumbnail/avatar/人像/氛围感/659.webp",
-          "cdnTag": "v1.1.96"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/人像/背影/image_氛围感男头话题_热门头像话题_男..._4.webp",
-          "cdnTag": "v1.2.33"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/人像/氛围感/651.webp",
-          "cdnTag": "v1.1.96"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/人像/背影/646.webp",
-          "cdnTag": "v1.1.96"
-        },
-        {
-          "thumbnail": "/thumbnail/avatar/人像/背影/653.webp",
-          "cdnTag": "v1.1.96"
         }
       ]
     },
