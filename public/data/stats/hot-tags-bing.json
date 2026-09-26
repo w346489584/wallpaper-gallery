@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-09-25T20:41:05.499Z",
+  "generatedAt": "2026-09-26T20:05:24.413Z",
   "series": "bing",
-  "total": 258,
+  "total": 257,
   "tags": [
     {
       "tag": "2026 01",
-      "score": 212,
+      "score": 211,
       "views": 420,
       "downloads": 134,
       "wallpaperCount": 31,
@@ -22,7 +22,7 @@
     },
     {
       "tag": "2026 03",
-      "score": 139,
+      "score": 138,
       "views": 200,
       "downloads": 78,
       "wallpaperCount": 25,
@@ -33,13 +33,13 @@
         "bing-2026-03-02.jpg",
         "bing-2026-03-18.jpg",
         "bing-2026-03-01.jpg",
-        "bing-2026-03-14.jpg",
-        "bing-2026-03-24.jpg"
+        "bing-2026-03-24.jpg",
+        "bing-2026-03-05.jpg"
       ]
     },
     {
       "tag": "2025 12",
-      "score": 71,
+      "score": 70,
       "views": 123,
       "downloads": 59,
       "wallpaperCount": 28,
@@ -56,7 +56,7 @@
     },
     {
       "tag": "2026 02",
-      "score": 53,
+      "score": 51,
       "views": 86,
       "downloads": 32,
       "wallpaperCount": 19,
@@ -65,10 +65,10 @@
       ],
       "topWallpapers": [
         "bing-2026-02-25.jpg",
-        "bing-2026-02-28.jpg",
         "bing-2026-02-01.jpg",
         "bing-2026-02-06.jpg",
-        "bing-2026-02-04.jpg"
+        "bing-2026-02-28.jpg",
+        "bing-2026-02-08.jpg"
       ]
     },
     {
@@ -270,23 +270,6 @@
       ]
     },
     {
-      "tag": "2025 09",
-      "score": 11,
-      "views": 14,
-      "downloads": 11,
-      "wallpaperCount": 7,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2025-09-01.jpg",
-        "bing-2025-09-24.jpg",
-        "bing-2025-09-25.jpg",
-        "bing-2025-09-28.jpg",
-        "bing-2025-09-02.jpg"
-      ]
-    },
-    {
       "tag": "纯粹的瑞士魔力",
       "score": 11,
       "views": 19,
@@ -347,6 +330,23 @@
       ]
     },
     {
+      "tag": "2025 09",
+      "score": 10,
+      "views": 14,
+      "downloads": 11,
+      "wallpaperCount": 7,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2025-09-24.jpg",
+        "bing-2025-09-25.jpg",
+        "bing-2025-09-28.jpg",
+        "bing-2025-09-01.jpg",
+        "bing-2025-09-02.jpg"
+      ]
+    },
+    {
       "tag": "时光在此处茁壮成长",
       "score": 10,
       "views": 18,
@@ -370,19 +370,6 @@
       ],
       "topWallpapers": [
         "bing-2026-01-01.jpg"
-      ]
-    },
-    {
-      "tag": "圆周率的古老启示",
-      "score": 9,
-      "views": 9,
-      "downloads": 6,
-      "wallpaperCount": 1,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2026-03-14.jpg"
       ]
     },
     {
@@ -442,6 +429,19 @@
       ]
     },
     {
+      "tag": "圆周率的古老启示",
+      "score": 8,
+      "views": 9,
+      "downloads": 6,
+      "wallpaperCount": 1,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2026-03-14.jpg"
+      ]
+    },
+    {
       "tag": "治愈、宁静且充满希望",
       "score": 8,
       "views": 7,
@@ -452,19 +452,6 @@
       ],
       "topWallpapers": [
         "bing-2026-03-07.jpg"
-      ]
-    },
-    {
-      "tag": "从抗拒到绽放",
-      "score": 8,
-      "views": 14,
-      "downloads": 5,
-      "wallpaperCount": 1,
-      "series": [
-        "bing"
-      ],
-      "topWallpapers": [
-        "bing-2026-01-11.jpg"
       ]
     },
     {
@@ -530,6 +517,19 @@
       ],
       "topWallpapers": [
         "bing-2026-01-26.jpg"
+      ]
+    },
+    {
+      "tag": "从抗拒到绽放",
+      "score": 7,
+      "views": 14,
+      "downloads": 5,
+      "wallpaperCount": 1,
+      "series": [
+        "bing"
+      ],
+      "topWallpapers": [
+        "bing-2026-01-11.jpg"
       ]
     },
     {
