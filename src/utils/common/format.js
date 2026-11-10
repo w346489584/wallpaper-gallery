@@ -4,14 +4,8 @@
 
 import { CDN_VERSION, RESOLUTION_THRESHOLDS, SERIES_CONFIG } from '@/utils/config/constants'
 import { resolveWallpaperSeries } from '@/utils/wallpaper/identity'
-
-// URL 构建器（运行时动态拼接，防止静态分析提取完整 URL）
-const _urlParts = {
-  p: 'https://',
-  h: 'cdn.jsdelivr.net',
-  g: '/gh/IT-NuanxinPro',
-  r: `/nuanXinProPic@${CDN_VERSION}`,
-}
+import { buildImageDeliveryUrl, resolveDirectImageUrl } from '@/utils/wallpaper/imageDelivery'
+import { fetchWallpaperImage } from '@/utils/wallpaper/imageFetch'
 
 const IMAGE_EXTENSION_PATTERN = /\.(?:jpg|jpeg|png|gif|bmp|webp|svg|tiff|tif|ico|heic|heif|mp4|webm|mov|m4v)$/i
 const VIDEO_EXTENSION_PATTERN = /\.(?:mp4|webm|mov|m4v)(?:[?#].*)?$/i
@@ -38,10 +32,7 @@ const GENERIC_WALLPAPER_NAME_PATTERNS = [
  * buildImageUrl('/wallpaper/desktop/xxx.png', 'v1.0.5')
  */
 export function buildImageUrl(path, cdnTag) {
-  const { p, h, g } = _urlParts
-  const tag = cdnTag || CDN_VERSION
-  const r = `/nuanXinProPic@${tag}`
-  return `${p}${h}${g}${r}${path}`
+  return buildImageDeliveryUrl(path, cdnTag || CDN_VERSION)
 }
 
 /**
@@ -318,6 +309,10 @@ function getPakeInvoke() {
 }
 
 function triggerBrowserBlobDownload(blob, filename) {
+  const mediaType = blob.type.split(';')[0].trim().toLowerCase()
+  if (!blob.size || (mediaType && !mediaType.startsWith('image/') && !mediaType.startsWith('video/') && mediaType !== 'application/octet-stream'))
+    throw new Error('下载响应不是有效的媒体文件')
+
   const blobUrl = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = blobUrl
@@ -337,8 +332,9 @@ function triggerBrowserBlobDownload(blob, filename) {
  * @param {string} url - 文件 URL
  * @param {string} filename - 保存的文件名
  */
-export async function downloadFile(url, filename) {
+export async function downloadFile(url, filename, options = {}) {
   try {
+    options.signal?.throwIfAborted()
     // 动态重建 URL（如果是 CDN 链接）
     let finalUrl = url
     if (url.includes('@main')) {
@@ -358,36 +354,28 @@ export async function downloadFile(url, filename) {
             language: navigator.language || 'zh-CN',
           },
         })
-        return
+        return { status: 'native-completed' }
       }
       catch (error) {
         console.warn('[downloadFile] Pake 原生下载失败，回退浏览器下载:', error)
       }
     }
 
-    const response = await fetch(finalUrl)
-
-    // 如果 CDN 返回 403 或 404，回退到 GitHub Raw CDN
-    if (!response.ok || response.status === 403 || response.status === 404) {
-      console.warn('[downloadFile] CDN 失败，回退到 GitHub Raw CDN:', response.status)
-      finalUrl = buildRawImageUrl(finalUrl)
-      const fallbackResponse = await fetch(finalUrl)
-
-      if (!fallbackResponse.ok) {
-        throw new Error(`GitHub Raw CDN 失败: ${fallbackResponse.status}`)
-      }
-
-      const blob = await fallbackResponse.blob()
-      triggerBrowserBlobDownload(blob, filename)
-    }
-    else {
-      const blob = await response.blob()
-      triggerBrowserBlobDownload(blob, filename)
-    }
+    const blob = await fetchWallpaperImage(finalUrl, { ...options, allowMedia: true })
+    options.signal?.throwIfAborted()
+    triggerBrowserBlobDownload(blob, filename)
+    return { status: 'browser-started' }
   }
-  catch {
+  catch (error) {
+    if (error?.name === 'AbortError' || options.signal?.aborted)
+      throw error
     // 降级方案：直接打开链接
-    window.open(url, '_blank')
+    const opened = window.open(url, '_blank')
+    if (opened) {
+      opened.opener = null
+      return { status: 'opened-fallback' }
+    }
+    throw error
   }
 }
 
@@ -397,15 +385,20 @@ export async function downloadFile(url, filename) {
  * @returns {string} GitHub Raw CDN URL
  */
 export function buildRawImageUrl(cdnUrl) {
+  const directUrl = resolveDirectImageUrl(cdnUrl)
   // 从 jsDelivr URL 提取路径
   // 示例: https://cdn.jsdelivr.net/gh/IT-NuanxinPro/nuanXinProPic@v1.1.14/wallpaper/...
-  const match = cdnUrl.match(/\/gh\/IT-NuanxinPro\/nuanXinProPic@([^/]+)(\/.*)/)
+  const match = directUrl?.match(/^https:\/\/cdn\.jsdelivr\.net\/gh\/IT-NuanxinPro\/nuanXinProPic@([^/]+)(\/.*)/)
   if (match) {
     const version = match[1]
     const path = match[2]
     return `https://raw.githubusercontent.com/IT-NuanxinPro/nuanXinProPic/${version}${path}`
   }
   return cdnUrl
+}
+
+export function buildSameSizeImageFallbackUrls(url) {
+  return [...new Set([url, resolveDirectImageUrl(url), buildRawImageUrl(url)].filter(Boolean))]
 }
 
 export function buildWallpaperImageFallbackUrls(wallpaper, options = {}) {
@@ -426,24 +419,21 @@ export function buildWallpaperImageFallbackUrls(wallpaper, options = {}) {
   )
   const preferOriginal = options.preferOriginal ?? (series === 'avatar' && extension === 'webp')
   if (options.preferThumbnail) {
-    // 列表先用缩略图；仅失败时回退预览图和原图，不提前下载大图。
+    // 同尺寸的入口和直连均失败后再用大图，避免入口故障时立即下载原图。
     return [...new Set([
       wallpaper.thumbnailUrl,
       wallpaper.previewUrl,
       wallpaper.url,
-    ].filter(Boolean).flatMap(url => [url, buildRawImageUrl(url)]))]
+    ].filter(Boolean).flatMap(buildSameSizeImageFallbackUrls))]
   }
   const primaryUrl = preferOriginal
     ? (wallpaper.url || wallpaper.thumbnailUrl || wallpaper.previewUrl)
     : (wallpaper.previewUrl || wallpaper.thumbnailUrl || wallpaper.url)
   const originalUrl = wallpaper.url || primaryUrl
-  const urls = [
-    primaryUrl,
-    buildRawImageUrl(primaryUrl),
-  ]
+  const urls = buildSameSizeImageFallbackUrls(primaryUrl)
 
   if (originalUrl && originalUrl !== primaryUrl) {
-    urls.push(originalUrl, buildRawImageUrl(originalUrl))
+    urls.push(...buildSameSizeImageFallbackUrls(originalUrl))
   }
 
   return [...new Set(urls.filter(Boolean))]

@@ -1,10 +1,11 @@
 <script setup>
-import { computed, onMounted, onUnmounted, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import LoadingSpinner from '@/components/common/feedback/LoadingSpinner.vue'
 import { useDevice } from '@/composables/useDevice'
 import { useWallpaperType } from '@/composables/useWallpaperType'
 import { usePopularityStore } from '@/stores/popularity'
+import { buildWallpaperAssetKey } from '@/utils/wallpaper/identity'
 import WallpaperCard from '../card/index.vue'
 import { PAGE_SIZE, useGridPagination } from './composables/useGridPagination'
 import GridEmptyState from './shared/GridEmptyState.vue'
@@ -38,9 +39,13 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  minimumDisplayCount: {
+    type: Number,
+    default: 20,
+  },
 })
 
-const emit = defineEmits(['select', 'resetFilters'])
+const emit = defineEmits(['select', 'resetFilters', 'displayCountChange'])
 
 const router = useRouter()
 const { currentSeries, currentSeriesConfig, availableSeriesOptions } = useWallpaperType()
@@ -62,13 +67,20 @@ function getViewCount(filename) {
 
 const wallpapersRef = computed(() => props.wallpapers)
 const {
+  displayCount,
   displayedItems,
-  handleScroll,
+  hasMoreData,
   isLoadingMore,
+  loadMore,
+  loadMoreSentinel,
   resetDisplayCount,
+  supportsIntersectionObserver,
 } = useGridPagination({
   wallpapers: wallpapersRef,
+  minimumDisplayCount: () => props.minimumDisplayCount,
 })
+
+watch(displayCount, count => emit('displayCountChange', count), { immediate: true, flush: 'post' })
 
 // 空状态类型判断
 const emptyStateType = computed(() => {
@@ -115,14 +127,6 @@ function handleResetFilters() {
   emit('resetFilters')
 }
 
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll, { passive: true })
-})
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
-})
-
 // 监听 wallpapers 变化（筛选/搜索/分类切换时）
 
 function hasSameLeadingItems(listA, listB, count = PAGE_SIZE) {
@@ -136,7 +140,7 @@ function hasSameLeadingItems(listA, listB, count = PAGE_SIZE) {
   }
 
   for (let i = 0; i < limit; i++) {
-    if (listA[i]?.id !== listB[i]?.id) {
+    if (buildWallpaperAssetKey(listA[i]) !== buildWallpaperAssetKey(listB[i])) {
       return false
     }
   }
@@ -158,8 +162,8 @@ function handleSelect(wallpaper) {
   emit('select', wallpaper)
 }
 
-// 骨架屏数量
-const skeletonCount = computed(() => isMobile.value ? 6 : 12)
+// 与首批展示数量一致，避免加载完成时列表整体高度突变。
+const skeletonCount = PAGE_SIZE
 </script>
 
 <template>
@@ -167,6 +171,8 @@ const skeletonCount = computed(() => isMobile.value ? 6 : 12)
     <GridLoadingState
       v-if="loading && wallpapers.length === 0"
       :aspect-type="aspectType"
+      :aspect-ratio="currentSeriesConfig?.aspectRatio || '16/10'"
+      :is-bing="currentSeries === 'bing'"
       :current-series-name="currentSeriesName"
       :is-mobile="isMobile"
       :skeleton-count="skeletonCount"
@@ -191,7 +197,7 @@ const skeletonCount = computed(() => isMobile.value ? 6 : 12)
       >
         <div
           v-for="(wallpaper, index) in displayedItems"
-          :key="wallpaper.id"
+          :key="buildWallpaperAssetKey(wallpaper)"
           class="wallpaper-grid-item"
         >
           <WallpaperCard
@@ -199,20 +205,23 @@ const skeletonCount = computed(() => isMobile.value ? 6 : 12)
             :index="index"
             :search-query="searchQuery"
             :aspect-ratio="currentSeriesConfig?.aspectRatio || '16/10'"
-            :popular-rank="getPopularRank(wallpaper.filename)"
-            :download-count="getDownloadCount(wallpaper.filename)"
-            :view-count="getViewCount(wallpaper.filename)"
+            :popular-rank="getPopularRank(wallpaper)"
+            :download-count="getDownloadCount(wallpaper)"
+            :view-count="getViewCount(wallpaper)"
             @click="handleSelect"
           />
         </div>
       </div>
 
       <!-- 加载中提示（滚动加载） -->
-      <div v-if="isLoadingMore" class="mobile-load-more">
-        <div class="loading-more">
+      <div v-if="hasMoreData" ref="loadMoreSentinel" class="mobile-load-more" :aria-busy="isLoadingMore">
+        <div v-if="isLoadingMore" class="loading-more" role="status">
           <LoadingSpinner size="sm" />
           <span>加载中...</span>
         </div>
+        <button v-else-if="!supportsIntersectionObserver" class="load-more-button" type="button" @click="loadMore">
+          加载更多
+        </button>
       </div>
     </template>
   </div>
@@ -228,8 +237,14 @@ const skeletonCount = computed(() => isMobile.value ? 6 : 12)
 // 移动端加载更多
 // ========================================
 .mobile-load-more {
+  min-height: 56px;
   padding: $spacing-lg 0;
   text-align: center;
+}
+
+.load-more-button {
+  color: var(--color-text-secondary);
+  cursor: pointer;
 }
 
 .loading-more {

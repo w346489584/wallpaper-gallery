@@ -4,7 +4,8 @@ import { debounce } from '@/utils/common/format'
 import { sortByDate, sortByDownloads, sortByName, sortByPopularity, sortBySize, sortByViews } from '@/utils/common/sorting'
 import { RESOLUTION_THRESHOLDS, STORAGE_KEYS, VIDEO_USAGE_SHORT_LABELS } from '@/utils/config/constants'
 import { getDefaultCategoryFilter, hasActiveSeriesFilters } from '@/utils/filter/defaults'
-import { filterByUploadPeriod } from '@/utils/filter/uploadPeriod'
+import { buildWallpaperAssetKey } from '@/utils/wallpaper/identity'
+import { matchesWallpaperQuery } from '@/utils/wallpaper/search'
 import { usePopularityStore } from './popularity'
 
 export const useFilterStore = defineStore('filter', () => {
@@ -118,43 +119,21 @@ export const useFilterStore = defineStore('filter', () => {
 
   function applyFilters(wallpapers, options = {}) {
     const { skipCategoryFilter = false } = options
-    let result = filterByUploadPeriod([...wallpapers], sortBy.value)
+    let result = [...wallpapers]
 
     if (exactSearchValue.value) {
-      result = result.filter(wallpaper => wallpaper.filename === exactSearchValue.value)
+      const exactValue = exactSearchValue.value
+      result = result.filter(wallpaper => /^(?:desktop|mobile|avatar|video|bing):/.test(exactValue)
+        ? buildWallpaperAssetKey(wallpaper) === exactValue
+        : wallpaper.filename === exactValue)
     }
     else if (debouncedQuery.value) {
-      const queryTerms = debouncedQuery.value.toLowerCase().split(/\s+/).filter(Boolean)
-
-      result = result.filter((wallpaper) => {
-        const searchableTexts = [
-          wallpaper.filename?.toLowerCase() || '',
-          wallpaper.category?.toLowerCase() || '',
-          wallpaper.subcategory?.toLowerCase() || '',
-          wallpaper.displayTitle?.toLowerCase() || '',
-          wallpaper.title?.toLowerCase() || '',
-          wallpaper.description?.toLowerCase() || '',
-          wallpaper.copyright?.toLowerCase() || '',
-          wallpaper.date?.toLowerCase() || '',
-        ]
-
-        if (wallpaper.tags && Array.isArray(wallpaper.tags)) {
-          searchableTexts.push(...wallpaper.tags.map(tag => tag.toLowerCase()))
-        }
-
-        if (wallpaper.keywords && Array.isArray(wallpaper.keywords)) {
-          searchableTexts.push(...wallpaper.keywords.map(keyword => keyword.toLowerCase()))
-        }
-
-        return queryTerms.every(term =>
-          searchableTexts.some(text => text.includes(term)),
-        )
-      })
+      result = result.filter(wallpaper => matchesWallpaperQuery(wallpaper, debouncedQuery.value))
     }
 
     if (formatFilter.value !== 'all') {
       result = result.filter(wallpaper =>
-        wallpaper.format.toLowerCase() === formatFilter.value.toLowerCase(),
+        (wallpaper.format || '').toLowerCase() === formatFilter.value.toLowerCase(),
       )
     }
 
@@ -192,13 +171,15 @@ export const useFilterStore = defineStore('filter', () => {
       case 'oldest':
         return sortByDate(wallpapers, 'asc')
       case 'popular':
+        return sortByPopularity(wallpapers, popularityStore.popularityMap, currentSeriesId.value)
       case 'weekly-hot':
+        return sortByPopularity(wallpapers, popularityStore.weeklyPopularityMap, currentSeriesId.value)
       case 'monthly-hot':
-        return sortByPopularity(wallpapers, popularityStore.popularityMap)
+        return sortByPopularity(wallpapers, popularityStore.monthlyPopularityMap, currentSeriesId.value)
       case 'downloads':
-        return sortByDownloads(wallpapers, popularityStore.popularityMap)
+        return sortByDownloads(wallpapers, popularityStore.popularityMap, currentSeriesId.value)
       case 'views':
-        return sortByViews(wallpapers, popularityStore.popularityMap)
+        return sortByViews(wallpapers, popularityStore.popularityMap, currentSeriesId.value)
       case 'largest':
         return sortBySize(wallpapers, 'desc')
       case 'smallest':

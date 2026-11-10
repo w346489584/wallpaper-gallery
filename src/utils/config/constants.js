@@ -6,7 +6,7 @@
 // - 本地开发：使用此默认值
 // - 线上构建：GitHub Actions 会自动替换为图床最新 tag
 // - jsdelivr 缓存策略：@main 分支有缓存，@tag 版本无缓存
-export const CDN_VERSION = 'v1.2.63'
+export const CDN_VERSION = 'v1.4.98'
 
 // 前端应用版本号（构建时由 vite 注入，用于缓存控制）
 // eslint-disable-next-line no-undef
@@ -148,7 +148,7 @@ export const SORT_OPTIONS = [
   { value: 'newest', label: '🕐 最新优先', icon: 'clock' },
   { value: 'popular', label: '🔥 最热门', icon: 'fire' },
   { value: 'downloads', label: '📥 下载量最高', icon: 'download' },
-  { value: 'views', label: '👁️ 浏览量最高', icon: 'eye' },
+  { value: 'views', label: '👁️ 预览量最高', icon: 'eye' },
   { value: 'weekly-hot', label: '📅 本周热门', icon: 'calendar' },
   { value: 'monthly-hot', label: '📆 本月热门', icon: 'calendar' },
   { value: 'oldest', label: '🕰️ 最早优先', icon: 'clock-reverse' },
