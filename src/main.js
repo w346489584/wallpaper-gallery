@@ -2,6 +2,8 @@ import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import { useTheme } from '@/composables/useTheme'
 import { useAuthStore } from '@/stores/auth'
+import { signalAppReady } from '@/utils/platform/appReady'
+import { prepareDetailStyles } from '@/utils/platform/detailStyles'
 import App from './App.vue'
 
 import router from './router'
@@ -59,7 +61,14 @@ app.use(pinia)
 useAuthStore(pinia).initialize().catch((error) => {
   console.warn('[main] 初始化认证状态失败:', error)
 })
-app.use(router)
-app.mount('#app')
-// 详情由 Vue 接管后移除服务端无脚本正文，避免重复可见。
-document.querySelector('[data-wallpaper-detail]')?.remove()
+prepareDetailStyles().then(() => {
+  app.use(router)
+  app.mount('#app')
+  document.documentElement.removeAttribute('data-static-page')
+  return signalAppReady(router)
+}).then(() => {
+  document.querySelector('[data-page-fallback]')?.remove()
+}).catch((error) => {
+  // 首屏脚本或样式失败时保留已经排版的服务端详情及可用链接。
+  console.warn('[main] 首屏接管失败:', error)
+})

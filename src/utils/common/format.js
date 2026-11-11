@@ -83,21 +83,7 @@ export function formatNumber(num) {
   return num.toString()
 }
 
-/**
- * 格式化文件大小
- * @param {number} bytes - 字节数
- * @returns {string} 格式化后的大小字符串
- */
-export function formatFileSize(bytes) {
-  if (bytes === 0)
-    return '0 B'
-
-  const units = ['B', 'KB', 'MB', 'GB']
-  const k = 1024
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-
-  return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${units[i]}`
-}
+export { formatFileSize } from './fileSize.js'
 
 /**
  * 格式化日期
@@ -118,8 +104,14 @@ export function formatDate(date) {
  * @returns {string} 相对时间字符串
  */
 export function formatRelativeTime(date) {
+  if (date === undefined || date === null || date === '')
+    return ''
   const now = new Date()
-  const d = new Date(date)
+  // 图床旧记录使用空格分隔时间，转成 Safari 也支持的 ISO 分隔形式。
+  const value = typeof date === 'string' ? date.replace(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})$/, '$1T$2') : date
+  const d = new Date(value)
+  if (!Number.isFinite(d.getTime()))
+    return ''
   const diff = now - d
 
   const seconds = Math.floor(diff / 1000)
