@@ -5,14 +5,12 @@ import AvatarMakerBanner from '@/components/avatar/AvatarMakerBanner.vue'
 import DiyAvatarBanner from '@/components/avatar/DiyAvatarBanner.vue'
 import { defineAsyncModal } from '@/components/common/feedback/defineAsyncModal'
 import BackToTop from '@/components/common/navigation/BackToTop.vue'
-import HomeModalHost from '@/components/home/HomeModalHost.vue'
 import FilterPanel from '@/components/wallpaper/filter/index.vue'
 import WallpaperGrid from '@/components/wallpaper/WallpaperGrid/index.vue'
 import { handleBrowseRouteLeave } from '@/composables/home/browseRouteGuard'
 import { useBrowseState, validateBrowseQuery } from '@/composables/home/useBrowseState'
 import { useHomeDataLoader } from '@/composables/home/useHomeDataLoader'
 import { useHomeSeriesSync } from '@/composables/home/useHomeSeriesSync'
-import { useWallpaperNavigator } from '@/composables/home/useWallpaperNavigator'
 import { useDevice } from '@/composables/useDevice'
 import { useAuthStore } from '@/stores/auth'
 import { useFilterStore } from '@/stores/filter'
@@ -25,6 +23,7 @@ import { SERIES_CONFIG } from '@/utils/config/constants'
 import { getDefaultCategoryFilter } from '@/utils/filter/defaults'
 import { canDisplayLatestSlice } from '@/utils/filter/firstScreen'
 import { rememberBrowseReturn } from '@/utils/wallpaper/browseReturn'
+import { notifyWallpaperBrowseRestored } from '@/utils/wallpaper/detailTransition'
 
 const route = useRoute()
 const router = useRouter()
@@ -46,7 +45,6 @@ const visibleWallpapers = computed(() => !isSeriesContentReady.value ? [] : curr
 const seriesCategoryDefinitions = computed(() => wallpaperStore.getSeriesCategories(currentSeries.value))
 const displayTotal = computed(() => isVideoSeries.value ? (wallpaperStore.isDataComplete && isSeriesContentReady.value ? visibleWallpapers.value.length : seriesCategoryDefinitions.value.find(category => (category.id || category.name) === 'desktop')?.count || visibleWallpapers.value.length) : wallpaperStore.displayTotal)
 
-const usePortraitModal = computed(() => ['mobile', 'avatar'].includes(currentSeries.value))
 const hideFormatFilter = computed(() => SERIES_CONFIG[currentSeries.value]?.hideFormatFilter === true)
 const categoryOptions = computed(() => {
   if (wallpaperStore.isDataComplete || !seriesCategoryDefinitions.value.length)
@@ -88,6 +86,33 @@ const filteredWallpapers = computed(() => waitingForCompleteResults.value
   : filterStore.getFilteredAndSorted(visibleWallpapers.value))
 const resultCount = computed(() => filteredWallpapers.value.length)
 const hasActiveFilters = computed(() => filterStore.hasActiveFilters(currentSeries.value))
+const recoveryActions = computed(() => {
+  const actions = []
+  if (filterStore.searchQuery || filterStore.exactSearchValue)
+    actions.push({ key: 'search', label: '清除关键词' })
+  if (filterStore.resolutionFilter !== 'all')
+    actions.push({ key: 'resolution', label: `移除 ${filterStore.resolutionFilter} 限制` })
+  if (filterStore.formatFilter !== 'all')
+    actions.push({ key: 'format', label: `移除 ${filterStore.formatFilter.toUpperCase()} 限制` })
+  if (filterStore.subcategoryFilter !== 'all')
+    actions.push({ key: 'subcategory', label: '移除子分类限制' })
+  if (filterStore.categoryFilter !== getDefaultCategoryFilter(currentSeries.value))
+    actions.push({ key: 'category', label: '恢复默认分类' })
+  return actions
+})
+
+function recoverFilter(key) {
+  if (key === 'search') {
+    handleClearSearch()
+  }
+  else if (key === 'category') {
+    filterStore.categoryFilter = getDefaultCategoryFilter(currentSeries.value)
+    filterStore.subcategoryFilter = 'all'
+  }
+  else if (['format', 'resolution', 'subcategory'].includes(key)) {
+    filterStore[`${key}Filter`] = 'all'
+  }
+}
 const statsNotice = computed(() => {
   if (popularityStore.currentSeries !== currentSeries.value || popularityStore.loading)
     return ''
@@ -123,6 +148,15 @@ const gridLoading = computed(() => loading.value
   || (waitingForCompleteResults.value && !wallpaperStore.backgroundError))
 const visibleError = computed(() => error.value
   || (waitingForCompleteResults.value ? wallpaperStore.backgroundError : null))
+
+function previewFilterResults(draft = {}) {
+  const category = draft.categoryFilter ?? filterStore.categoryFilter
+  const year = currentSeries.value === 'bing' && /^\d{4}-\d{2}$/.test(category) ? Number(category.slice(0, 4)) : null
+  const complete = isSeriesContentReady.value && (year === null ? wallpaperStore.isDataComplete : wallpaperStore.isBingYearLoaded(year))
+  if (!complete)
+    return { status: wallpaperStore.backgroundError || error.value ? 'error' : 'loading', count: null }
+  return { status: 'ready', count: filterStore.applyFilters(visibleWallpapers.value, { filters: draft }).length }
+}
 
 routeSyncReady.value = true
 
@@ -162,15 +196,6 @@ const navigationReady = computed(() => isSeriesContentReady.value
   && (filterStore.searchQuery === filterStore.debouncedQuery || Boolean(filterStore.exactSearchValue))
   && (!['popular', 'downloads', 'views', 'weekly-hot', 'monthly-hot'].includes(filterStore.sortBy) || !popularityStore.loading))
 const gridRef = ref(null)
-const navigator = useWallpaperNavigator(() => filteredWallpapers.value, { resultsReady: navigationReady })
-const {
-  close,
-  currentWallpaper,
-  handleNextWallpaper,
-  handlePrevWallpaper,
-  handleSelectWallpaper,
-  isOpen,
-} = navigator
 const { minimumDisplayCount, onDisplayCountChange, restoreFromRoute, savePosition, leave } = useBrowseState({
   route,
   router,
@@ -181,7 +206,7 @@ const { minimumDisplayCount, onDisplayCountChange, restoreFromRoute, savePositio
   categories: categoryOptions,
   categoriesReady: computed(() => isSeriesContentReady.value && wallpaperStore.isDataComplete),
   gridReady: computed(() => Boolean(gridRef.value)),
-  navigator,
+  onRestored: () => notifyWallpaperBrowseRestored(route.fullPath),
 })
 onBeforeRouteLeave((to) => {
   rememberBrowseReturn(route.fullPath)
@@ -223,7 +248,7 @@ function handleAvatarMakerClose() {
 <template>
   <div class="home-page">
     <div class="home-content">
-      <div :data-browse-ready="isSeriesContentReady && !gridLoading && !visibleError ? 'ready' : 'loading'">
+      <div data-wallpaper-results tabindex="-1" :data-browse-ready="isSeriesContentReady && !gridLoading && !visibleError ? 'ready' : 'loading'">
         <div v-if="currentSeries === 'avatar' && !isMobile" class="avatar-banners">
           <DiyAvatarBanner />
           <AvatarMakerBanner @click="handleAvatarMakerClick" />
@@ -239,6 +264,7 @@ function handleAvatarMakerClose() {
           :search-query="filterStore.searchQuery"
           :subcategory-options="subcategoryOptions"
           :result-count="resultCount"
+          :preview-results="previewFilterResults"
           :total-count="displayTotal"
           :loading="loading || !areSelectedResultsComplete"
           :hide-format-filter="hideFormatFilter"
@@ -274,12 +300,13 @@ function handleAvatarMakerClose() {
           :search-query="filterStore.searchQuery"
           :total-count="displayTotal"
           :has-filters="hasActiveFilters"
+          :recovery-actions="recoveryActions"
           :popularity-data="popularityStore.allTimeData"
           :minimum-display-count="minimumDisplayCount"
           @display-count-change="onDisplayCountChange"
-          @select="handleSelectWallpaper"
           @navigate="savePosition"
           @reset-filters="handleReset"
+          @recover-filter="recoverFilter"
         />
 
         <div
@@ -298,16 +325,6 @@ function handleAvatarMakerClose() {
         </div>
       </div>
     </div>
-
-    <HomeModalHost
-      v-if="currentWallpaper"
-      :wallpaper="currentWallpaper"
-      :is-open="isOpen"
-      :use-portrait-modal="usePortraitModal"
-      @close="close"
-      @prev="handlePrevWallpaper"
-      @next="handleNextWallpaper"
-    />
 
     <BackToTop />
 

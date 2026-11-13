@@ -1,4 +1,4 @@
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, toValue, watch } from 'vue'
+import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, toValue, watch } from 'vue'
 import { FORMAT_OPTIONS, RESOLUTION_OPTIONS, SORT_OPTIONS } from '@/utils/config/constants'
 import { getDefaultCategoryFilter } from '@/utils/filter/defaults'
 import { buildWallpaperAssetKey } from '@/utils/wallpaper/identity'
@@ -76,7 +76,7 @@ function compactQuery(state, series) {
 }
 
 // URL 保存筛选/身份，sessionStorage 只保存同一结果列表的分页与滚动位置。
-export function useBrowseState({ route, router, filterStore, currentSeries, results, resultsReady, categories, categoriesReady, gridReady, navigator }) {
+export function useBrowseState({ route, router, filterStore, currentSeries, results, resultsReady, categories, categoriesReady, gridReady, onRestored }) {
   const minimumDisplayCount = ref(20)
   const restoring = ref(true)
   let displayCount = 20
@@ -84,6 +84,7 @@ export function useBrowseState({ route, router, filterStore, currentSeries, resu
   let applying = false
   let started = false
   let disposed = false
+  let inactivePath = ''
   let version = 0
   const ownNavigations = new Set()
 
@@ -96,7 +97,6 @@ export function useBrowseState({ route, router, filterStore, currentSeries, resu
       state.exact = buildWallpaperAssetKey(state.exact, 'bing')
     return state
   })
-  const imageKey = computed(() => navigator.isOpen.value ? buildWallpaperAssetKey(navigator.currentWallpaper.value) : '')
   function matchesFilters(state) {
     return Object.keys(FILTER_FIELDS).every(key => filterState.value[key] === state[key])
   }
@@ -116,10 +116,10 @@ export function useBrowseState({ route, router, filterStore, currentSeries, resu
       return { count: 20, top: 0 }
     }
   }
-  function savePosition() {
-    if (!started || pending || applying || disposed)
+  function savePosition(leaving = false) {
+    if (!started || disposed || (leaving !== true && (pending || applying)))
       return
-    const state = validateBrowseQuery(route.query, options())
+    const state = { ...validateBrowseQuery(route.query, options()), image: '' }
     if (querySignature(compactQuery({ ...filterState.value, image: '' }, toValue(currentSeries))) !== querySignature(compactQuery({ ...state, image: '' }, toValue(currentSeries))))
       return
     try {
@@ -136,7 +136,9 @@ export function useBrowseState({ route, router, filterStore, currentSeries, resu
 
   function leave() {
     // 在路由切换前保存旧列表；卸载时 route 已可能指向详情页。
-    savePosition()
+    // 首批卡片已可点击时，后台完整数据可能仍在加载，也需保留当前实际位置。
+    savePosition(true)
+    inactivePath = route.fullPath
     disposed = true
     version += 1
     pending = null
@@ -155,12 +157,12 @@ export function useBrowseState({ route, router, filterStore, currentSeries, resu
       ownNavigations.delete(signature)
     }
   }
-  async function applyRoute() {
+  async function applyRoute(reuseList = false) {
     const generation = ++version
     applying = true
     restoring.value = true
-    const state = validateBrowseQuery(route.query, options())
-    pending = { state, position: readPosition(state), generation }
+    const state = { ...validateBrowseQuery(route.query, options()), image: '' }
+    pending = { state, position: readPosition(state), generation, reuseList: reuseList === true && !state.image }
     minimumDisplayCount.value = pending.position.count
     filterStore.clearExactSearch()
     Object.entries(FILTER_FIELDS).forEach(([key, field]) => {
@@ -176,39 +178,36 @@ export function useBrowseState({ route, router, filterStore, currentSeries, resu
   }
   async function restoreResults() {
     const request = pending
-    if (!request || applying || !matchesFilters(request.state) || !toValue(resultsReady) || !toValue(gridReady))
+    if (!request || applying || !matchesFilters(request.state) || (!request.reuseList && !toValue(resultsReady)) || !toValue(gridReady))
       return
     applying = true
-    const validated = validateBrowseQuery(route.query, options())
+    const validated = { ...validateBrowseQuery(route.query, options()), image: '' }
     if (querySignature(validated) !== querySignature(request.state)) {
       applying = false
       await applyRoute()
       return
     }
-    const rows = toValue(results) || []
-    const index = rows.findIndex(item => buildWallpaperAssetKey(item) === request.state.image)
-    minimumDisplayCount.value = Math.max(request.position.count, index + 1)
-    if (index >= 0)
-      navigator.handleSelectWallpaper(rows[index])
-    else
-      navigator.close()
+    minimumDisplayCount.value = request.position.count
     await nextTick()
     // 等列表补足并完成布局，再恢复位置，避免浏览器在短列表上截断滚动。
     await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
     if (disposed || request.generation !== version)
       return
-    if (!matchesFilters(request.state) || imageKey.value !== (index >= 0 ? request.state.image : '')) {
+    if (!matchesFilters(request.state)) {
       pending = null
       restoring.value = false
       applying = false
-      await writeQuery({ ...filterState.value, image: imageKey.value })
+      await writeQuery({ ...filterState.value, image: '' })
       return
     }
     window.scrollTo({ top: request.position.top, behavior: 'instant' })
     pending = null
     restoring.value = false
-    await writeQuery({ ...request.state, image: index >= 0 ? request.state.image : '' }, true)
+    await writeQuery({ ...request.state, image: '' }, true)
+    if (disposed || request.generation !== version)
+      return
     applying = false
+    onRestored?.()
   }
 
   watch(() => route.fullPath, () => {
@@ -220,11 +219,11 @@ export function useBrowseState({ route, router, filterStore, currentSeries, resu
     if (!disposed)
       void restoreResults()
   }, { flush: 'post' })
-  watch([filterState, imageKey], async () => {
+  watch(filterState, async () => {
     await nextTick()
     if (!started || applying || disposed)
       return
-    if (pending && matchesFilters(pending.state) && !imageKey.value)
+    if (pending && matchesFilters(pending.state))
       return
     if (pending || Object.keys(FILTER_FIELDS).some(key => filterState.value[key] !== validateBrowseQuery(route.query, options())[key]))
       minimumDisplayCount.value = 20
@@ -232,7 +231,7 @@ export function useBrowseState({ route, router, filterStore, currentSeries, resu
     restoring.value = false
     version += 1
     savePosition()
-    await writeQuery({ ...filterState.value, image: imageKey.value })
+    await writeQuery({ ...filterState.value, image: '' })
   }, { flush: 'post' })
 
   onMounted(() => {
@@ -240,6 +239,20 @@ export function useBrowseState({ route, router, filterStore, currentSeries, resu
     void applyRoute()
     window.addEventListener('scroll', savePosition, { passive: true })
     window.addEventListener('pagehide', savePosition)
+  })
+  onDeactivated(() => {
+    inactivePath = route.fullPath
+    disposed = true
+    version += 1
+    pending = null
+  })
+  onActivated(() => {
+    if (!disposed)
+      return
+    disposed = false
+    // 同一结果页已有完整的DOM和高度，返回时不等待后台目录再滚回原位置。
+    const reuseList = route.fullPath === inactivePath && matchesFilters(validateBrowseQuery(route.query, options()))
+    void applyRoute(reuseList)
   })
   onBeforeUnmount(() => {
     savePosition()

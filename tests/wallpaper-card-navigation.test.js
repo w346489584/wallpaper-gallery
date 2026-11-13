@@ -10,6 +10,9 @@ import * as displayTitle from '../src/utils/wallpaper/displayTitle.js'
 import * as mediaPresentation from '../src/utils/wallpaper/mediaPresentation.js'
 import * as share from '../src/utils/wallpaper/share.js'
 import { vCardReveal } from '../src/components/wallpaper/WallpaperGrid/composables/cardReveal.js'
+import * as detailService from '../src/services/wallpaperDetailService.js'
+import * as detailTransition from '../src/utils/wallpaper/detailTransition.js'
+import * as identity from '../src/utils/wallpaper/identity.js'
 
 function compileComponent(filename, dependencies) {
   const { descriptor } = parse(readFileSync(new URL(filename, import.meta.url), 'utf8'))
@@ -25,9 +28,13 @@ const media = compileComponent('../src/components/wallpaper/card/shared/Wallpape
 const info = compileComponent('../src/components/wallpaper/card/shared/WallpaperCardInfo.vue', { '@/utils/common/format': format })
 const card = compileComponent('../src/components/wallpaper/card/index.vue', {
   '@/composables/useDevice': { useDevice },
+  '@/router/wallpaperDetailRoute': { loadWallpaperDetailView: async () => ({ default: { render: () => null } }) },
+  '@/services/wallpaperDetailService': detailService,
   '@/utils/common/format': format,
   '@/utils/config/constants': constants,
   '@/utils/wallpaper/displayTitle': displayTitle,
+  '@/utils/wallpaper/detailTransition': detailTransition,
+  '@/utils/wallpaper/identity': identity,
   '@/utils/wallpaper/mediaPresentation': mediaPresentation,
   '@/utils/wallpaper/share': share,
   '../WallpaperGrid/composables/cardReveal': { vCardReveal },
@@ -59,13 +66,12 @@ async function mountCard(wallpaper, props = {}) {
   })
   const router = VueRouter.createRouter({ history: VueRouter.createMemoryHistory(), routes: [{ path: '/:pathMatch(.*)*', component: { render: () => null } }] })
   await router.push('/desktop?q=lake')
-  const preview = vi.fn()
   const navigate = vi.fn()
-  const app = renderer.createApp({ render: () => Vue.h(card, { wallpaper, onClick: preview, onNavigate: navigate, ...props }) })
+  const app = renderer.createApp({ render: () => Vue.h(card, { wallpaper, onNavigate: navigate, ...props }) })
   app.use(router)
   app.mount({ children: [] })
   apps.push(app)
-  return { elements, router, preview, navigate }
+  return { elements, router, navigate }
 }
 
 async function click(element, overrides = {}) {
@@ -79,7 +85,18 @@ async function click(element, overrides = {}) {
 const wallpaper = { filename: 'lake.jpg', path: '/wallpaper/desktop/lake.jpg', displayTitle: '湖光', previewUrl: '/images/v1.0.0/preview/desktop/lake.webp' }
 const detailPath = '/wallpaper/ZGVza3RvcDpwYXRoOi93YWxscGFwZXIvZGVza3RvcC9sYWtlLmpwZw'
 
-describe('卡片详情入口与快速预览', () => {
+describe('卡片仅保留详情入口', () => {
+  it('卡片携带稳定资源身份供返回定位，整张链接获得焦点时响应', async () => {
+    const { elements } = await mountCard(wallpaper, { series: 'desktop' })
+    const link = elements.find(element => element.tag === 'a')
+    expect(link.props['data-wallpaper-asset-key']).toBe(identity.buildWallpaperAssetKey(wallpaper, 'desktop'))
+    link.props.onFocus()
+    await Vue.nextTick()
+    expect(elements.find(element => element.props.class?.includes?.('wallpaper-card'))?.props.class).toContain('is-media-hovered')
+    link.props.onBlur()
+    await Vue.nextTick()
+    expect(elements.find(element => element.props.class?.includes?.('wallpaper-card'))?.props.class).not.toContain('is-media-hovered')
+  })
   it.each(['desktop', 'mobile', 'avatar', 'video'])('%s 卡片的标题与替代文本不残留文件后缀', async (series) => {
     const item = { ...wallpaper, _series: series, displayTitle: '山间__晨光.custom123', mediaType: series === 'video' ? 'video' : 'image' }
     const { elements } = await mountCard(item)
@@ -108,7 +125,7 @@ describe('卡片详情入口与快速预览', () => {
     finally { vi.useRealTimers() }
   })
   it('图像和标题包含真实详情链接，普通点击进入详情且不打开预览', async () => {
-    const { elements, router, preview, navigate } = await mountCard(wallpaper)
+    const { elements, router, navigate } = await mountCard(wallpaper)
     const link = elements.find(element => element.tag === 'a')
     expect(link?.props.href).toBe(detailPath)
     const image = elements.find(element => element.tag === 'img')
@@ -116,38 +133,35 @@ describe('卡片详情入口与快速预览', () => {
     expect(elements.some(element => element.props.class === 'card-info' && element.parent === link)).toBe(true)
     await click(link)
     expect(router.currentRoute.value.path).toBe(detailPath)
-    expect(preview).not.toHaveBeenCalled()
+    expect(detailService.readReadyWallpaperDetail(detailPath.split('/').at(-1))).toMatchObject({ displayTitle: '湖光', _series: 'desktop' })
     expect(navigate).toHaveBeenCalledOnce()
   })
 
   it.each([{ ctrlKey: true }, { metaKey: true }, { shiftKey: true }, { altKey: true }, { button: 1 }])('修饰键或非主按键保留浏览器默认行为 %j', async (modifiers) => {
-    const { elements, router, preview, navigate } = await mountCard(wallpaper)
+    const { elements, router, navigate } = await mountCard(wallpaper)
     const link = elements.find(element => element.tag === 'a')
     expect(link?.props.href).toBe(detailPath)
     const event = await click(link, modifiers)
     expect(event.defaultPrevented).toBe(false)
     expect(router.currentRoute.value.path).toBe('/desktop')
-    expect(preview).not.toHaveBeenCalled()
     expect(navigate).not.toHaveBeenCalled()
   })
 
-  it('预览按钮不嵌套在链接内，仍将原资源发给现有弹窗调用方', async () => {
-    const { elements, router, preview } = await mountCard(wallpaper)
-    const button = elements.find(element => element.tag === 'button')
-    expect(button?.props.type).toBe('button')
-    expect(button.parent.tag).not.toBe('a')
-    await click(button)
-    expect(preview).toHaveBeenCalledExactlyOnceWith(wallpaper)
-    expect(router.currentRoute.value.path).toBe('/desktop')
-    expect(elements.filter(element => element.props.role === 'button')).toHaveLength(0)
+  it.each(['desktop', 'mobile', 'avatar', 'video', 'bing'])('%s 卡片没有快速预览按钮，点击只有真实详情路由', async (series) => {
+    const item = series === 'bing'
+      ? { filename: 'bing-2026-11-12.jpg', _series: 'bing', isBing: true, date: '2026-11-12', urlbase: '/th?id=OHR.Lake' }
+      : { ...wallpaper, _series: series, path: `/wallpaper/${series}/lake.${series === 'video' ? 'mp4' : 'jpg'}`, mediaType: series === 'video' ? 'video' : 'image' }
+    const { elements, router } = await mountCard(item, { series })
+    expect(elements.filter(element => element.tag === 'button' || element.props.role === 'button')).toHaveLength(0)
+    const link = elements.find(element => element.tag === 'a')
+    expect(link?.props.href).toBe(share.buildWallpaperSharePath(item, series))
+    await click(link)
+    expect(router.currentRoute.value.path).toBe(link.props.href)
   })
 
-  it('无稳定资源身份时不伪造详情href，快速预览仍可使用', async () => {
-    const { elements, preview } = await mountCard({ filename: 'unknown.jpg', url: 'https://example.com/unknown.jpg' })
+  it('无稳定资源身份时不伪造详情href或保留退役预览入口', async () => {
+    const { elements } = await mountCard({ filename: 'unknown.jpg', url: 'https://example.com/unknown.jpg' })
     expect(elements.filter(element => element.tag === 'a')).toHaveLength(0)
-    const button = elements.find(element => element.tag === 'button')
-    expect(button).toBeDefined()
-    await click(button)
-    expect(preview).toHaveBeenCalledOnce()
+    expect(elements.filter(element => element.tag === 'button')).toHaveLength(0)
   })
 })

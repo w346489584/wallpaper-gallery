@@ -1,6 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { BROWSE_ROUTE_NAMES } from '@/composables/home/browseShell'
 import { canonicalizePagePath, getRouteSeo, SITE_SEO } from '@/utils/seo/routes'
+import { rememberBrowseReturn } from '@/utils/wallpaper/browseReturn'
+import { loadAccountView, loadLibraryView, loadPublicProfileView, preservesAccountScroll } from './accountRoutes'
+import { resolveLegacyPreviewRoute } from './legacyPreviewRoute'
+import { loadWallpaperDetailView } from './wallpaperDetailRoute'
 
 const SITE_URL = 'https://wallpaper.061129.xyz'
 const DEFAULT_TITLE = SITE_SEO['/'].title
@@ -14,7 +18,7 @@ const routes = [
   {
     path: '/people/:id',
     name: 'PublicProfile',
-    component: () => import('@/views/PublicProfile.vue'),
+    component: loadPublicProfileView,
     meta: { compactMain: true, title: '公开主页 - Wallpaper Gallery', description: '浏览公开收藏、喜欢及关注关系。' },
   },
   {
@@ -99,7 +103,7 @@ const routes = [
   {
     path: '/wallpaper/:token',
     name: 'WallpaperDetail',
-    component: () => import('@/views/WallpaperDetail.vue'),
+    component: loadWallpaperDetailView,
     meta: { compactMain: true, dynamicSeo: true },
   },
   // 关于页面
@@ -149,29 +153,23 @@ const routes = [
   {
     path: '/account',
     name: 'Account',
-    component: () => import('@/views/Account.vue'),
+    component: loadAccountView,
     meta: {
       compactMain: true,
       title: '账号与安全 - Wallpaper Gallery',
       description: '管理 Wallpaper Gallery 的第三方登录绑定、邮箱密码登录和账号资料同步状态。',
       canonicalPath: '/account',
-      loadingScene: true,
-      loadingText: '正在同步账号资料...',
-      loadingTitle: '个人中心加载中',
     },
   },
   {
     path: '/library',
     name: 'Library',
-    component: () => import('@/views/Library.vue'),
+    component: loadLibraryView,
     meta: {
       compactMain: true,
       title: '我的壁纸库 - Wallpaper Gallery',
       description: '查看 Wallpaper Gallery 账号下的收藏夹与我的喜欢入口。',
       canonicalPath: '/library',
-      loadingScene: true,
-      loadingText: '正在准备你的壁纸库...',
-      loadingTitle: '壁纸库加载中',
     },
   },
   // 404 重定向到首页
@@ -204,6 +202,8 @@ const router = createRouter({
     ...routes.filter(route => !BROWSE_ROUTE_NAMES.includes(route.name)),
   ],
   scrollBehavior(to, from, savedPosition) {
+    if (!savedPosition && preservesAccountScroll(to, from))
+      return false
     // 首页列表需先补足分页后恢复位置；同页参数变化也不应重置滚动。
     if (to.meta.browseShell && (from.meta.browseShell || ['Home', 'Desktop', 'Video', 'Bing', 'Mobile', 'Avatar'].includes(to.name))) {
       return false
@@ -211,6 +211,8 @@ const router = createRouter({
     if (savedPosition) {
       return savedPosition
     }
+    if (to.name === 'WallpaperDetail')
+      return { top: 0, behavior: 'instant' }
     return { top: 0 }
   },
 })
@@ -289,6 +291,14 @@ router.beforeEach((to, from, next) => {
   const canonicalPath = canonicalizePagePath(to.path)
   if (to.path !== canonicalPath) {
     next({ path: canonicalPath, query: to.query, hash: to.hash, replace: true })
+    return
+  }
+
+  const legacyPreview = resolveLegacyPreviewRoute(to)
+  if (legacyPreview) {
+    if (legacyPreview.returnTo)
+      rememberBrowseReturn(router.resolve(legacyPreview.returnTo).fullPath)
+    next(legacyPreview.location)
     return
   }
 
